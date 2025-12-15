@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
 import LoginPage from '../features/auth/components/LoginPage';
+import SettingsPage from '../features/auth/components/SettingsPage';
+import ProfilePage from '../features/forum/components/ProfilePage';
 import MainForum from '../features/forum/components/MainForum';
 import ChatMessenger from '../features/chat/components/ChatMessenger';
 import Notifications from '../features/notifications/Notifications';
@@ -14,7 +16,7 @@ function LoginWrapper() {
     return <LoginPage onLogin={login} />;
 }
 
-function ForumWrapper() {
+function ForumWrapper({ children }: { children?: React.ReactNode }) {
     const logout = useAuthStore((s) => s.logout);
     const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
     const [isChatOpen, setIsChatOpen] = useState(false);
@@ -43,7 +45,9 @@ function ForumWrapper() {
 
     return (
         <>
-            <MainForum onLogout={logout} onOpenNotifications={handleNotificationsOpen} />
+            <MainForum onLogout={logout} onOpenNotifications={handleNotificationsOpen}>
+                {children}
+            </MainForum>
 
             <ChatMessenger
                 isOpen={isChatOpen}
@@ -88,6 +92,8 @@ export default function AppRouter() {
         [
             { path: '/', element: <LoginWrapper /> },
             { path: '/forum', element: <ForumWrapper /> },
+            { path: '/settings', element: <ForumWrapper><SettingsPage /></ForumWrapper> },
+            { path: '/profile', element: <ForumWrapper><ProfilePage /></ForumWrapper> },
             { path: '*', element: <Navigate to="/" replace /> },
         ],
         {

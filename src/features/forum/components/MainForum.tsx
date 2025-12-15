@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import ForumFeed from './ForumFeed';
 import ChatMessenger from '../../chat/components/ChatMessenger';
@@ -17,9 +18,10 @@ import { Badge } from '../../../shared/components/ui/badge';
 interface MainForumProps {
   onLogout: () => void;
   onOpenNotifications?: () => void;
+  children?: React.ReactNode;
 }
 
-export default function MainForum({ onLogout, onOpenNotifications }: MainForumProps) {
+export default function MainForum({ onLogout, onOpenNotifications, children }: MainForumProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
@@ -80,13 +82,17 @@ export default function MainForum({ onLogout, onOpenNotifications }: MainForumPr
                 <div className="px-3 py-2 border-b border-gray-100">
                   <p className="text-sm">student@university.edu</p>
                 </div>
-                <DropdownMenuItem className="cursor-pointer rounded-lg">
-                  <User className="w-4 h-4 mr-2" />
-                  Trang cá nhân
+                <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
+                  <Link to="/profile" className="flex items-center">
+                    <User className="w-4 h-4 mr-2" />
+                    Trang cá nhân
+                  </Link>
                 </DropdownMenuItem>
-                <DropdownMenuItem className="cursor-pointer rounded-lg">
-                  <Settings className="w-4 h-4 mr-2" />
-                  Cài đặt
+                <DropdownMenuItem asChild className="cursor-pointer rounded-lg">
+                  <Link to="/settings" className="flex items-center">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Cài đặt
+                  </Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={onLogout} className="text-red-600 cursor-pointer rounded-lg">
@@ -105,7 +111,7 @@ export default function MainForum({ onLogout, onOpenNotifications }: MainForumPr
         <Sidebar />
 
         {/* Feed */}
-        <ForumFeed />
+        {children ?? <ForumFeed />}
       </div>
 
       {/* Chat Messenger */}
