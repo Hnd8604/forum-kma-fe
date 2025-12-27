@@ -1,34 +1,140 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '../../../shared/components/ui/button';
 import { Input } from '../../../shared/components/ui/input';
 import { Label } from '../../../shared/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../../shared/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../shared/components/ui/tabs';
 import { GraduationCap, Mail, Lock, User, Sparkles } from 'lucide-react';
+import { AuthService } from '../services/auth.service';
+import { useAuthStore } from '../../../store/useStore';
+import { ApiError } from '../types/auth.types';
+import ForgotPasswordDialog from './ForgotPasswordDialog';
 
 interface LoginPageProps {
   onLogin: () => void;
 }
 
 export default function LoginPage({ onLogin }: LoginPageProps) {
-  const [loginEmail, setLoginEmail] = useState('');
+  const { login: setAuthLogin } = useAuthStore();
+  
+  // Login state
+  const [loginUsername, setLoginUsername] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
-  const [registerName, setRegisterName] = useState('');
+  const [loginLoading, setLoginLoading] = useState(false);
+  const [loginError, setLoginError] = useState<string | null>(null);
+  const [rememberMe, setRememberMe] = useState(false);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
+  
+  // Register state
+  const [registerUsername, setRegisterUsername] = useState('');
   const [registerEmail, setRegisterEmail] = useState('');
   const [registerPassword, setRegisterPassword] = useState('');
   const [registerConfirmPassword, setRegisterConfirmPassword] = useState('');
+  const [registerLoading, setRegisterLoading] = useState(false);
+  const [registerError, setRegisterError] = useState<string | null>(null);
 
-  const handleLogin = (e: React.FormEvent) => {
+  // Load remembered username on mount
+  useEffect(() => {
+    try {
+      const rememberedUsername = localStorage.getItem('rememberedUsername');
+      if (rememberedUsername) {
+        setLoginUsername(rememberedUsername);
+        setRememberMe(true);
+      }
+    } catch (error) {
+      console.error('Failed to load remembered username:', error);
+    }
+  }, []);
+
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    onLogin();
+    setLoginError(null);
+    setLoginLoading(true);
+    
+    try {
+      const response = await AuthService.login({
+        username: loginUsername,
+        password: loginPassword,
+      });
+
+      // Convert AuthData to User for the store
+      const user = {
+        userId: response.userId,
+        username: response.username,
+        email: response.email,
+      };
+
+      // Update auth store with user data
+      setAuthLogin(user);
+      
+      // Save credentials if remember me is checked
+      if (rememberMe) {
+        try {
+          localStorage.setItem('rememberedUsername', loginUsername);
+        } catch (error) {
+          console.error('Failed to save username:', error);
+        }
+      } else {
+        // Clear remembered username if not checking remember me
+        try {
+          localStorage.removeItem('rememberedUsername');
+        } catch (error) {
+          console.error('Failed to clear username:', error);
+        }
+      }
+      
+      // Call the onLogin callback
+      onLogin();
+    } catch (error: any) {
+      const apiError = error as ApiError;
+      setLoginError(apiError.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
+    } finally {
+      setLoginLoading(false);
+    }
   };
 
-  const handleRegister = (e: React.FormEvent) => {
+  const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (registerPassword === registerConfirmPassword) {
+    setRegisterError(null);
+    
+    // Validate passwords match
+    if (registerPassword !== registerConfirmPassword) {
+      setRegisterError('Mật khẩu xác nhận không khớp!');
+      return;
+    }
+
+    // Validate password length
+    if (registerPassword.length < 6) {
+      setRegisterError('Mật khẩu phải có ít nhất 6 ký tự!');
+      return;
+    }
+
+    setRegisterLoading(true);
+    
+    try {
+      const response = await AuthService.register({
+        username: registerUsername,
+        email: registerEmail,
+        password: registerPassword,
+      });
+
+      // Convert AuthData to User for the store
+      const user = {
+        userId: response.userId,
+        username: response.username,
+        email: response.email,
+      };
+
+      // Update auth store with user data
+      setAuthLogin(user);
+      
+      // Call the onLogin callback
       onLogin();
-    } else {
-      alert('Mật khẩu không khớp!');
+    } catch (error: any) {
+      const apiError = error as ApiError;
+      setRegisterError(apiError.message || 'Đăng ký thất bại. Vui lòng thử lại.');
+    } finally {
+      setRegisterLoading(false);
     }
   };
 
@@ -84,15 +190,15 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               <form onSubmit={handleLogin}>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="login-email" className="text-gray-700">Email</Label>
+                    <Label htmlFor="login-username" className="text-gray-700">Tên đăng nhập</Label>
                     <div className="relative group">
-                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-red-500 transition-colors" />
+                      <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-red-500 transition-colors" />
                       <Input
-                        id="login-email"
-                        type="email"
-                        placeholder="student@university.edu"
-                        value={loginEmail}
-                        onChange={(e) => setLoginEmail(e.target.value)}
+                        id="login-username"
+                        type="text"
+                        placeholder="username"
+                        value={loginUsername}
+                        onChange={(e) => setLoginUsername(e.target.value)}
                         className="pl-11 h-12 rounded-xl border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all"
                         required
                       />
@@ -115,20 +221,33 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                   </div>
                   <div className="flex items-center justify-between">
                     <label className="flex items-center space-x-2 cursor-pointer group">
-                      <input type="checkbox" className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500" />
+                      <input 
+                        type="checkbox" 
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500" 
+                      />
                       <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Ghi nhớ đăng nhập</span>
                     </label>
-                    <a href="#" className="text-sm text-red-600 hover:text-red-700 hover:underline transition-colors">
+                    <button 
+                      type="button"
+                      onClick={() => setIsForgotPasswordOpen(true)}
+                      className="text-sm text-red-600 hover:text-red-700 hover:underline transition-colors"
+                    >
                       Quên mật khẩu?
-                    </a>
+                    </button>
                   </div>
+                  {loginError && (
+                    <p className="text-sm text-red-600">{loginError}</p>
+                  )}
                 </CardContent>
                 <CardFooter className="pt-2">
                   <Button 
                     type="submit" 
-                    className="w-full h-12 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all rounded-xl"
+                    disabled={loginLoading}
+                    className="w-full h-12 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Đăng nhập ngay
+                    {loginLoading ? 'Đang đăng nhập...' : 'Đăng nhập ngay'}
                   </Button>
                 </CardFooter>
               </form>
@@ -145,15 +264,15 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
               <form onSubmit={handleRegister}>
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
-                    <Label htmlFor="register-name" className="text-gray-700">Họ và tên</Label>
+                    <Label htmlFor="register-username" className="text-gray-700">Tên đăng nhập</Label>
                     <div className="relative group">
                       <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-red-500 transition-colors" />
                       <Input
-                        id="register-name"
+                        id="register-username"
                         type="text"
-                        placeholder="Nguyễn Văn A"
-                        value={registerName}
-                        onChange={(e) => setRegisterName(e.target.value)}
+                        placeholder="username"
+                        value={registerUsername}
+                        onChange={(e) => setRegisterUsername(e.target.value)}
                         className="pl-11 h-12 rounded-xl border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all"
                         required
                       />
@@ -204,13 +323,17 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
                       />
                     </div>
                   </div>
+                  {registerError && (
+                    <p className="text-sm text-red-600">{registerError}</p>
+                  )}
                 </CardContent>
                 <CardFooter className="pt-2">
                   <Button 
-                    type="submit" 
-                    className="w-full h-12 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all rounded-xl"
+                    type="submit"
+                    disabled={registerLoading}
+                    className="w-full h-12 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    Đăng ký ngay
+                    {registerLoading ? 'Đang đăng ký...' : 'Đăng ký ngay'}
                   </Button>
                 </CardFooter>
               </form>
@@ -255,6 +378,11 @@ export default function LoginPage({ onLogin }: LoginPageProps) {
           animation: fade-in 0.5s ease-out;
         }
       `}</style>
+
+      <ForgotPasswordDialog
+        isOpen={isForgotPasswordOpen}
+        onClose={() => setIsForgotPasswordOpen(false)}
+      />
     </div>
   );
 }

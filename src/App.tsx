@@ -1,15 +1,15 @@
 import { useState } from 'react';
 import LoginPage from './features/auth/components/LoginPage';
 import MainForum from './features/forum/components/MainForum';
-import { ChatBubble } from './features/chatbot';
-import ChatMessenger from './features/chat/components/ChatMessenger';
 import Notifications from './features/notifications/Notifications';
+import { AIChatButton } from './features/chatbot';
+import { UserChatButton } from './features/chat';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [isChatOpen, setIsChatOpen] = useState(false);
-  const [isChatbotOpen, setIsChatbotOpen] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+  const [isAIChatOpen, setIsAIChatOpen] = useState(false);
+  const [isUserChatOpen, setIsUserChatOpen] = useState(false);
 
   const handleLogin = () => {
     setIsLoggedIn(true);
@@ -19,22 +19,24 @@ export default function App() {
     setIsLoggedIn(false);
   };
 
-  const handleChatOpen = () => {
-    setIsChatOpen(true);
-    setIsChatbotOpen(false);
-    setIsNotificationsOpen(false);
-  };
-
-  const handleChatbotOpen = () => {
-    setIsChatbotOpen(true);
-    setIsChatOpen(false);
-    setIsNotificationsOpen(false);
-  };
-
   const handleNotificationsOpen = () => {
     setIsNotificationsOpen(true);
-    setIsChatOpen(false);
-    setIsChatbotOpen(false);
+  };
+
+  const handleAIChatToggle = () => {
+    setIsAIChatOpen(!isAIChatOpen);
+    if (!isAIChatOpen) {
+      // Đóng chat người khi mở AI chat
+      setIsUserChatOpen(false);
+    }
+  };
+
+  const handleUserChatToggle = () => {
+    setIsUserChatOpen(!isUserChatOpen);
+    if (!isUserChatOpen) {
+      // Đóng AI chat khi mở chat người
+      setIsAIChatOpen(false);
+    }
   };
 
   if (!isLoggedIn) {
@@ -44,40 +46,18 @@ export default function App() {
   return (
     <>
       <MainForum onLogout={handleLogout} onOpenNotifications={handleNotificationsOpen} />
-      <ChatMessenger 
-        isOpen={isChatOpen} 
-        onOpenChange={(open) => {
-          setIsChatOpen(open);
-          if (open) {
-            setIsChatbotOpen(false);
-            setIsNotificationsOpen(false);
-          }
-        }} 
-      />
 
+      {/* Notifications */}
       <Notifications
         isOpen={isNotificationsOpen}
-        onOpenChange={(open) => {
-          setIsNotificationsOpen(open);
-          if (open) {
-            setIsChatOpen(false);
-            setIsChatbotOpen(false);
-          }
-        }}
+        onOpenChange={setIsNotificationsOpen}
       />
 
-      {!isChatOpen && !isNotificationsOpen && (
-        <ChatBubble 
-          isOpen={isChatbotOpen} 
-          onOpenChange={(open) => {
-            setIsChatbotOpen(open);
-            if (open) {
-              setIsChatOpen(false);
-              setIsNotificationsOpen(false);
-            }
-          }} 
-        />
-      )}
+      {/* AI Chat */}
+      <AIChatButton isOpen={isAIChatOpen} onToggle={handleAIChatToggle} />
+
+      {/* User Chat */}
+      <UserChatButton isOpen={isUserChatOpen} onToggle={handleUserChatToggle} unreadCount={3} />
     </>
   );
 }

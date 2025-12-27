@@ -1,1 +1,1 @@
-export { default as ChatMessenger } from './components/ChatMessenger';
+export { default as UserChatButton } from './components/UserChatButton';

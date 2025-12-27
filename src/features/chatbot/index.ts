@@ -1,2 +1,1 @@
-export { default as ChatBubble } from './components/ChatBubble';
-export { default as ChatbotDialog } from './components/ChatbotDialog';
+export { default as AIChatButton } from './components/AIChatButton';

@@ -4,9 +4,9 @@ import LoginPage from '../features/auth/components/LoginPage';
 import SettingsPage from '../features/auth/components/SettingsPage';
 import ProfilePage from '../features/forum/components/ProfilePage';
 import MainForum from '../features/forum/components/MainForum';
-import ChatMessenger from '../features/chat/components/ChatMessenger';
 import Notifications from '../features/notifications/Notifications';
-import { ChatBubble } from '../features/chatbot';
+import { AIChatButton } from '../features/chatbot';
+import { UserChatButton } from '../features/chat';
 import { useAuthStore } from '../store/useStore';
 
 function LoginWrapper() {
@@ -19,26 +19,26 @@ function LoginWrapper() {
 function ForumWrapper({ children }: { children?: React.ReactNode }) {
     const logout = useAuthStore((s) => s.logout);
     const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
-    const [isChatOpen, setIsChatOpen] = useState(false);
-    const [isChatbotOpen, setIsChatbotOpen] = useState(false);
+    const [isAIChatOpen, setIsAIChatOpen] = useState(false);
+    const [isUserChatOpen, setIsUserChatOpen] = useState(false);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
 
-    const handleChatOpen = () => {
-        setIsChatOpen(true);
-        setIsChatbotOpen(false);
-        setIsNotificationsOpen(false);
+    const handleAIChatToggle = () => {
+        setIsAIChatOpen(!isAIChatOpen);
+        if (!isAIChatOpen) {
+            setIsUserChatOpen(false);
+        }
     };
 
-    const handleChatbotOpen = () => {
-        setIsChatbotOpen(true);
-        setIsChatOpen(false);
-        setIsNotificationsOpen(false);
+    const handleUserChatToggle = () => {
+        setIsUserChatOpen(!isUserChatOpen);
+        if (!isUserChatOpen) {
+            setIsAIChatOpen(false);
+        }
     };
 
     const handleNotificationsOpen = () => {
         setIsNotificationsOpen(true);
-        setIsChatOpen(false);
-        setIsChatbotOpen(false);
     };
 
     if (!isLoggedIn) return <Navigate to="/" replace />;
@@ -49,40 +49,16 @@ function ForumWrapper({ children }: { children?: React.ReactNode }) {
                 {children}
             </MainForum>
 
-            <ChatMessenger
-                isOpen={isChatOpen}
-                onOpenChange={(open) => {
-                    setIsChatOpen(open);
-                    if (open) {
-                        setIsChatbotOpen(false);
-                        setIsNotificationsOpen(false);
-                    }
-                }}
-            />
-
             <Notifications
                 isOpen={isNotificationsOpen}
-                onOpenChange={(open) => {
-                    setIsNotificationsOpen(open);
-                    if (open) {
-                        setIsChatOpen(false);
-                        setIsChatbotOpen(false);
-                    }
-                }}
+                onOpenChange={setIsNotificationsOpen}
             />
 
-            {!isChatOpen && !isNotificationsOpen && (
-                <ChatBubble
-                    isOpen={isChatbotOpen}
-                    onOpenChange={(open) => {
-                        setIsChatbotOpen(open);
-                        if (open) {
-                            setIsChatOpen(false);
-                            setIsNotificationsOpen(false);
-                        }
-                    }}
-                />
-            )}
+            {/* AI Chat */}
+            <AIChatButton isOpen={isAIChatOpen} onToggle={handleAIChatToggle} />
+
+            {/* User Chat */}
+            <UserChatButton isOpen={isUserChatOpen} onToggle={handleUserChatToggle} unreadCount={3} />
         </>
     );
 }

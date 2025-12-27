@@ -26,18 +26,27 @@ export default function Notifications({ isOpen: externalIsOpen, onOpenChange }: 
     else setInternalIsOpen(open);
   };
 
+  // Fake test data: one unread notification
   const [items, setItems] = useState<NotificationItem[]>([
-    { id: '1', title: 'Bài mới', message: 'Có bài viết mới trong chủ đề bạn theo dõi.', time: '09:12', read: false },
-    { id: '2', title: 'Phản hồi', message: 'Ai đó đã phản hồi bài viết của bạn.', time: '08:50', read: false },
+    { id: '1', title: 'Bài mới', message: 'Có bài viết mới trong chủ đề bạn theo dõi.', time: '09:12', read: true },
+    { id: '2', title: 'Tin nhắn mới', message: 'Bạn có 1 tin nhắn chưa đọc.', time: '09:30', read: false },
     { id: '3', title: 'Cập nhật hệ thống', message: 'Bảo trì hệ thống vào 22:00 hôm nay.', time: '07:30', read: true },
   ]);
 
   const unreadCount = items.filter(i => !i.read).length;
 
+  // Displayed items: newest first (sort by time string "HH:MM")
+  const parseTime = (t: string) => {
+    const [hh, mm] = t.split(':').map((n) => Number(n));
+    return hh * 60 + (mm || 0);
+  };
+
+  const displayed = [...items].sort((a, b) => parseTime(b.time) - parseTime(a.time));
+
   useEffect(() => {
     if (isOpen) {
       // mark visible as read after opening (optional behaviour)
-      setItems((prev) => prev.map(i => ({ ...i, read: true })));
+      // NOTE: Remove automatic marking on open so read/unread states remain visible
     }
   }, [isOpen]);
 
@@ -45,8 +54,8 @@ export default function Notifications({ isOpen: externalIsOpen, onOpenChange }: 
     <>
       {/* Notifications Panel (triggered from header bell) */}
       {isOpen && (
-        <Card className="fixed top-16 right-6 w-96 h-[420px] z-50 shadow-2xl flex flex-col overflow-hidden border-2">
-          <div className="p-4 flex items-center justify-between bg-gradient-to-r from-yellow-400 to-pink-400 text-white">
+        <Card className="fixed top-14 right-4 w-[360px] h-[440px] z-50 shadow-xl flex flex-col overflow-hidden border border-gray-200 bg-white">
+          <div className="p-4 flex items-center justify-between bg-gradient-to-r from-yellow-400 to-pink-400 text-white rounded-t-xl">
             <div>
               <h3 className="font-semibold">Thông báo</h3>
               <p className="text-xs">Mới nhất</p>
@@ -56,24 +65,32 @@ export default function Notifications({ isOpen: externalIsOpen, onOpenChange }: 
             </Button>
           </div>
 
-          <ScrollArea className="flex-1 p-3 overflow-y-auto">
-            <div className="space-y-3">
-              {items.map((it) => (
-                <div key={it.id} className={`p-3 rounded-lg ${it.read ? 'bg-white' : 'bg-gray-50'} border border-gray-100`}>
-                  <div className="flex items-start justify-between">
+          <ScrollArea className="flex-1 overflow-y-auto bg-white">
+            <div className="divide-y divide-gray-100">
+              {displayed.map((it) => (
+                <div
+                  key={it.id}
+                  className={`${it.read ? 'bg-white' : 'bg-gray-50'} px-4 py-3 flex items-start justify-between`}
+                >
+                  <div className="flex items-start gap-3">
                     <div>
-                      <p className="font-medium text-sm">{it.title}</p>
+                      <p className={`${it.read ? 'text-sm font-medium text-gray-700' : 'text-sm font-semibold text-gray-800'}`}>{it.title}</p>
                       <p className="text-xs text-gray-600 mt-1 whitespace-pre-line">{it.message}</p>
                     </div>
-                    <div className="text-xs text-gray-400 ml-2">{it.time}</div>
                   </div>
+
+                  <div className="text-xs text-gray-400 ml-2">{it.time}</div>
                 </div>
               ))}
             </div>
           </ScrollArea>
 
-          <div className="p-3 border-t bg-white">
-            <Button variant="ghost" className="w-full" onClick={() => setItems([])}>
+          <div className="p-3 border-t border-gray-100 bg-white">
+            <Button
+              variant="ghost"
+              className="w-full font-semibold text-sm"
+              onClick={() => setItems((prev) => prev.map((i) => ({ ...i, read: true })))}
+            >
               Đánh dấu tất cả là đã đọc
             </Button>
           </div>

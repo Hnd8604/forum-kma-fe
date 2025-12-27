@@ -1,32 +1,35 @@
 import { create } from 'zustand';
 import { Post, CreatePostData } from '../features/forum/types/post.types';
+import { User } from '../features/auth/types/auth.types';
+import { AuthService } from '../features/auth/services/auth.service';
 
 // Auth Store
 type AuthState = {
     isLoggedIn: boolean;
-    user: {
-        name: string;
-        avatar: string;
-        group: string;
-    } | null;
-    login: () => void;
+    user: User | null;
+    login: (user: User) => void;
     logout: () => void;
-    setUser: (user: { name: string; avatar: string; group: string }) => void;
+    setUser: (user: User) => void;
+    initAuth: () => void;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
-    isLoggedIn: false,
-    user: null,
-    login: () => set({ 
+    isLoggedIn: AuthService.isAuthenticated(),
+    user: AuthService.getCurrentUser(),
+    login: (user: User) => set({ 
         isLoggedIn: true,
-        user: {
-            name: 'Bạn',
-            avatar: 'B',
-            group: 'Khoa học Máy tính'
-        }
+        user
     }),
-    logout: () => set({ isLoggedIn: false, user: null }),
-    setUser: (user) => set({ user }),
+    logout: () => {
+        AuthService.logout();
+        set({ isLoggedIn: false, user: null });
+    },
+    setUser: (user: User) => set({ user, isLoggedIn: true }),
+    initAuth: () => {
+        const user = AuthService.getCurrentUser();
+        const isAuthenticated = AuthService.isAuthenticated();
+        set({ user, isLoggedIn: isAuthenticated });
+    },
 }));
 
 // Posts Store
@@ -126,9 +129,9 @@ export const usePostsStore = create<PostsState>((set, get) => ({
         const newPost: Post = {
             id: Date.now(),
             author: {
-                name: user.name,
-                avatar: user.avatar,
-                group: postData.group || user.group,
+                name: user.username,
+                avatar: user.username.substring(0, 2).toUpperCase(),
+                group: postData.group || 'Sinh viên',
             },
             timeAgo: 'Vừa xong',
             timestamp: Date.now(),

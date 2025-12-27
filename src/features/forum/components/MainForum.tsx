@@ -2,7 +2,6 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import ForumFeed from './ForumFeed';
-import ChatMessenger from '../../chat/components/ChatMessenger';
 import { Button } from '../../../shared/components/ui/button';
 import { Input } from '../../../shared/components/ui/input';
 import { GraduationCap, Search, Bell, User, LogOut, Settings } from 'lucide-react';
@@ -113,9 +112,6 @@ export default function MainForum({ onLogout, onOpenNotifications, children }: M
         {/* Feed */}
         {children ?? <ForumFeed />}
       </div>
-
-      {/* Chat Messenger */}
-      <ChatMessenger />
     </div>
   );
 }
