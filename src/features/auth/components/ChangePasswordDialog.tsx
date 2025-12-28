@@ -20,7 +20,7 @@ interface ChangePasswordDialogProps {
 }
 
 interface ApiResponse {
-  code: string;
+  code: number;
   message: string;
   data?: any;
 }
@@ -87,7 +87,7 @@ export default function ChangePasswordDialog({
         true
       );
 
-      if (response.code === '200') {
+      if (response.code === 200) {
         setSuccess(response.message || 'OTP đã được gửi đến email của bạn');
         setTimeout(() => {
           setSuccess('');
@@ -121,7 +121,7 @@ export default function ChangePasswordDialog({
         true
       );
 
-      if (response.code === '200') {
+      if (response.code === 200) {
         setSuccess(response.message || 'Đổi mật khẩu thành công!');
         setTimeout(() => {
           handleClose();

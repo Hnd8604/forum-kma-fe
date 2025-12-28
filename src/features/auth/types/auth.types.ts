@@ -43,6 +43,8 @@ export interface ApiResponse<T = any> {
 export interface ApiError {
   message: string;
   statusCode?: number;
+  code?: string;
+  sessionId?: string;
   errors?: Record<string, string[]>;
 }
 
@@ -67,6 +69,11 @@ export interface UpdateProfileRequest {
 }
 
 export interface VerifyEmailRequest {
+  otp: string;
+}
+
+export interface VerifyLoginOtpRequest {
+  email: string;
   otp: string;
 }
 

@@ -17,8 +17,12 @@ interface LoginPageProps {
 export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProps) {
   const { login: setAuthLogin } = useAuthStore();
   
+  const [step, setStep] = useState<'login' | 'otp'>('login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
+  const [otp, setOtp] = useState('');
+  const [tempSession, setTempSession] = useState<string>(''); // Lưu session tạm thời nếu cần
+  const [emailForOtp, setEmailForOtp] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [rememberMe, setRememberMe] = useState(false);
@@ -47,6 +51,21 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
         username,
         password,
       });
+
+      console.log('📱 Login response:', response);
+
+      // Kiểm tra xem response có yêu cầu OTP không (code: AS_010)
+      if ((response as any).code === 'AS_010' || !response.accessToken) {
+        console.log('🔐 2FA required, switching to OTP step');
+        // Nếu cần 2FA, chuyển sang bước nhập OTP; lấy giá trị email mặc định từ username
+        setStep('otp');
+        setEmailForOtp(username);
+        setTempSession((response as any).sessionId || (response as any).tempToken || '');
+        setLoading(false);
+        return;
+      }
+
+      console.log('✅ Login successful without 2FA');
 
       // Convert AuthData to User for the store
       const user = {
@@ -80,10 +99,70 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
       onLogin();
     } catch (error: any) {
       const apiError = error as ApiError;
+      
+      // Kiểm tra nếu lỗi là yêu cầu 2FA (code: AS_010)
+      if (apiError.code === 'AS_010') {
+        console.log('🔐 2FA required (from error), switching to OTP step');
+        setStep('otp');
+        setEmailForOtp(username);
+        setTempSession(apiError.sessionId || '');
+        setLoading(false);
+        return;
+      }
+      
       setError(apiError.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
     } finally {
       setLoading(false);
     }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    try {
+      const response = await AuthService.verifyLoginOtp({
+        email: emailForOtp,
+        otp,
+      });
+
+      // Convert AuthData to User for the store
+      const user = {
+        userId: response.userId,
+        username: response.username,
+        email: response.email,
+        firstName: response.firstName,
+        lastName: response.lastName,
+      };
+
+      // Update auth store with user data
+      setAuthLogin(user);
+      
+      // Save credentials if remember me is checked
+      if (rememberMe) {
+        try {
+          localStorage.setItem('rememberedUsername', username);
+        } catch (error) {
+          console.error('Failed to save username:', error);
+        }
+      }
+      
+      // Call the onLogin callback
+      onLogin();
+    } catch (error: any) {
+      const apiError = error as ApiError;
+      setError(apiError.message || 'Mã OTP không chính xác hoặc đã hết hạn.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleBackToLogin = () => {
+    setStep('login');
+    setOtp('');
+    setError(null);
+    setEmailForOtp('');
   };
 
   return (
@@ -114,11 +193,21 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
         {/* Login Card */}
         <Card className="border-0 shadow-2xl backdrop-blur-sm bg-white/95 rounded-2xl overflow-hidden animate-fade-in">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-2xl">Chào mừng trở lại! 👋</CardTitle>
-            <CardDescription>Đăng nhập để tiếp tục hành trình học tập</CardDescription>
+            <CardTitle className="text-2xl">
+              {step === 'login' ? 'Chào mừng trở lại! 👋' : 'Xác thực 2 yếu tố 🔐'}
+            </CardTitle>
+            <CardDescription>
+              {step === 'login' 
+                ? 'Đăng nhập để tiếp tục hành trình học tập'
+                : 'Nhập mã OTP đã được gửi đến email của bạn'
+              }
+            </CardDescription>
           </CardHeader>
-          <form onSubmit={handleSubmit}>
-            <CardContent className="space-y-4">
+
+          {/* Step 1: Login Form */}
+          {step === 'login' && (
+            <form onSubmit={handleSubmit}>
+              <CardContent className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-gray-700">Tên đăng nhập</Label>
                 <div className="relative group">
@@ -193,6 +282,68 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
               )}
             </CardFooter>
           </form>
+          )}
+
+          {/* Step 2: OTP Verification */}
+          {step === 'otp' && (
+            <form onSubmit={handleVerifyOtp}>
+              <CardContent className="space-y-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="emailForOtp" className="text-gray-700">Email</Label>
+                      <Input
+                        id="emailForOtp"
+                        type="email"
+                        placeholder="your@email.com"
+                        value={emailForOtp}
+                        onChange={(e) => setEmailForOtp(e.target.value)}
+                        className="h-12 rounded-xl border-gray-200 focus:border-red-300 focus:ring-red-200"
+                        disabled={loading}
+                        required
+                      />
+
+                      <Label htmlFor="otp" className="text-gray-700">Mã OTP</Label>
+                      <Input
+                        id="otp"
+                        type="text"
+                        maxLength={6}
+                        value={otp}
+                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                        placeholder="000000"
+                        disabled={loading}
+                        autoFocus
+                        className="text-center text-3xl tracking-[0.5em] font-semibold h-14 rounded-xl border-gray-200 focus:border-red-300 focus:ring-red-200"
+                        onKeyDown={(e) => e.key === 'Enter' && handleVerifyOtp(e as any)}
+                      />
+
+                      <div className="text-sm text-gray-600 text-center space-y-1 mt-2">
+                        <p>Kiểm tra email của bạn để lấy mã OTP</p>
+                        <p className="text-xs">Mã OTP có hiệu lực trong 5 phút</p>
+                      </div>
+                    </div>
+                {error && (
+                  <p className="text-sm text-red-600 text-center">{error}</p>
+                )}
+              </CardContent>
+              <CardFooter className="flex flex-col gap-3 pt-2">
+                <Button 
+                  type="submit" 
+                  disabled={loading || otp.length !== 6}
+                  className="w-full h-12 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {loading ? 'Đang xác thực...' : 'Xác nhận'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handleBackToLogin}
+                  disabled={loading}
+                  className="w-full h-12 rounded-xl"
+                >
+                  Quay lại
+                </Button>
+              </CardFooter>
+            </form>
+          )}
         </Card>
 
         {/* Footer */}

@@ -5,10 +5,44 @@ export class AuthService {
   /**
    * Login user
    */
-  static async login(credentials: LoginRequest): Promise<AuthData> {
-    const response = await ApiService.post<AuthData>('/auth/login', credentials);
+  static async login(credentials: LoginRequest): Promise<AuthData | any> {
+    const response = await ApiService.post<any>('/auth/login', credentials);
     
     console.log('🔐 Login response:', response);
+    
+    // Chỉ store tokens khi có accessToken (không cần 2FA hoặc đã verify OTP)
+    if (response.accessToken) {
+      try {
+        localStorage.setItem('accessToken', response.accessToken);
+        localStorage.setItem('refreshToken', response.refreshToken);
+        console.log('✅ Token saved to localStorage:', response.accessToken.substring(0, 20) + '...');
+        
+        // Store user data
+        const user: User = {
+          userId: response.userId,
+          username: response.username,
+          email: response.email,
+          firstName: response.firstName,
+          lastName: response.lastName,
+        };
+        localStorage.setItem('user', JSON.stringify(user));
+      } catch (error) {
+        console.error('❌ Failed to store auth data:', error);
+      }
+    } else {
+      console.warn('⚠️ No accessToken in response - might require 2FA');
+    }
+    
+    return response;
+  }
+
+  /**
+   * Verify OTP for login (when 2FA is enabled)
+   */
+  static async verifyLoginOtp(data: { email: string; otp: string }): Promise<AuthData> {
+    const response = await ApiService.post<AuthData>('/auth/login/verify', data);
+    
+    console.log('🔐 Login verify response:', response);
     
     // Store tokens and user data
     if (response.accessToken) {
@@ -29,8 +63,6 @@ export class AuthService {
       } catch (error) {
         console.error('❌ Failed to store auth data:', error);
       }
-    } else {
-      console.warn('⚠️ No accessToken in response!');
     }
     
     return response;
