@@ -17,10 +17,11 @@ import { KeyRound, CheckCircle2 } from 'lucide-react';
 interface ChangePasswordDialogProps {
   isOpen: boolean;
   onClose: () => void;
+  is2FAEnabled?: boolean;
 }
 
 interface ApiResponse {
-  code: number;
+  code: string | number;
   message: string;
   data?: any;
 }
@@ -30,6 +31,7 @@ type Step = 'password' | 'otp';
 export default function ChangePasswordDialog({
   isOpen,
   onClose,
+  is2FAEnabled = false,
 }: ChangePasswordDialogProps) {
   const [step, setStep] = useState<Step>('password');
   const [oldPassword, setOldPassword] = useState('');
@@ -78,7 +80,7 @@ export default function ChangePasswordDialog({
     setLoading(true);
 
     try {
-      const response = await ApiService.post<ApiResponse>(
+      const response = await ApiService.post<any>(
         '/auth/change-password',
         {
           oldPassword,
@@ -87,14 +89,26 @@ export default function ChangePasswordDialog({
         true
       );
 
-      if (response.code === 200) {
-        setSuccess(response.message || 'OTP đã được gửi đến email của bạn');
-        setTimeout(() => {
-          setSuccess('');
-          setStep('otp');
-        }, 1500);
+      console.log('🔑 Change password response:', response);
+
+      // Response có thể là full object hoặc chỉ là result, kiểm tra cả 2 trường hợp
+      const isSuccess = response === 'ok' || response?.code === '200' || response?.code === 200;
+      
+      if (isSuccess) {
+        if (is2FAEnabled) {
+          setSuccess(response?.message || 'OTP đã được gửi đến email của bạn');
+          setTimeout(() => {
+            setSuccess('');
+            setStep('otp');
+          }, 1500);
+        } else {
+          setSuccess(response?.message || 'Đổi mật khẩu thành công!');
+          setTimeout(() => {
+            handleClose();
+          }, 800);
+        }
       } else {
-        setError(response.message || 'Có lỗi xảy ra khi đổi mật khẩu');
+        setError(response?.message || 'Có lỗi xảy ra khi đổi mật khẩu');
       }
     } catch (err: any) {
       setError(err.message || 'Mật khẩu cũ không chính xác');
@@ -115,19 +129,24 @@ export default function ChangePasswordDialog({
     setLoading(true);
 
     try {
-      const response = await ApiService.post<ApiResponse>(
+      const response = await ApiService.post<any>(
         '/auth/change-password/verify',
         { otp },
         true
       );
 
-      if (response.code === 200) {
-        setSuccess(response.message || 'Đổi mật khẩu thành công!');
+      console.log('🔑 Verify OTP response:', response);
+
+      // Response có thể là full object hoặc chỉ là result
+      const isSuccess = response === 'ok' || response?.code === '200' || response?.code === 200;
+      
+      if (isSuccess) {
+        setSuccess(response?.message || 'Đổi mật khẩu thành công!');
         setTimeout(() => {
           handleClose();
-        }, 1500);
+        }, 800);
       } else {
-        setError(response.message || 'Mã OTP không chính xác');
+        setError(response?.message || 'Mã OTP không chính xác');
       }
     } catch (err: any) {
       setError(err.message || 'Mã OTP không chính xác hoặc đã hết hạn');
@@ -176,7 +195,8 @@ export default function ChangePasswordDialog({
           </DialogDescription>
         </DialogHeader>
 
-        {/* Progress Indicator */}
+        {/* Progress Indicator - Only show when 2FA is enabled */}
+        {is2FAEnabled && (
         <div className="flex items-center justify-between mb-4 px-4">
           <div className="flex flex-col items-center flex-1">
             <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
@@ -200,6 +220,7 @@ export default function ChangePasswordDialog({
             <span className="text-xs mt-2 font-medium">Xác thực</span>
           </div>
         </div>
+        )}
 
         <div className="space-y-4 py-4">
           {error && (
@@ -256,9 +277,11 @@ export default function ChangePasswordDialog({
                   className="h-11"
                   onKeyDown={(e) => e.key === 'Enter' && handleRequestChange()}
                 />
-                <p className="text-sm text-gray-500">
-                  Chúng tôi sẽ gửi mã OTP đến email của bạn để xác thực
-                </p>
+                {is2FAEnabled && (
+                  <p className="text-sm text-gray-500">
+                    Chúng tôi sẽ gửi mã OTP đến email của bạn để xác thực
+                  </p>
+                )}
               </div>
             </div>
           )}
@@ -315,7 +338,7 @@ export default function ChangePasswordDialog({
                 disabled={loading}
                 className="min-w-[120px]"
               >
-                {loading ? 'Đang gửi...' : 'Gửi OTP'}
+                {loading ? 'Đang xử lý...' : (is2FAEnabled ? 'Gửi OTP' : 'Đổi mật khẩu')}
               </Button>
             </>
           ) : (

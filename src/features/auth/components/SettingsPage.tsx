@@ -282,6 +282,7 @@ export default function SettingsPage() {
       <ChangePasswordDialog
         isOpen={isChangePasswordOpen}
         onClose={() => setIsChangePasswordOpen(false)}
+        is2FAEnabled={is2FAEnabled}
       />
 
       <DisableTwoFADialog
