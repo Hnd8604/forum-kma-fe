@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Button } from '../../../shared/components/ui/button';
 import { Input } from '../../../shared/components/ui/input';
 import { Label } from '../../../shared/components/ui/label';
@@ -7,44 +7,50 @@ import { GraduationCap, Mail, Lock, User, Sparkles } from 'lucide-react';
 import { AuthService } from '../services/auth.service';
 import { useAuthStore } from '../../../store/useStore';
 import { ApiError } from '../types/auth.types';
-import ForgotPasswordDialog from './ForgotPasswordDialog';
+import EmailVerificationDialog from './EmailVerificationDialog';
 
-interface LoginPageProps {
-  onLogin: () => void;
-  onSwitchToRegister?: () => void;
+interface RegisterPageProps {
+  onRegister: () => void;
+  onSwitchToLogin?: () => void;
 }
 
-export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProps) {
+export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPageProps) {
   const { login: setAuthLogin } = useAuthStore();
   
   const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
+  const [firstName, setFirstName] = useState('');
+  const [lastName, setLastName] = useState('');
   const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
-
-  // Load remembered username on mount
-  useEffect(() => {
-    try {
-      const rememberedUsername = localStorage.getItem('rememberedUsername');
-      if (rememberedUsername) {
-        setUsername(rememberedUsername);
-        setRememberMe(true);
-      }
-    } catch (error) {
-      console.error('Failed to load remembered username:', error);
-    }
-  }, []);
+  const [showEmailVerification, setShowEmailVerification] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    
+    // Validate passwords match
+    if (password !== confirmPassword) {
+      setError('Mật khẩu xác nhận không khớp!');
+      return;
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      setError('Mật khẩu phải có ít nhất 6 ký tự!');
+      return;
+    }
+
     setLoading(true);
     
     try {
-      const response = await AuthService.login({
+      const response = await AuthService.register({
         username,
+        email,
+        firstName,
+        lastName,
         password,
       });
 
@@ -60,27 +66,11 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
       // Update auth store with user data
       setAuthLogin(user);
       
-      // Save credentials if remember me is checked
-      if (rememberMe) {
-        try {
-          localStorage.setItem('rememberedUsername', username);
-        } catch (error) {
-          console.error('Failed to save username:', error);
-        }
-      } else {
-        // Clear remembered username if not checking remember me
-        try {
-          localStorage.removeItem('rememberedUsername');
-        } catch (error) {
-          console.error('Failed to clear username:', error);
-        }
-      }
-      
-      // Call the onLogin callback
-      onLogin();
+      // Show email verification dialog
+      setShowEmailVerification(true);
     } catch (error: any) {
       const apiError = error as ApiError;
-      setError(apiError.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
+      setError(apiError.message || 'Đăng ký thất bại. Vui lòng thử lại.');
     } finally {
       setLoading(false);
     }
@@ -111,14 +101,46 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
           </div>
         </div>
 
-        {/* Login Card */}
+        {/* Register Card */}
         <Card className="border-0 shadow-2xl backdrop-blur-sm bg-white/95 rounded-2xl overflow-hidden animate-fade-in">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-2xl">Chào mừng trở lại! 👋</CardTitle>
-            <CardDescription>Đăng nhập để tiếp tục hành trình học tập</CardDescription>
+            <CardTitle className="text-2xl">Tạo tài khoản mới 🎓</CardTitle>
+            <CardDescription>Tham gia cộng đồng sinh viên ngay hôm nay</CardDescription>
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="lastName" className="text-gray-700">Họ</Label>
+                  <div className="relative group">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-red-500 transition-colors" />
+                    <Input
+                      id="lastName"
+                      type="text"
+                      placeholder="Nguyễn Văn"
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      className="pl-11 h-12 rounded-xl border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="firstName" className="text-gray-700">Tên</Label>
+                  <div className="relative group">
+                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-red-500 transition-colors" />
+                    <Input
+                      id="firstName"
+                      type="text"
+                      placeholder="An"
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      className="pl-11 h-12 rounded-xl border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all"
+                      required
+                    />
+                  </div>
+                </div>
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-gray-700">Tên đăng nhập</Label>
                 <div className="relative group">
@@ -129,6 +151,20 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
                     placeholder="username"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
+                    className="pl-11 h-12 rounded-xl border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all"
+                    required
+                  />
+                </div>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-gray-700">Email</Label>
+                <div className="relative group">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-red-500 transition-colors" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     className="pl-11 h-12 rounded-xl border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all"
                     required
                   />
@@ -149,23 +185,20 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
                   />
                 </div>
               </div>
-              <div className="flex items-center justify-between">
-                <label className="flex items-center space-x-2 cursor-pointer group">
-                  <input 
-                    type="checkbox" 
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500" 
+              <div className="space-y-2">
+                <Label htmlFor="confirmPassword" className="text-gray-700">Xác nhận mật khẩu</Label>
+                <div className="relative group">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-red-500 transition-colors" />
+                  <Input
+                    id="confirmPassword"
+                    type="password"
+                    placeholder="••••••••"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    className="pl-11 h-12 rounded-xl border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all"
+                    required
                   />
-                  <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Ghi nhớ đăng nhập</span>
-                </label>
-                <button 
-                  type="button"
-                  onClick={() => setIsForgotPasswordOpen(true)}
-                  className="text-sm text-red-600 hover:text-red-700 hover:underline transition-colors"
-                >
-                  Quên mật khẩu?
-                </button>
+                </div>
               </div>
               {error && (
                 <p className="text-sm text-red-600">{error}</p>
@@ -173,21 +206,21 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
             </CardContent>
             <CardFooter className="flex flex-col gap-3 pt-2">
               <Button 
-                type="submit" 
+                type="submit"
                 disabled={loading}
                 className="w-full h-12 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {loading ? 'Đang đăng nhập...' : 'Đăng nhập ngay'}
+                {loading ? 'Đang đăng ký...' : 'Đăng ký ngay'}
               </Button>
-              {onSwitchToRegister && (
+              {onSwitchToLogin && (
                 <div className="text-center text-sm text-gray-600">
-                  Chưa có tài khoản?{' '}
+                  Đã có tài khoản?{' '}
                   <button
                     type="button"
-                    onClick={onSwitchToRegister}
+                    onClick={onSwitchToLogin}
                     className="text-red-600 hover:text-red-700 hover:underline transition-colors font-medium"
                   >
-                    Đăng ký ngay
+                    Đăng nhập ngay
                   </button>
                 </div>
               )}
@@ -197,7 +230,7 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
 
         {/* Footer */}
         <p className="text-center text-sm text-gray-600 mt-6 backdrop-blur-sm bg-white/50 rounded-xl p-3">
-          Bằng việc đăng nhập, bạn đồng ý với{' '}
+          Bằng việc đăng ký, bạn đồng ý với{' '}
           <a href="#" className="text-red-600 hover:text-red-700 hover:underline transition-colors">
             Điều khoản sử dụng
           </a>{' '}
@@ -207,6 +240,20 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
           </a>
         </p>
       </div>
+
+      {/* Email Verification Dialog */}
+      <EmailVerificationDialog
+        isOpen={showEmailVerification}
+        onClose={() => {
+          setShowEmailVerification(false);
+          // Call the onRegister callback when verification dialog closes
+          onRegister();
+        }}
+        onVerificationComplete={() => {
+          setShowEmailVerification(false);
+          onRegister();
+        }}
+      />
 
       <style>{`
         @keyframes blob {
@@ -232,11 +279,6 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
           animation: fade-in 0.5s ease-out;
         }
       `}</style>
-
-      <ForgotPasswordDialog
-        isOpen={isForgotPasswordOpen}
-        onClose={() => setIsForgotPasswordOpen(false)}
-      />
     </div>
   );
 }

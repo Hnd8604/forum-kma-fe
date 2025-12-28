@@ -11,93 +11,42 @@ import {
   DialogTitle,
 } from '../../../shared/components/ui/dialog';
 import { Alert, AlertDescription } from '../../../shared/components/ui/alert';
-import { ApiService } from '../../../shared/services/api.service';
-import { KeyRound, CheckCircle2 } from 'lucide-react';
+import { TwoFAService } from '../services/twofa.service';
+import { ShieldOff, CheckCircle2 } from 'lucide-react';
 
-interface ChangePasswordDialogProps {
+interface DisableTwoFADialogProps {
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
-interface ApiResponse {
-  code: string;
-  message: string;
-  data?: any;
-}
+type Step = 'request' | 'otp';
 
-type Step = 'password' | 'otp';
-
-export default function ChangePasswordDialog({
+export default function DisableTwoFADialog({
   isOpen,
   onClose,
-}: ChangePasswordDialogProps) {
-  const [step, setStep] = useState<Step>('password');
-  const [oldPassword, setOldPassword] = useState('');
-  const [newPassword, setNewPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  onSuccess,
+}: DisableTwoFADialogProps) {
+  const [step, setStep] = useState<Step>('request');
   const [otp, setOtp] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
-  const handleRequestChange = async () => {
+  const handleRequestDisable = async () => {
     setError('');
     setSuccess('');
-
-    // Validation
-    if (!oldPassword.trim()) {
-      setError('Vui lòng nhập mật khẩu cũ');
-      return;
-    }
-
-    if (!newPassword.trim()) {
-      setError('Vui lòng nhập mật khẩu mới');
-      return;
-    }
-
-    if (!confirmPassword.trim()) {
-      setError('Vui lòng xác nhận mật khẩu mới');
-      return;
-    }
-
-    if (newPassword.length < 6) {
-      setError('Mật khẩu mới phải có ít nhất 6 ký tự');
-      return;
-    }
-
-    if (newPassword !== confirmPassword) {
-      setError('Mật khẩu mới và xác nhận không khớp');
-      return;
-    }
-
-    if (oldPassword === newPassword) {
-      setError('Mật khẩu mới phải khác mật khẩu cũ');
-      return;
-    }
-
     setLoading(true);
 
     try {
-      const response = await ApiService.post<ApiResponse>(
-        '/auth/change-password',
-        {
-          oldPassword,
-          newPassword,
-        },
-        true
-      );
-
-      if (response.code === '200') {
-        setSuccess(response.message || 'OTP đã được gửi đến email của bạn');
-        setTimeout(() => {
-          setSuccess('');
-          setStep('otp');
-        }, 1500);
-      } else {
-        setError(response.message || 'Có lỗi xảy ra khi đổi mật khẩu');
-      }
+      const response = await TwoFAService.disable();
+      setSuccess(response.message || 'OTP đã được gửi đến email của bạn');
+      setTimeout(() => {
+        setSuccess('');
+        setStep('otp');
+      }, 1500);
     } catch (err: any) {
-      setError(err.message || 'Mật khẩu cũ không chính xác');
+      setError(err.message || 'Có lỗi xảy ra khi tắt xác thực 2 yếu tố');
     } finally {
       setLoading(false);
     }
@@ -115,20 +64,12 @@ export default function ChangePasswordDialog({
     setLoading(true);
 
     try {
-      const response = await ApiService.post<ApiResponse>(
-        '/auth/change-password/verify',
-        { otp },
-        true
-      );
-
-      if (response.code === '200') {
-        setSuccess(response.message || 'Đổi mật khẩu thành công!');
-        setTimeout(() => {
-          handleClose();
-        }, 1500);
-      } else {
-        setError(response.message || 'Mã OTP không chính xác');
-      }
+      const response = await TwoFAService.disableVerify(otp);
+      setSuccess(response.message || 'Đã tắt xác thực 2 yếu tố thành công!');
+      setTimeout(() => {
+        handleClose();
+        onSuccess?.();
+      }, 1500);
     } catch (err: any) {
       setError(err.message || 'Mã OTP không chính xác hoặc đã hết hạn');
     } finally {
@@ -137,10 +78,7 @@ export default function ChangePasswordDialog({
   };
 
   const handleClose = () => {
-    setStep('password');
-    setOldPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
+    setStep('request');
     setOtp('');
     setError('');
     setSuccess('');
@@ -149,29 +87,20 @@ export default function ChangePasswordDialog({
   };
 
   const handleBack = () => {
-    setStep('password');
+    setStep('request');
     setOtp('');
     setError('');
     setSuccess('');
-  };
-
-  const getStepTitle = () => {
-    switch (step) {
-      case 'password':
-        return 'Mật khẩu';
-      case 'otp':
-        return 'Xác thực';
-    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
       <DialogContent className="sm:max-w-[500px] bg-white">
         <DialogHeader>
-          <DialogTitle className="text-2xl">Đổi mật khẩu</DialogTitle>
+          <DialogTitle className="text-2xl">Tắt xác thực 2 yếu tố</DialogTitle>
           <DialogDescription className="text-base">
-            {step === 'password' 
-              ? 'Nhập mật khẩu cũ và mật khẩu mới của bạn'
+            {step === 'request' 
+              ? 'Chúng tôi sẽ gửi mã OTP đến email của bạn để xác thực'
               : 'Nhập mã OTP đã được gửi đến email của bạn'}
           </DialogDescription>
         </DialogHeader>
@@ -180,11 +109,11 @@ export default function ChangePasswordDialog({
         <div className="flex items-center justify-between mb-4 px-4">
           <div className="flex flex-col items-center flex-1">
             <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-              step === 'password' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
+              step === 'request' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
             }`}>
-              {step === 'password' ? <KeyRound size={24} /> : <CheckCircle2 size={24} />}
+              {step === 'request' ? <ShieldOff size={24} /> : <CheckCircle2 size={24} />}
             </div>
-            <span className="text-xs mt-2 font-medium">Mật khẩu</span>
+            <span className="text-xs mt-2 font-medium">Gửi OTP</span>
           </div>
           
           <div className={`flex-1 h-1 mx-2 ${
@@ -214,52 +143,25 @@ export default function ChangePasswordDialog({
             </Alert>
           )}
 
-          {/* Step 1: Password Fields */}
-          {step === 'password' && (
+          {/* Step 1: Request */}
+          {step === 'request' && (
             <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="oldPassword">Mật khẩu cũ</Label>
-                <Input
-                  id="oldPassword"
-                  type="password"
-                  value={oldPassword}
-                  onChange={(e) => setOldPassword(e.target.value)}
-                  placeholder="Nhập mật khẩu hiện tại"
-                  disabled={loading}
-                  autoFocus
-                  className="h-11"
-                />
+              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                <div className="flex items-start gap-3">
+                  <ShieldOff className="text-yellow-600 mt-0.5" size={20} />
+                  <div className="text-sm text-yellow-800">
+                    <p className="font-medium mb-1">Lưu ý quan trọng</p>
+                    <p>
+                      Sau khi tắt xác thực 2 yếu tố, tài khoản của bạn sẽ chỉ được bảo vệ bằng mật khẩu. 
+                      Chúng tôi khuyến nghị bạn nên giữ tính năng này được bật để bảo mật tốt hơn.
+                    </p>
+                  </div>
+                </div>
               </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="newPassword">Mật khẩu mới</Label>
-                <Input
-                  id="newPassword"
-                  type="password"
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  placeholder="Nhập mật khẩu mới (tối thiểu 6 ký tự)"
-                  disabled={loading}
-                  className="h-11"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Xác nhận mật khẩu mới</Label>
-                <Input
-                  id="confirmPassword"
-                  type="password"
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Nhập lại mật khẩu mới"
-                  disabled={loading}
-                  className="h-11"
-                  onKeyDown={(e) => e.key === 'Enter' && handleRequestChange()}
-                />
-                <p className="text-sm text-gray-500">
-                  Chúng tôi sẽ gửi mã OTP đến email của bạn để xác thực
-                </p>
-              </div>
+              
+              <p className="text-sm text-gray-600 text-center">
+                Nhấn nút "Gửi OTP" để nhận mã xác thực qua email
+              </p>
             </div>
           )}
 
@@ -289,7 +191,7 @@ export default function ChangePasswordDialog({
               <div className="flex justify-center pt-2">
                 <Button 
                   variant="link" 
-                  onClick={handleRequestChange}
+                  onClick={handleRequestDisable}
                   disabled={loading}
                   className="text-sm"
                 >
@@ -301,7 +203,7 @@ export default function ChangePasswordDialog({
         </div>
 
         <DialogFooter className="gap-2">
-          {step === 'password' ? (
+          {step === 'request' ? (
             <>
               <Button 
                 variant="outline" 
@@ -311,7 +213,7 @@ export default function ChangePasswordDialog({
                 Hủy
               </Button>
               <Button 
-                onClick={handleRequestChange} 
+                onClick={handleRequestDisable} 
                 disabled={loading}
                 className="min-w-[120px]"
               >

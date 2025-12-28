@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { createBrowserRouter, RouterProvider, Navigate } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { createBrowserRouter, RouterProvider, Navigate, useNavigate } from 'react-router-dom';
 import LoginPage from '../features/auth/components/LoginPage';
+import RegisterPage from '../features/auth/components/RegisterPage';
 import SettingsPage from '../features/auth/components/SettingsPage';
 import ProfilePage from '../features/forum/components/ProfilePage';
 import MainForum from '../features/forum/components/MainForum';
@@ -10,10 +11,27 @@ import { UserChatButton } from '../features/chat';
 import { useAuthStore } from '../store/useStore';
 
 function LoginWrapper() {
-    const login = useAuthStore((s) => s.login);
     const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+    const navigate = useNavigate();
+    
     if (isLoggedIn) return <Navigate to="/forum" replace />;
-    return <LoginPage onLogin={login} />;
+    
+    return <LoginPage 
+        onLogin={() => navigate('/forum')} 
+        onSwitchToRegister={() => navigate('/register')}
+    />;
+}
+
+function RegisterWrapper() {
+    const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+    const navigate = useNavigate();
+    
+    if (isLoggedIn) return <Navigate to="/forum" replace />;
+    
+    return <RegisterPage 
+        onRegister={() => navigate('/forum')} 
+        onSwitchToLogin={() => navigate('/')}
+    />;
 }
 
 function ForumWrapper({ children }: { children?: React.ReactNode }) {
@@ -64,22 +82,38 @@ function ForumWrapper({ children }: { children?: React.ReactNode }) {
 }
 
 export default function AppRouter() {
+    const initAuth = useAuthStore((s) => s.initAuth);
+    const hasHydrated = useAuthStore((s) => s._hasHydrated);
+    
+    // Initialize auth state from localStorage on app start
+    useEffect(() => {
+        initAuth();
+    }, [initAuth]);
+
     const router = createBrowserRouter(
         [
             { path: '/', element: <LoginWrapper /> },
+            { path: '/register', element: <RegisterWrapper /> },
             { path: '/forum', element: <ForumWrapper /> },
             { path: '/settings', element: <ForumWrapper><SettingsPage /></ForumWrapper> },
             { path: '/profile', element: <ForumWrapper><ProfilePage /></ForumWrapper> },
             { path: '*', element: <Navigate to="/" replace /> },
         ],
         {
-            // Opt-in to upcoming v7 behaviors to remove runtime warnings
             future: {
-                v7_startTransition: true,
                 v7_relativeSplatPath: true,
             },
         }
     );
+
+    // Wait for auth hydration before rendering router
+    if (!hasHydrated) {
+        return (
+            <div className="min-h-screen flex items-center justify-center">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
+            </div>
+        );
+    }
 
     return <RouterProvider router={router} />;
 }

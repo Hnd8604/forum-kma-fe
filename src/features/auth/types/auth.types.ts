@@ -7,12 +7,16 @@ export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
+  firstName: string;
+  lastName: string;
 }
 
 export interface AuthData {
   userId: string;
   username: string;
   email: string;
+  firstName: string;
+  lastName: string;
   accessToken: string;
   refreshToken: string;
 }
@@ -21,15 +25,19 @@ export interface User {
   userId: string;
   username: string;
   email: string;
+  firstName: string;
+  lastName: string;
   roles?: string[];
   banned?: boolean;
   createdAt?: string;
+  userStatus?: 'ACTIVE' | 'INACTIVE' | 'PENDING';
+  is2FAEnabled?: boolean;
 }
 
 export interface ApiResponse<T = any> {
-  code: number;
+  code: string;
   message: string;
-  data: T;
+  result: T;
 }
 
 export interface ApiError {
@@ -45,4 +53,33 @@ export interface RefreshTokenRequest {
 export interface RefreshTokenResponse {
   accessToken: string;
   refreshToken: string;
+}
+
+export interface UpdateProfileRequest {
+  username?: string;
+  password?: string;
+  email?: string;
+  firstName?: string;
+  lastName?: string;
+  roleId?: string;
+  userStatus?: 'PENDING' | 'ACTIVE' | 'BANNED';
+  is2FAEnabled?: boolean;
+}
+
+export interface VerifyEmailRequest {
+  otp: string;
+}
+
+export interface VerifyEmailResponse {
+  message: string;
+}
+
+export interface TwoFAEnableResponse {
+  qrCode: string;
+  secret: string;
+  message: string;
+}
+
+export interface TwoFADisableResponse {
+  message: string;
 }

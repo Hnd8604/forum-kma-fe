@@ -32,6 +32,14 @@ export class ApiService {
     const url = `${API_BASE_URL}${endpoint}`;
     const headers = this.getHeaders(requiresAuth);
 
+    // Debug: Log token and headers
+    if (requiresAuth) {
+      const token = this.getAuthToken();
+      console.log('🔐 API Request - RequiresAuth:', requiresAuth);
+      console.log('🎫 Token from localStorage:', token ? token.substring(0, 20) + '...' : 'NULL');
+      console.log('📋 Headers:', headers);
+    }
+
     const config: RequestInit = {
       ...options,
       headers: {
@@ -61,9 +69,31 @@ export class ApiService {
       if (contentType && contentType.includes('application/json')) {
         const jsonData = await response.json();
         
-        // If response has the API structure {code, message, data}, return data
-        if (jsonData && typeof jsonData === 'object' && 'data' in jsonData) {
-          return jsonData.data as T;
+        console.log('📦 Raw API Response:', jsonData);
+        
+        // Check if backend returned an error in the response body (code !== "200")
+        if (jsonData && typeof jsonData === 'object' && 'code' in jsonData) {
+          if (jsonData.code !== '200' && jsonData.code !== 200) {
+            throw {
+              message: jsonData.message || 'Request failed',
+              statusCode: response.status,
+              code: jsonData.code,
+            };
+          }
+        }
+        
+        // If response has the API structure {code, message, data/result}, return data/result
+        if (jsonData && typeof jsonData === 'object') {
+          // Check for 'result' field (backend uses 'result' not 'data')
+          if ('result' in jsonData) {
+            console.log('✅ Returning jsonData.result');
+            return jsonData.result as T;
+          }
+          // Fallback to 'data' field
+          if ('data' in jsonData) {
+            console.log('✅ Returning jsonData.data');
+            return jsonData.data as T;
+          }
         }
         
         return jsonData as T;

@@ -11,11 +11,13 @@ type AuthState = {
     logout: () => void;
     setUser: (user: User) => void;
     initAuth: () => void;
+    _hasHydrated: boolean;
 };
 
 export const useAuthStore = create<AuthState>((set) => ({
-    isLoggedIn: AuthService.isAuthenticated(),
-    user: AuthService.getCurrentUser(),
+    isLoggedIn: false,
+    user: null,
+    _hasHydrated: false,
     login: (user: User) => set({ 
         isLoggedIn: true,
         user
@@ -28,7 +30,10 @@ export const useAuthStore = create<AuthState>((set) => ({
     initAuth: () => {
         const user = AuthService.getCurrentUser();
         const isAuthenticated = AuthService.isAuthenticated();
-        set({ user, isLoggedIn: isAuthenticated });
+        console.log('initAuth - user:', user);
+        console.log('initAuth - isAuthenticated:', isAuthenticated);
+        console.log('initAuth - accessToken:', AuthService.getAccessToken());
+        set({ user, isLoggedIn: isAuthenticated, _hasHydrated: true });
     },
 }));
 

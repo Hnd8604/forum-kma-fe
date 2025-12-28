@@ -48,7 +48,7 @@ export default function ForgotPasswordDialog({
     try {
       const response = await passwordService.forgotPassword(email);
 
-      if (response.code === 200) {
+      if (response.code === '200') {
         setSuccess(response.message || 'OTP đã được gửi đến email của bạn');
         setTimeout(() => {
           setSuccess('');
@@ -78,7 +78,7 @@ export default function ForgotPasswordDialog({
     try {
       const response = await passwordService.verifyOtp(email, otp);
 
-      if (response.code === 200) {
+      if (response.code === '200') {
         setSuccess(response.message || 'Xác thực OTP thành công!');
         setTimeout(() => {
           setSuccess('');
@@ -118,7 +118,7 @@ export default function ForgotPasswordDialog({
     try {
       const response = await passwordService.resetPassword(email, otp, newPassword);
 
-      if (response.code === 200) {
+      if (response.code === '200') {
         setSuccess('Đặt lại mật khẩu thành công! Bạn có thể đăng nhập ngay.');
         setTimeout(() => {
           handleClose();

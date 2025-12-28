@@ -1,5 +1,5 @@
 import { ApiService } from '../../../shared/services/api.service';
-import { LoginRequest, RegisterRequest, AuthData, User, RefreshTokenRequest, RefreshTokenResponse } from '../types/auth.types';
+import { LoginRequest, RegisterRequest, AuthData, User, RefreshTokenRequest, RefreshTokenResponse, UpdateProfileRequest } from '../types/auth.types';
 
 export class AuthService {
   /**
@@ -8,22 +8,29 @@ export class AuthService {
   static async login(credentials: LoginRequest): Promise<AuthData> {
     const response = await ApiService.post<AuthData>('/auth/login', credentials);
     
+    console.log('🔐 Login response:', response);
+    
     // Store tokens and user data
     if (response.accessToken) {
       try {
         localStorage.setItem('accessToken', response.accessToken);
         localStorage.setItem('refreshToken', response.refreshToken);
+        console.log('✅ Token saved to localStorage:', response.accessToken.substring(0, 20) + '...');
         
         // Store user data
         const user: User = {
           userId: response.userId,
           username: response.username,
           email: response.email,
+          firstName: response.firstName,
+          lastName: response.lastName,
         };
         localStorage.setItem('user', JSON.stringify(user));
       } catch (error) {
-        console.error('Failed to store auth data:', error);
+        console.error('❌ Failed to store auth data:', error);
       }
+    } else {
+      console.warn('⚠️ No accessToken in response!');
     }
     
     return response;
@@ -46,6 +53,8 @@ export class AuthService {
           userId: response.userId,
           username: response.username,
           email: response.email,
+          firstName: response.firstName,
+          lastName: response.lastName,
         };
         localStorage.setItem('user', JSON.stringify(user));
       } catch (error) {
@@ -87,6 +96,34 @@ export class AuthService {
    */
   static async getCurrentUserFromApi(): Promise<User> {
     return ApiService.get<User>('/users/me', true);
+  }
+
+  /**
+   * Update user profile
+   */
+  static async updateProfile(userId: string, data: UpdateProfileRequest): Promise<User> {
+    const response = await ApiService.put<any>(`/users/${userId}`, data, true);
+    
+    // Map backend response to User type
+    const user: User = {
+      userId: response.id || response.userId,
+      username: response.username,
+      email: response.email,
+      firstName: response.firstName,
+      lastName: response.lastName,
+      userStatus: response.userStatus,
+      is2FAEnabled: response.is2FAEnabled,
+      roles: response.roleName ? [response.roleName] : undefined,
+    };
+    
+    // Update stored user data
+    try {
+      localStorage.setItem('user', JSON.stringify(user));
+    } catch (error) {
+      console.error('Failed to update user data:', error);
+    }
+    
+    return user;
   }
 
   /**
@@ -135,6 +172,34 @@ export class AuthService {
     } catch {
       return null;
     }
+  }
+
+  /**
+   * Fetch current user profile from API
+   */
+  static async fetchUserProfile(): Promise<User> {
+    const response = await ApiService.get<any>('/users/me', true);
+    
+    // Map backend response (id) to frontend User type (userId)
+    const user: User = {
+      userId: response.id || response.userId,
+      username: response.username,
+      email: response.email,
+      firstName: response.firstName,
+      lastName: response.lastName,
+      userStatus: response.userStatus,
+      is2FAEnabled: response.is2FAEnabled,
+      roles: response.roleName ? [response.roleName] : undefined,
+    };
+    
+    // Update localStorage with mapped data
+    try {
+      localStorage.setItem('user', JSON.stringify(user));
+    } catch (error) {
+      console.error('Failed to update user in localStorage:', error);
+    }
+    
+    return user;
   }
 
   /**
