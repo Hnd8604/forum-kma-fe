@@ -32,6 +32,8 @@ export interface User {
   createdAt?: string;
   userStatus?: 'ACTIVE' | 'INACTIVE' | 'PENDING';
   is2FAEnabled?: boolean;
+  postCount?: number;
+  totalPosts?: number;
 }
 
 export interface ApiResponse<T = any> {

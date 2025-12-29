@@ -3,7 +3,7 @@ import { Button } from '../../../shared/components/ui/button';
 import { Textarea } from '../../../shared/components/ui/textarea';
 import { Input } from '../../../shared/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../shared/components/ui/select';
-import { Image, Link2, X, Loader2, FileText, Upload } from 'lucide-react';
+import { Image, Link2, X, Loader2, FileText, Upload, File } from 'lucide-react';
 import { useAuthStore } from '../../../store/useStore';
 import { PostService } from '../services/post.service';
 import { GroupService } from '../services/group.service';
@@ -50,7 +50,23 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
   };
 
   const handleSubmit = async () => {
-    if (!title.trim() || !content.trim()) return;
+    // Validate title is required
+    if (!title.trim()) {
+      setError('Tiêu đề không được để trống');
+      return;
+    }
+
+    // For TEXT posts, content is required
+    if (postType === 'TEXT' && !content.trim()) {
+      setError('Nội dung không được để trống');
+      return;
+    }
+
+    // For IMAGE/DOC posts, need file or URL
+    if (postType !== 'TEXT' && !selectedFile && !resourceUrl.trim()) {
+      setError('Vui lòng tải lên file hoặc nhập URL');
+      return;
+    }
 
     setSubmitting(true);
     setError(null);
@@ -58,6 +74,7 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
     try {
       let finalResourceUrl = resourceUrl;
 
+      // Upload file first if user selected a file
       if (selectedFile && postType !== 'TEXT') {
         setUploading(true);
         try {
@@ -66,17 +83,13 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
             : '/files/upload/document';
           
           const uploadResult = await ApiService.uploadFile<{ 
-            fileName: string;
-            fileUrl: string;
-            fileSize: number;
-            contentType: string;
-            uploadedAt: string;
+            resourceUrl: string;
           }>(
             uploadEndpoint,
             selectedFile
           );
           
-          finalResourceUrl = uploadResult.fileUrl;
+          finalResourceUrl = uploadResult.resourceUrl;
         } catch (uploadErr: any) {
           console.error('File upload failed:', uploadErr);
           throw new Error(uploadErr.message || 'Không thể tải file lên. Vui lòng thử lại.');
@@ -85,13 +98,24 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
         }
       }
 
-      await PostService.createPost({
+      // Create post with uploaded URL or provided URL
+      const postData: any = {
         title: title.trim(),
-        content: content.trim(),
-        groupId: selectedGroupId || undefined,
+        content: content.trim() || '',
         type: postType,
-        resourceUrl: postType !== 'TEXT' ? finalResourceUrl : undefined,
-      });
+      };
+
+      // Add groupId if selected
+      if (selectedGroupId) {
+        postData.groupId = selectedGroupId;
+      }
+
+      // Add resourceUrl for IMAGE and DOC posts
+      if (postType !== 'TEXT' && finalResourceUrl) {
+        postData.resourceUrl = finalResourceUrl;
+      }
+
+      await PostService.createPost(postData);
 
       setTitle('');
       setContent('');
@@ -210,8 +234,8 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
                   : 'text-slate-500 hover:text-slate-700'
               }`}
             >
-              <Link2 className="w-4 h-4" />
-              Link
+              <File className="w-4 h-4" />
+              Document
             </button>
           </div>
 
@@ -350,10 +374,10 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
               className="rounded-xl px-6 h-10 text-sm font-medium bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg shadow-blue-500/25 transition-all"
               disabled={
                 !title.trim() ||
-                !content.trim() ||
+                (postType === 'TEXT' && !content.trim()) ||
+                (postType !== 'TEXT' && !selectedFile && !resourceUrl.trim()) ||
                 submitting ||
-                uploading ||
-                (postType !== 'TEXT' && !selectedFile && !resourceUrl)
+                uploading
               }
             >
               {uploading ? (

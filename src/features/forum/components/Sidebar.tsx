@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, TrendingUp, Users, ChevronDown, ChevronUp, Plus, Loader2, Flame, Star, Clock } from 'lucide-react';
 import { Button } from '../../../shared/components/ui/button';
-import { ScrollArea } from '../../../shared/components/ui/scroll-area';
 import { GroupService } from '../services/group.service';
 import type { Group } from '../types/post.types';
 
@@ -48,9 +47,7 @@ export default function Sidebar() {
 
   return (
     <aside className="hidden lg:block w-64 flex-shrink-0 mr-6">
-      <div className="sticky top-[60px]">
-        <ScrollArea className="h-[calc(100vh-80px)]">
-          <div className="pr-2">
+      <div className="pr-2 max-h-[calc(100vh-2rem)] overflow-y-auto">
             {/* Feed Options */}
             <div className="mb-4">
               {feedOptions.map((item) => (
@@ -185,11 +182,9 @@ export default function Sidebar() {
                   <a href="#" className="hover:text-blue-500 transition-colors">Điều khoản</a>
                   <a href="#" className="hover:text-blue-500 transition-colors">Chính sách</a>
                 </div>
-                <p className="mt-2">© 2025 Forum KMA</p>
+                <p className="mt-2">&copy; 2025 Forum KMA</p>
               </div>
             </div>
-          </div>
-        </ScrollArea>
       </div>
     </aside>
   );

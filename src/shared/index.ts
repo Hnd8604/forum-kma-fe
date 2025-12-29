@@ -9,3 +9,8 @@ export * from './components/ui/dropdown-menu';
 export * from './components/ui/badge';
 export * from './components/ui/scroll-area';
 export * from './components/ui/separator';
+
+// Export file upload components and services
+export * from './components/FileUpload';
+export * from './services/file-upload.service';
+export * from './types/file.types';

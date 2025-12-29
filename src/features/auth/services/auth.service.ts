@@ -146,6 +146,8 @@ export class AuthService {
       userStatus: response.userStatus,
       is2FAEnabled: response.is2FAEnabled,
       roles: response.roleName ? [response.roleName] : undefined,
+      postCount: response.postCount ?? response.totalPosts,
+      totalPosts: response.totalPosts ?? response.postCount,
     };
     
     // Update stored user data

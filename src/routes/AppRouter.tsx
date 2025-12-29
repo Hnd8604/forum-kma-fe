@@ -52,7 +52,7 @@ function ForumWrapper({ children }: { children?: React.ReactNode }) {
     };
 
     const handleNotificationsOpen = () => {
-        setIsNotificationsOpen(true);
+        setIsNotificationsOpen((prev) => !prev);
     };
 
     const handleOpenMiniChat = (conversation: Conversation) => {

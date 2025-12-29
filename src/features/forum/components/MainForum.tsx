@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import Sidebar from './Sidebar';
 import ForumFeed from './ForumFeed';
@@ -7,6 +7,7 @@ import { Input } from '../../../shared/components/ui/input';
 import { Search, Bell, User, LogOut, Settings, ChevronDown, Plus, Sparkles, Users } from 'lucide-react';
 import { ChatHeaderIcon } from '../../chat';
 import { useAuthStore } from '../../../store/useStore';
+import { AuthService } from '../../auth/services/auth.service';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -25,9 +26,32 @@ interface MainForumProps {
 export default function MainForum({ onLogout, onOpenNotifications, onOpenMiniChat, children }: MainForumProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const user = useAuthStore((s) => s.user);
+  const setUser = useAuthStore((s) => s.setUser);
   
   const displayName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || 'User' : 'User';
   const displayEmail = user?.email || 'student@university.edu';
+  const displayPostCount = user?.totalPosts ?? user?.postCount ?? 0;
+
+  useEffect(() => {
+    let active = true;
+    const loadUser = async () => {
+      try {
+        const token = AuthService.getAccessToken();
+        if (!token) return;
+        const profile = await AuthService.fetchUserProfile();
+        if (active && profile) {
+          setUser(profile);
+        }
+      } catch (error) {
+        console.error('Failed to load user profile', error);
+      }
+    };
+
+    loadUser();
+    return () => {
+      active = false;
+    };
+  }, [setUser]);
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-slate-100">
@@ -113,7 +137,7 @@ export default function MainForum({ onLogout, onOpenNotifications, onOpenMiniCha
                   </div>
                   <p className="text-xs text-blue-100 truncate">{displayEmail}</p>
                   <div className="mt-3 text-center">
-                    <p className="text-2xl font-bold text-white">245</p>
+                    <p className="text-2xl font-bold text-white">{displayPostCount}</p>
                     <p className="text-xs text-blue-100">bài viết</p>
                   </div>
                 </div>
@@ -156,7 +180,9 @@ export default function MainForum({ onLogout, onOpenNotifications, onOpenMiniCha
       <div className="flex w-full pt-5 px-4 gap-4 max-w-[1600px] mx-auto">
         {/* Sidebar */}
         <div className="w-64 flex-shrink-0 hidden lg:block">
-          <Sidebar />
+          <div className="sticky top-20">
+            <Sidebar />
+          </div>
         </div>
 
         {/* Feed */}

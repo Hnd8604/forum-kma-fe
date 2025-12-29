@@ -20,7 +20,7 @@ export default function App() {
   };
 
   const handleNotificationsOpen = () => {
-    setIsNotificationsOpen(true);
+    setIsNotificationsOpen((prev) => !prev);
   };
 
   const handleAIChatToggle = () => {
