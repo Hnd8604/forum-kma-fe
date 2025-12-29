@@ -5,6 +5,7 @@ import ForumFeed from './ForumFeed';
 import { Button } from '../../../shared/components/ui/button';
 import { Input } from '../../../shared/components/ui/input';
 import { GraduationCap, Search, Bell, User, LogOut, Settings } from 'lucide-react';
+import { ChatHeaderIcon } from '../../chat';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -17,10 +18,11 @@ import { Badge } from '../../../shared/components/ui/badge';
 interface MainForumProps {
   onLogout: () => void;
   onOpenNotifications?: () => void;
+  onOpenMiniChat?: (conversation: any) => void;
   children?: React.ReactNode;
 }
 
-export default function MainForum({ onLogout, onOpenNotifications, children }: MainForumProps) {
+export default function MainForum({ onLogout, onOpenNotifications, onOpenMiniChat, children }: MainForumProps) {
   const [searchQuery, setSearchQuery] = useState('');
 
   return (
@@ -56,6 +58,8 @@ export default function MainForum({ onLogout, onOpenNotifications, children }: M
 
           {/* Right Actions */}
           <div className="flex items-center space-x-2">
+            <ChatHeaderIcon onOpenMiniChat={onOpenMiniChat} />
+
             <Button
               variant="ghost"
               size="icon"

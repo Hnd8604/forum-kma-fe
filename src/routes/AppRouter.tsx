@@ -7,7 +7,8 @@ import ProfilePage from '../features/forum/components/ProfilePage';
 import MainForum from '../features/forum/components/MainForum';
 import Notifications from '../features/notifications/Notifications';
 import { AIChatButton } from '../features/chatbot';
-import { UserChatButton } from '../features/chat';
+import { ChatPage, MiniChatWindow } from '../features/chat';
+import type { Conversation } from '../features/chat';
 import { useAuthStore } from '../store/useStore';
 
 function LoginWrapper() {
@@ -34,36 +35,68 @@ function RegisterWrapper() {
     />;
 }
 
+interface OpenChat {
+    conversation: Conversation;
+    id: string;
+}
+
 function ForumWrapper({ children }: { children?: React.ReactNode }) {
     const logout = useAuthStore((s) => s.logout);
     const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
     const [isAIChatOpen, setIsAIChatOpen] = useState(false);
-    const [isUserChatOpen, setIsUserChatOpen] = useState(false);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
+    const [openChats, setOpenChats] = useState<OpenChat[]>([]);
 
     const handleAIChatToggle = () => {
         setIsAIChatOpen(!isAIChatOpen);
-        if (!isAIChatOpen) {
-            setIsUserChatOpen(false);
-        }
-    };
-
-    const handleUserChatToggle = () => {
-        setIsUserChatOpen(!isUserChatOpen);
-        if (!isUserChatOpen) {
-            setIsAIChatOpen(false);
-        }
     };
 
     const handleNotificationsOpen = () => {
         setIsNotificationsOpen(true);
     };
 
+    const handleOpenMiniChat = (conversation: Conversation) => {
+        // Check if already open
+        const exists = openChats.find(
+            (chat) => chat.conversation.conversationId === conversation.conversationId
+        );
+
+        if (exists) {
+            // Bring to front by moving to end
+            setOpenChats((prev) =>
+                prev.filter((c) => c.id !== exists.id).concat(exists)
+            );
+            return;
+        }
+
+        // Limit to 3 open chats
+        setOpenChats((prev) => {
+            const newChat: OpenChat = {
+                conversation,
+                id: conversation.conversationId,
+            };
+
+            if (prev.length >= 3) {
+                return [...prev.slice(1), newChat];
+            }
+
+            return [...prev, newChat];
+        });
+    };
+
+    const handleCloseChat = (id: string) => {
+        setOpenChats((prev) => prev.filter((chat) => chat.id !== id));
+    };
+
     if (!isLoggedIn) return <Navigate to="/" replace />;
 
     return (
         <>
-            <MainForum onLogout={logout} onOpenNotifications={handleNotificationsOpen}>
+            <MainForum 
+                onLogout={logout} 
+                onOpenNotifications={handleNotificationsOpen}
+                onOpenMiniChat={handleOpenMiniChat}
+            >
                 {children}
             </MainForum>
 
@@ -75,8 +108,15 @@ function ForumWrapper({ children }: { children?: React.ReactNode }) {
             {/* AI Chat */}
             <AIChatButton isOpen={isAIChatOpen} onToggle={handleAIChatToggle} />
 
-            {/* User Chat */}
-            <UserChatButton isOpen={isUserChatOpen} onToggle={handleUserChatToggle} unreadCount={3} />
+            {/* Mini Chat Windows */}
+            {openChats.map((chat, index) => (
+                <MiniChatWindow
+                    key={chat.id}
+                    conversation={chat.conversation}
+                    onClose={() => handleCloseChat(chat.id)}
+                    position={index}
+                />
+            ))}
         </>
     );
 }
@@ -97,6 +137,7 @@ export default function AppRouter() {
             { path: '/forum', element: <ForumWrapper /> },
             { path: '/settings', element: <ForumWrapper><SettingsPage /></ForumWrapper> },
             { path: '/profile', element: <ForumWrapper><ProfilePage /></ForumWrapper> },
+            { path: '/chat', element: <ForumWrapper><ChatPage /></ForumWrapper> },
             { path: '*', element: <Navigate to="/" replace /> },
         ],
         {

@@ -235,6 +235,26 @@ export class AuthService {
   }
 
   /**
+   * Fetch a user by ID
+   */
+  static async getUserById(userId: string): Promise<User> {
+    const response = await ApiService.get<any>(`/users/${userId}`, true);
+
+    const user: User = {
+      userId: response.id || response.userId,
+      username: response.username,
+      email: response.email,
+      firstName: response.firstName,
+      lastName: response.lastName,
+      userStatus: response.userStatus,
+      is2FAEnabled: response.is2FAEnabled,
+      roles: response.roleName ? [response.roleName] : undefined,
+    };
+
+    return user;
+  }
+
+  /**
    * Get refresh token
    */
   static getRefreshToken(): string | null {
