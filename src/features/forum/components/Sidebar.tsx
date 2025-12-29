@@ -1,43 +1,29 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, TrendingUp, Users, BookOpen, Code, Palette, Music, Dumbbell, Globe, Plus, Loader2 } from 'lucide-react';
+import { Home, TrendingUp, Users, ChevronDown, ChevronUp, Plus, Loader2, Flame, Star, Clock } from 'lucide-react';
 import { Button } from '../../../shared/components/ui/button';
 import { ScrollArea } from '../../../shared/components/ui/scroll-area';
-import { Separator } from '../../../shared/components/ui/separator';
 import { GroupService } from '../services/group.service';
 import type { Group } from '../types/post.types';
 
-const popularGroups = [
-  { id: 1, name: 'Trang chủ', icon: Home, members: null, color: 'text-red-600', bgColor: 'bg-red-50' },
-  { id: 2, name: 'Phổ biến', icon: TrendingUp, members: null, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },
+const feedOptions = [
+  { id: 'home', name: 'Trang chủ', icon: Home },
+  { id: 'popular', name: 'Phổ biến', icon: TrendingUp },
+  { id: 'all', name: 'Tất cả', icon: Flame },
 ];
 
-// Icon mapping for different group types
-const iconMap: Record<string, any> = {
-  'code': Code,
-  'book': BookOpen,
-  'palette': Palette,
-  'music': Music,
-  'dumbbell': Dumbbell,
-  'globe': Globe,
-  'users': Users,
-};
-
-const colorCombos = [
-  { color: 'text-blue-600', bgColor: 'bg-blue-50' },
-  { color: 'text-green-600', bgColor: 'bg-green-50' },
-  { color: 'text-purple-600', bgColor: 'bg-purple-50' },
-  { color: 'text-pink-600', bgColor: 'bg-pink-50' },
-  { color: 'text-orange-600', bgColor: 'bg-orange-50' },
-  { color: 'text-indigo-600', bgColor: 'bg-indigo-50' },
-  { color: 'text-red-500', bgColor: 'bg-red-50' },
-  { color: 'text-yellow-700', bgColor: 'bg-yellow-50' },
+// Generate colors for communities - professional palette
+const communityColors = [
+  '#1e3a5f', '#2d5a87', '#3d7ab5', '#1a5f7a', '#2e8b57',
+  '#4682b4', '#5f9ea0', '#6b8e9f', '#708090', '#4a6fa5',
 ];
 
 export default function Sidebar() {
   const navigate = useNavigate();
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(false);
+  const [showCommunities, setShowCommunities] = useState(true);
+  const [showRecent, setShowRecent] = useState(true);
 
   useEffect(() => {
     loadMyGroups();
@@ -56,117 +42,155 @@ export default function Sidebar() {
     }
   };
 
-  const getGroupIcon = (index: number) => {
-    const icons = [Code, BookOpen, Palette, Music, Dumbbell, Globe, Users];
-    return icons[index % icons.length];
-  };
-
-  const getColorCombo = (index: number) => {
-    return colorCombos[index % colorCombos.length];
+  const getRandomColor = (index: number) => {
+    return communityColors[index % communityColors.length];
   };
 
   return (
-    <aside className="w-72 bg-white/60 backdrop-blur-sm border-r border-red-100 h-[calc(100vh-65px)] sticky top-[65px]">
-      <ScrollArea className="h-full">
-        <div className="p-4">
-          {/* Quick Links */}
-          <div className="space-y-1 mb-6">
-            {popularGroups.map((item) => (
-              <Button
-                key={item.id}
-                variant="ghost"
-                onClick={() => {
-                  if (item.id === 1) {
-                    // Trang chủ
-                    navigate('/forum');
-                  }
-                  // Can add more handlers for other items
-                }}
-                className="w-full justify-start hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100/50 rounded-xl transition-all group h-12"
-              >
-                <div className={`flex items-center justify-center w-9 h-9 rounded-lg ${item.bgColor} mr-3 group-hover:scale-110 transition-transform`}>
-                  <item.icon className={`w-5 h-5 ${item.color}`} />
-                </div>
-                <span className="group-hover:translate-x-1 transition-transform">{item.name}</span>
-              </Button>
-            ))}
-          </div>
-
-          <Separator className="my-4 bg-red-100" />
-
-          {/* Groups Section */}
-          <div>
-            <div className="flex items-center justify-between mb-3 px-2">
-              <h3 className="text-gray-700">Nhóm của bạn</h3>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                className="h-8 w-8 rounded-lg hover:bg-red-50 hover:text-red-600 transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-              </Button>
+    <aside className="hidden lg:block w-64 flex-shrink-0 mr-6">
+      <div className="sticky top-[60px]">
+        <ScrollArea className="h-[calc(100vh-80px)]">
+          <div className="pr-2">
+            {/* Feed Options */}
+            <div className="mb-4">
+              {feedOptions.map((item) => (
+                <Button
+                  key={item.id}
+                  variant="ghost"
+                  onClick={() => {
+                    if (item.id === 'home') {
+                      navigate('/forum');
+                    }
+                  }}
+                  className="w-full justify-start h-10 px-3 rounded hover:bg-[#EAEDEF] text-sm font-normal text-[#1C1C1C]"
+                >
+                  <item.icon className="w-5 h-5 mr-3 text-[#878A8C]" />
+                  {item.name}
+                </Button>
+              ))}
             </div>
 
-            <div className="space-y-1">
-              {loading ? (
-                <div className="flex items-center justify-center py-4">
-                  <Loader2 className="w-5 h-5 animate-spin text-red-500" />
-                  <span className="ml-2 text-sm text-gray-500">Đang tải...</span>
-                </div>
-              ) : groups.length > 0 ? (
-                groups.map((group, index) => {
-                  const GroupIcon = getGroupIcon(index);
-                  const { color, bgColor } = getColorCombo(index);
-                  const groupName = group.groupName || group.name || 'Nhóm';
-                  
-                  return (
-                    <Button
-                      key={group.groupId}
-                      variant="ghost"
-                      className="w-full justify-start hover:bg-gradient-to-r hover:from-gray-50 hover:to-red-50/50 rounded-xl h-auto py-3 transition-all group"
-                    >
-                      <div className="flex items-center w-full">
-                        <div className={`flex items-center justify-center w-10 h-10 rounded-xl ${bgColor} mr-3 flex-shrink-0 group-hover:scale-110 transition-transform`}>
-                          <GroupIcon className={`w-5 h-5 ${color}`} />
-                        </div>
-                        <div className="flex-1 text-left min-w-0">
-                          <div className="truncate text-sm group-hover:translate-x-1 transition-transform">{groupName}</div>
-                          <div className="text-xs text-gray-500">
-                            {group.memberCount.toLocaleString('vi-VN')} thành viên
-                          </div>
-                        </div>
-                      </div>
-                    </Button>
-                  );
-                })
-              ) : (
-                <div className="text-center py-4 text-sm text-gray-500">
-                  Bạn chưa tham gia nhóm nào
+            <div className="border-t border-[#EDEFF1] my-3"></div>
+
+            {/* Recent Communities */}
+            <div className="mb-4 bg-white rounded-2xl border border-slate-200 p-2 shadow-sm">
+              <button 
+                onClick={() => setShowRecent(!showRecent)}
+                className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500 hover:bg-slate-100 rounded-lg transition-all"
+              >
+                <span>Gần đây</span>
+                {showRecent ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </button>
+              
+              {showRecent && (
+                <div className="space-y-1 mt-1">
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start h-11 px-3 rounded-xl hover:bg-slate-100 text-sm font-medium text-slate-700 transition-all"
+                  >
+                    <Clock className="w-5 h-5 mr-3 text-slate-500" />
+                    Xem gần đây
+                  </Button>
                 </div>
               )}
             </div>
-          </div>
 
-          {/* Footer Links */}
-          <div className="mt-8 pt-4 border-t border-red-100">
-            <div className="space-y-2 text-xs text-gray-500">
-              <a href="#" className="block hover:text-red-600 hover:underline transition-colors px-2 py-1 rounded-lg hover:bg-red-50">
-                Về chúng tôi
-              </a>
-              <a href="#" className="block hover:text-red-600 hover:underline transition-colors px-2 py-1 rounded-lg hover:bg-red-50">
-                Điều khoản
-              </a>
-              <a href="#" className="block hover:text-red-600 hover:underline transition-colors px-2 py-1 rounded-lg hover:bg-red-50">
-                Chính sách bảo mật
-              </a>
-              <a href="#" className="block hover:text-red-600 hover:underline transition-colors px-2 py-1 rounded-lg hover:bg-red-50">
-                Trợ giúp
-              </a>
+            {/* Communities */}
+            <div className="mb-4 bg-white rounded-2xl border border-slate-200 p-2 shadow-sm">
+              <button 
+                onClick={() => setShowCommunities(!showCommunities)}
+                className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500 hover:bg-slate-100 rounded-lg transition-all"
+              >
+                <span>Cộng đồng của bạn</span>
+                {showCommunities ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+              </button>
+
+              {showCommunities && (
+                <div className="space-y-1 mt-1">
+                  {/* Create Community Button */}
+                  <Button
+                    variant="ghost"
+                    className="w-full justify-start h-11 px-3 rounded-xl hover:bg-blue-50 text-sm font-medium text-blue-600 transition-all"
+                  >
+                    <div className="w-6 h-6 mr-3 rounded-full border-2 border-dashed border-blue-400 flex items-center justify-center">
+                      <Plus className="w-3 h-3 text-blue-500" />
+                    </div>
+                    Tạo cộng đồng
+                  </Button>
+
+                  {loading ? (
+                    <div className="flex items-center justify-center py-4">
+                      <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
+                    </div>
+                  ) : groups.length > 0 ? (
+                    groups.map((group, index) => {
+                      const groupName = group.groupName || group.name || 'Nhóm';
+                      const color = getRandomColor(index);
+                      
+                      return (
+                        <Button
+                          key={group.groupId}
+                          variant="ghost"
+                          className="w-full justify-start h-11 px-3 rounded-xl hover:bg-slate-100 text-sm font-medium text-slate-700 transition-all"
+                        >
+                          <div 
+                            className="w-6 h-6 mr-3 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm"
+                            style={{ backgroundColor: color }}
+                          >
+                            {groupName[0]?.toUpperCase()}
+                          </div>
+                          <span className="truncate">{groupName}</span>
+                        </Button>
+                      );
+                    })
+                  ) : (
+                    <div className="text-center py-4 px-3 text-sm text-slate-500">
+                      Bạn chưa tham gia cộng đồng nào
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-            <p className="mt-4 text-xs text-gray-400 px-2">© 2025 Forum Sinh Viên</p>
+
+            <div className="border-t border-[#EDEFF1] my-3"></div>
+
+            {/* Resources */}
+            <div className="mb-4 bg-white rounded-2xl border border-slate-200 p-2 shadow-sm">
+              <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
+                Tài nguyên
+              </div>
+              <div className="space-y-1">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start h-11 px-3 rounded-xl hover:bg-slate-100 text-sm font-medium text-slate-700 transition-all"
+                >
+                  <Users className="w-5 h-5 mr-3 text-slate-500" />
+                  Giới thiệu Forum KMA
+                </Button>
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start h-11 px-3 rounded-xl hover:bg-slate-100 text-sm font-medium text-slate-700 transition-all"
+                >
+                  <Star className="w-5 h-5 mr-3 text-amber-500" />
+                  Hướng dẫn sử dụng
+                </Button>
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="pt-4 pb-4 px-3">
+              <div className="text-xs text-slate-400 space-y-2">
+                <div className="flex flex-wrap gap-x-3">
+                  <a href="#" className="hover:text-blue-500 transition-colors">Về chúng tôi</a>
+                  <a href="#" className="hover:text-blue-500 transition-colors">Điều khoản</a>
+                  <a href="#" className="hover:text-blue-500 transition-colors">Chính sách</a>
+                </div>
+                <p className="mt-2">© 2025 Forum KMA</p>
+              </div>
+            </div>
           </div>
-        </div>
-      </ScrollArea>
+        </ScrollArea>
+      </div>
     </aside>
   );
 }

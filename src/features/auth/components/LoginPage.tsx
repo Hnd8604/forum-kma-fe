@@ -3,7 +3,7 @@ import { Button } from '../../../shared/components/ui/button';
 import { Input } from '../../../shared/components/ui/input';
 import { Label } from '../../../shared/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../../shared/components/ui/card';
-import { GraduationCap, Mail, Lock, User, Sparkles } from 'lucide-react';
+import { Lock, User } from 'lucide-react';
 import { AuthService } from '../services/auth.service';
 import { useAuthStore } from '../../../store/useStore';
 import { ApiError } from '../types/auth.types';
@@ -166,39 +166,38 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-red-50 via-orange-50 to-yellow-50 p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4 relative overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-red-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob"></div>
-        <div className="absolute top-40 right-10 w-72 h-72 bg-yellow-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-2000"></div>
-        <div className="absolute -bottom-8 left-20 w-72 h-72 bg-orange-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
+        <div className="absolute top-20 left-10 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-40 right-10 w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute -bottom-8 left-20 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
       </div>
 
       <div className="w-full max-w-md relative z-10">
         {/* Logo and Title */}
-        <div className="text-center mb-8 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-red-600 to-red-500 rounded-2xl mb-4 shadow-lg transform hover:scale-105 transition-transform">
-            <GraduationCap className="w-12 h-12 text-white" />
+        <div className="text-center mb-8">
+          <div className="inline-flex items-center justify-center mb-4">
+            <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/30 transform hover:scale-105 transition-transform">
+              <svg viewBox="0 0 24 24" className="w-10 h-10 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+              </svg>
+            </div>
           </div>
-          <h1 className="text-4xl font-bold bg-gradient-to-r from-red-600 via-red-500 to-yellow-600 bg-clip-text text-transparent mb-2">
-            Forum Sinh Viên
-          </h1>
-          <div className="flex items-center justify-center space-x-2 text-gray-600">
-            <Sparkles className="w-4 h-4 text-yellow-500" />
-            <p>Nơi chia sẻ và kết nối</p>
-            <Sparkles className="w-4 h-4 text-yellow-500" />
-          </div>
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Forum KMA</h1>
+          <p className="text-sm text-slate-500 mt-2">Cộng đồng sinh viên Học viện Kỹ thuật Mật mã</p>
         </div>
 
         {/* Login Card */}
-        <Card className="border-0 shadow-2xl backdrop-blur-sm bg-white/95 rounded-2xl overflow-hidden animate-fade-in">
+        <Card className="border-0 shadow-2xl backdrop-blur-sm bg-white/90 rounded-3xl overflow-hidden">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-2xl">
-              {step === 'login' ? 'Chào mừng trở lại! 👋' : 'Xác thực 2 yếu tố 🔐'}
+            <CardTitle className="text-2xl font-bold text-slate-900">
+              {step === 'login' ? 'Đăng nhập' : 'Xác thực 2 yếu tố'}
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-slate-500">
               {step === 'login' 
-                ? 'Đăng nhập để tiếp tục hành trình học tập'
+                ? 'Chào mừng bạn quay trở lại!'
                 : 'Nhập mã OTP đã được gửi đến email của bạn'
               }
             </CardDescription>
@@ -207,74 +206,77 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
           {/* Step 1: Login Form */}
           {step === 'login' && (
             <form onSubmit={handleSubmit}>
-              <CardContent className="space-y-4">
+              <CardContent className="space-y-5">
               <div className="space-y-2">
-                <Label htmlFor="username" className="text-gray-700">Tên đăng nhập</Label>
+                <Label htmlFor="username" className="text-sm font-medium text-slate-700">Tên đăng nhập</Label>
                 <div className="relative group">
-                  <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-red-500 transition-colors" />
+                  <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                   <Input
                     id="username"
                     type="text"
-                    placeholder="username"
+                    placeholder="Nhập tên đăng nhập"
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="pl-11 h-12 rounded-xl border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all"
+                    className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm transition-all"
                     required
                   />
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="password" className="text-gray-700">Mật khẩu</Label>
+                <Label htmlFor="password" className="text-sm font-medium text-slate-700">Mật khẩu</Label>
                 <div className="relative group">
-                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 group-focus-within:text-red-500 transition-colors" />
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                   <Input
                     id="password"
                     type="password"
                     placeholder="••••••••"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-11 h-12 rounded-xl border-gray-200 focus:border-red-300 focus:ring-red-200 transition-all"
+                    className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm transition-all"
                     required
                   />
                 </div>
               </div>
               <div className="flex items-center justify-between">
-                <label className="flex items-center space-x-2 cursor-pointer group">
+                <label className="flex items-center space-x-2 cursor-pointer">
                   <input 
                     type="checkbox" 
                     checked={rememberMe}
                     onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-gray-300 text-red-600 focus:ring-red-500" 
+                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" 
                   />
-                  <span className="text-sm text-gray-600 group-hover:text-gray-900 transition-colors">Ghi nhớ đăng nhập</span>
+                  <span className="text-sm text-slate-600">Ghi nhớ đăng nhập</span>
                 </label>
                 <button 
                   type="button"
                   onClick={() => setIsForgotPasswordOpen(true)}
-                  className="text-sm text-red-600 hover:text-red-700 hover:underline transition-colors"
+                  className="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium"
                 >
                   Quên mật khẩu?
                 </button>
               </div>
               {error && (
-                <p className="text-sm text-red-600">{error}</p>
+                <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm flex items-center gap-2">
+                  <span>⚠️</span>
+                  {error}
+                </div>
               )}
             </CardContent>
-            <CardFooter className="flex flex-col gap-3 pt-2">
+            <CardFooter className="flex flex-col gap-4 pt-2 pb-6 px-6">
               <Button 
                 type="submit" 
                 disabled={loading}
-                className="w-full h-12 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30"
               >
-                {loading ? 'Đang đăng nhập...' : 'Đăng nhập ngay'}
+                {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
               </Button>
               {onSwitchToRegister && (
-                <div className="text-center text-sm text-gray-600">
+                <div className="text-center text-sm text-slate-500">
                   Chưa có tài khoản?{' '}
                   <button
                     type="button"
                     onClick={onSwitchToRegister}
-                    className="text-red-600 hover:text-red-700 hover:underline transition-colors font-medium"
+                    className="text-blue-600 hover:text-blue-700 hover:underline font-semibold"
                   >
                     Đăng ký ngay
                   </button>
@@ -287,48 +289,55 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
           {/* Step 2: OTP Verification */}
           {step === 'otp' && (
             <form onSubmit={handleVerifyOtp}>
-              <CardContent className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="emailForOtp" className="text-gray-700">Email</Label>
-                      <Input
-                        id="emailForOtp"
-                        type="email"
-                        placeholder="your@email.com"
-                        value={emailForOtp}
-                        onChange={(e) => setEmailForOtp(e.target.value)}
-                        className="h-12 rounded-xl border-gray-200 focus:border-red-300 focus:ring-red-200"
-                        disabled={loading}
-                        required
-                      />
+              <CardContent className="space-y-5">
+                    <div className="space-y-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="emailForOtp" className="text-sm font-medium text-slate-700">Email</Label>
+                        <Input
+                          id="emailForOtp"
+                          type="email"
+                          placeholder="your@email.com"
+                          value={emailForOtp}
+                          onChange={(e) => setEmailForOtp(e.target.value)}
+                          className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm transition-all"
+                          disabled={loading}
+                          required
+                        />
+                      </div>
 
-                      <Label htmlFor="otp" className="text-gray-700">Mã OTP</Label>
-                      <Input
-                        id="otp"
-                        type="text"
-                        maxLength={6}
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                        placeholder="000000"
-                        disabled={loading}
-                        autoFocus
-                        className="text-center text-3xl tracking-[0.5em] font-semibold h-14 rounded-xl border-gray-200 focus:border-red-300 focus:ring-red-200"
-                        onKeyDown={(e) => e.key === 'Enter' && handleVerifyOtp(e as any)}
-                      />
+                      <div className="space-y-2">
+                        <Label htmlFor="otp" className="text-sm font-medium text-slate-700">Mã OTP</Label>
+                        <Input
+                          id="otp"
+                          type="text"
+                          maxLength={6}
+                          value={otp}
+                          onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                          placeholder="000000"
+                          disabled={loading}
+                          autoFocus
+                          className="text-center text-2xl tracking-[0.5em] font-bold h-16 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                          onKeyDown={(e) => e.key === 'Enter' && handleVerifyOtp(e as any)}
+                        />
+                      </div>
 
-                      <div className="text-sm text-gray-600 text-center space-y-1 mt-2">
-                        <p>Kiểm tra email của bạn để lấy mã OTP</p>
+                      <div className="text-sm text-slate-500 text-center space-y-1 mt-4 p-4 bg-slate-50 rounded-xl">
+                        <p>📧 Kiểm tra email của bạn để lấy mã OTP</p>
                         <p className="text-xs">Mã OTP có hiệu lực trong 5 phút</p>
                       </div>
                     </div>
                 {error && (
-                  <p className="text-sm text-red-600 text-center">{error}</p>
+                  <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm flex items-center gap-2">
+                    <span>⚠️</span>
+                    {error}
+                  </div>
                 )}
               </CardContent>
-              <CardFooter className="flex flex-col gap-3 pt-2">
+              <CardFooter className="flex flex-col gap-3 pt-2 pb-6 px-6">
                 <Button 
                   type="submit" 
                   disabled={loading || otp.length !== 6}
-                  className="w-full h-12 bg-gradient-to-r from-red-600 to-red-500 hover:from-red-700 hover:to-red-600 shadow-lg hover:shadow-xl transform hover:scale-[1.02] transition-all rounded-xl disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-blue-500/25"
                 >
                   {loading ? 'Đang xác thực...' : 'Xác nhận'}
                 </Button>
@@ -337,7 +346,7 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
                   variant="outline"
                   onClick={handleBackToLogin}
                   disabled={loading}
-                  className="w-full h-12 rounded-xl"
+                  className="w-full h-12 rounded-xl border-slate-200 text-slate-700 font-semibold text-sm hover:bg-slate-50"
                 >
                   Quay lại
                 </Button>
@@ -347,17 +356,22 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
         </Card>
 
         {/* Footer */}
-        <p className="text-center text-sm text-gray-600 mt-6 backdrop-blur-sm bg-white/50 rounded-xl p-3">
+        <p className="text-center text-xs text-slate-400 mt-8">
           Bằng việc đăng nhập, bạn đồng ý với{' '}
-          <a href="#" className="text-red-600 hover:text-red-700 hover:underline transition-colors">
+          <a href="#" className="text-blue-600 hover:underline">
             Điều khoản sử dụng
           </a>{' '}
           và{' '}
-          <a href="#" className="text-red-600 hover:text-red-700 hover:underline transition-colors">
+          <a href="#" className="text-blue-600 hover:underline">
             Chính sách bảo mật
           </a>
         </p>
       </div>
+
+      <ForgotPasswordDialog
+        isOpen={isForgotPasswordOpen}
+        onClose={() => setIsForgotPasswordOpen(false)}
+      />
 
       <style>{`
         @keyframes blob {
@@ -375,19 +389,7 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
         .animation-delay-4000 {
           animation-delay: 4s;
         }
-        @keyframes fade-in {
-          from { opacity: 0; transform: translateY(10px); }
-          to { opacity: 1; transform: translateY(0); }
-        }
-        .animate-fade-in {
-          animation: fade-in 0.5s ease-out;
-        }
       `}</style>
-
-      <ForgotPasswordDialog
-        isOpen={isForgotPasswordOpen}
-        onClose={() => setIsForgotPasswordOpen(false)}
-      />
     </div>
   );
 }

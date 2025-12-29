@@ -14,8 +14,8 @@ export default function ChatPage() {
   };
 
   return (
-    <div className="h-screen flex bg-gray-50">
-      <div className={`w-full md:w-96 border-r bg-white ${selectedConversation ? 'hidden md:block' : 'block'}`}>
+    <div className="h-screen flex bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+      <div className={`w-full md:w-[400px] border-r border-white/60 bg-white/95 backdrop-blur-md shadow-xl ${selectedConversation ? 'hidden md:block' : 'block'}`}>
         <ConversationList
           key={refreshKey}
           onSelectConversation={setSelectedConversation}
@@ -31,10 +31,13 @@ export default function ChatPage() {
             onBack={() => setSelectedConversation(null)}
           />
         ) : (
-          <div className="h-full hidden md:flex items-center justify-center text-gray-500">
+          <div className="h-full hidden md:flex items-center justify-center">
             <div className="text-center">
-              <p className="text-xl mb-2">Chọn một cuộc hội thoại</p>
-              <p className="text-sm">Hoặc tạo nhóm chat mới để bắt đầu</p>
+              <div className="w-28 h-28 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-blue-500/30 transform hover:scale-105 transition-transform">
+                <span className="text-5xl">💬</span>
+              </div>
+              <p className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">Chọn một cuộc hội thoại</p>
+              <p className="text-sm text-slate-500">Hoặc tạo nhóm chat mới để bắt đầu trò chuyện</p>
             </div>
           </div>
         )}

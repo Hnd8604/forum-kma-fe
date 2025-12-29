@@ -1,9 +1,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import CreatePost from './CreatePost';
 import PostCard from './PostCard';
-import { Tabs, TabsList, TabsTrigger } from '../../../shared/components/ui/tabs';
 import { Button } from '../../../shared/components/ui/button';
-import { Flame, Sparkles, TrendingUp, Loader2 } from 'lucide-react';
+import { Flame, Sparkles, TrendingUp, Loader2, ChevronDown, LayoutGrid, List } from 'lucide-react';
 import { PostService } from '../services/post.service';
 import type { ApiPost } from '../types/post.types';
 
@@ -11,7 +10,7 @@ export default function ForumFeed() {
   const [posts, setPosts] = useState<ApiPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'hot' | 'new' | 'top'>('new');
+  const [sortBy, setSortBy] = useState<'hot' | 'new' | 'top'>('hot');
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -56,7 +55,6 @@ export default function ForumFeed() {
   };
 
   const handlePostCreated = () => {
-    // Reload posts after creating a new one
     loadPosts(0, false);
   };
 
@@ -70,57 +68,85 @@ export default function ForumFeed() {
     );
   };
 
-  return (
-    <main className="flex-1 max-w-3xl mx-auto p-6">
-      {/* Sort Tabs */}
-      <div className="mb-5">
-        <Tabs defaultValue="new" value={sortBy} onValueChange={(v) => setSortBy(v as any)}>
-          <TabsList className="bg-white/80 backdrop-blur-sm border border-red-100 rounded-xl p-1 shadow-sm">
-            <TabsTrigger 
-              value="hot" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-red-500 data-[state=active]:text-white rounded-lg transition-all data-[state=active]:shadow-md"
-            >
-              <Flame className="w-4 h-4 mr-2" />
-              Nổi bật
-            </TabsTrigger>
-            <TabsTrigger 
-              value="new" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-red-500 data-[state=active]:text-white rounded-lg transition-all data-[state=active]:shadow-md"
-            >
-              <Sparkles className="w-4 h-4 mr-2" />
-              Mới nhất
-            </TabsTrigger>
-            <TabsTrigger 
-              value="top" 
-              className="data-[state=active]:bg-gradient-to-r data-[state=active]:from-red-600 data-[state=active]:to-red-500 data-[state=active]:text-white rounded-lg transition-all data-[state=active]:shadow-md"
-            >
-              <TrendingUp className="w-4 h-4 mr-2" />
-              Top
-            </TabsTrigger>
-          </TabsList>
-        </Tabs>
-      </div>
+  const sortOptions = [
+    { id: 'hot', label: 'Hot', icon: Flame },
+    { id: 'new', label: 'Mới', icon: Sparkles },
+    { id: 'top', label: 'Top', icon: TrendingUp },
+  ];
 
-      {/* Create Post */}
+  return (
+    <main className="flex-1 min-w-0">
+      {/* Create Post Box - Reddit style */}
       <CreatePost onPostCreated={handlePostCreated} />
 
+      {/* Sort Bar */}
+      <div className="bg-white rounded-2xl border border-slate-200 mb-5 p-2 flex items-center justify-between shadow-sm">
+        <div className="flex items-center gap-1">
+          {sortOptions.map((option) => {
+            const Icon = option.icon;
+            const isActive = sortBy === option.id;
+            return (
+              <button
+                key={option.id}
+                onClick={() => setSortBy(option.id as any)}
+                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                  isActive 
+                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-500/25' 
+                    : 'text-slate-600 hover:bg-slate-100'
+                }`}
+              >
+                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : ''}`} />
+                {option.label}
+              </button>
+            );
+          })}
+          
+          <div className="h-5 w-px bg-[#EDEFF1] mx-1"></div>
+          
+          <button className="flex items-center gap-1 px-2 py-1.5 rounded text-sm text-[#878A8C] hover:bg-[#F6F7F8]">
+            <ChevronDown className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
+          <button className="p-2 rounded-lg hover:bg-white text-slate-500 transition-all">
+            <LayoutGrid className="w-4 h-4" />
+          </button>
+          <button className="p-2 rounded-lg bg-white text-blue-600 shadow-sm">
+            <List className="w-4 h-4" />
+          </button>
+        </div>
+      </div>
+
       {/* Posts Feed */}
-      <div className="space-y-5 mt-5">
+      <div className="space-y-0">
         {loading ? (
-          <div className="flex items-center justify-center py-12">
-            <Loader2 className="w-8 h-8 animate-spin text-red-500" />
+          <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-slate-200">
+            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center mb-4 animate-pulse">
+              <Loader2 className="w-6 h-6 animate-spin text-white" />
+            </div>
+            <span className="text-sm text-slate-500">Đang tải bài viết...</span>
           </div>
         ) : error ? (
-          <div className="text-center py-12">
-            <p className="text-red-500 mb-4">{error}</p>
-            <Button onClick={() => loadPosts(0, false)} variant="outline">
+          <div className="text-center py-16 bg-white rounded-2xl border border-slate-200">
+            <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">😕</span>
+            </div>
+            <p className="text-red-500 mb-4 text-sm">{error}</p>
+            <Button 
+              onClick={() => loadPosts(0, false)} 
+              className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl px-6 text-sm font-medium shadow-lg shadow-blue-500/25"
+            >
               Thử lại
             </Button>
           </div>
         ) : posts.length === 0 ? (
-          <div className="text-center py-12 text-gray-500">
-            <p className="text-lg">Chưa có bài viết nào</p>
-            <p className="text-sm mt-2">Hãy là người đầu tiên chia sẻ!</p>
+          <div className="text-center py-16 bg-white rounded-2xl border border-slate-200">
+            <div className="w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mx-auto mb-4">
+              <span className="text-2xl">📝</span>
+            </div>
+            <p className="text-lg font-semibold text-slate-900">Chưa có bài viết nào</p>
+            <p className="text-sm mt-1 text-slate-500">Hãy là người đầu tiên chia sẻ!</p>
           </div>
         ) : (
           <>
@@ -133,12 +159,11 @@ export default function ForumFeed() {
             ))}
 
             {hasMore && (
-              <div className="flex justify-center pt-4">
+              <div className="flex justify-center py-6">
                 <Button
                   onClick={handleLoadMore}
                   disabled={loadingMore}
-                  variant="outline"
-                  className="rounded-xl"
+                  className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl px-8 text-sm font-medium h-11 shadow-lg shadow-blue-500/25 transition-all"
                 >
                   {loadingMore ? (
                     <>
@@ -146,7 +171,7 @@ export default function ForumFeed() {
                       Đang tải...
                     </>
                   ) : (
-                    'Xem thêm'
+                    'Xem thêm bài viết'
                   )}
                 </Button>
               </div>

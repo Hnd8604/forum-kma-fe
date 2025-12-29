@@ -147,76 +147,111 @@ export default function SettingsPage() {
 
   return (
     <div className="p-8 w-full max-w-3xl mx-auto">
-      <h2 className="text-2xl font-semibold mb-6">Cài đặt tài khoản</h2>
+      <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-8">Cài đặt tài khoản</h2>
 
       {/* Thông tin cá nhân */}
-      <div className="space-y-4 bg-white p-6 rounded-xl shadow-sm border mb-6">
-        <h3 className="text-lg font-semibold mb-4">Thông tin cá nhân</h3>
+      <div className="space-y-5 bg-white p-6 rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 mb-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center">
+            <span className="text-white text-lg">👤</span>
+          </div>
+          <h3 className="text-xl font-semibold text-slate-900">Thông tin cá nhân</h3>
+        </div>
         
         {saveError && (
-          <Alert variant="destructive">
-            <AlertDescription>{saveError}</AlertDescription>
+          <Alert variant="destructive" className="rounded-xl border-red-200 bg-red-50">
+            <AlertDescription className="text-red-600">{saveError}</AlertDescription>
           </Alert>
         )}
 
         {saveSuccess && (
-          <Alert className="border-green-500 text-green-700 bg-green-50">
+          <Alert className="border-green-200 text-green-700 bg-green-50 rounded-xl">
             <AlertDescription>{saveSuccess}</AlertDescription>
           </Alert>
         )}
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="text-sm text-gray-600 block mb-1">Họ</label>
-            <Input value={lastName} onChange={(e) => setLastName(e.target.value)} placeholder="Nhập họ" />
+            <label className="text-sm font-medium text-slate-700 block mb-2">Họ</label>
+            <Input 
+              value={lastName} 
+              onChange={(e) => setLastName(e.target.value)} 
+              placeholder="Nhập họ"
+              className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+            />
           </div>
           <div>
-            <label className="text-sm text-gray-600 block mb-1">Tên</label>
-            <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} placeholder="Nhập tên" />
+            <label className="text-sm font-medium text-slate-700 block mb-2">Tên</label>
+            <Input 
+              value={firstName} 
+              onChange={(e) => setFirstName(e.target.value)} 
+              placeholder="Nhập tên"
+              className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+            />
           </div>
         </div>
 
         <div>
-          <label className="text-sm text-gray-600 block mb-1">Email</label>
-          <Input value={email} onChange={(e) => setEmail(e.target.value)} placeholder="example@kma.vn" />
+          <label className="text-sm font-medium text-slate-700 block mb-2">Email</label>
+          <Input 
+            value={email} 
+            onChange={(e) => setEmail(e.target.value)} 
+            placeholder="example@kma.vn"
+            className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+          />
         </div>
 
         <div>
-          <label className="text-sm text-gray-600 block mb-1">Tên đăng nhập</label>
-          <Input value={username} onChange={(e) => setUsername(e.target.value)} placeholder="Nhập tên đăng nhập" />
+          <label className="text-sm font-medium text-slate-700 block mb-2">Tên đăng nhập</label>
+          <Input 
+            value={username} 
+            onChange={(e) => setUsername(e.target.value)} 
+            placeholder="Nhập tên đăng nhập"
+            className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+          />
         </div>
 
-        <div className="flex items-center justify-end">
-          <Button onClick={handleSave} disabled={saving}>
+        <div className="flex items-center justify-end pt-2">
+          <Button 
+            onClick={handleSave} 
+            disabled={saving}
+            className="h-11 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all"
+          >
             {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
           </Button>
         </div>
       </div>
 
       {/* Bảo mật */}
-      <div className="bg-white p-6 rounded-xl shadow-sm border">
-        <h3 className="text-lg font-semibold mb-4">Bảo mật</h3>
+      <div className="bg-white p-6 rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
+            <span className="text-white text-lg">🔒</span>
+          </div>
+          <h3 className="text-xl font-semibold text-slate-900">Bảo mật</h3>
+        </div>
         
-        <div className="space-y-4">
-          <div className="flex items-center justify-between py-3 border-b">
+        <div className="space-y-1">
+          <div className="flex items-center justify-between py-4 px-4 rounded-xl hover:bg-slate-50 transition-all">
             <div>
-              <h4 className="font-medium">Đổi mật khẩu</h4>
-              <p className="text-sm text-gray-500">
+              <h4 className="font-semibold text-slate-900">Đổi mật khẩu</h4>
+              <p className="text-sm text-slate-500 mt-0.5">
                 Cập nhật mật khẩu của bạn để bảo vệ tài khoản
               </p>
             </div>
             <Button 
               onClick={() => setIsChangePasswordOpen(true)}
               variant="outline"
+              className="h-10 px-5 rounded-xl border-slate-200 hover:bg-slate-100 hover:border-slate-300 font-medium transition-all"
             >
               Đổi mật khẩu
             </Button>
           </div>
 
-          <div className="flex items-center justify-between py-3 border-b">
+          <div className="flex items-center justify-between py-4 px-4 rounded-xl hover:bg-slate-50 transition-all">
             <div>
-              <h4 className="font-medium">Xác thực Email</h4>
-              <p className="text-sm text-gray-500">
+              <h4 className="font-semibold text-slate-900">Xác thực Email</h4>
+              <p className="text-sm text-slate-500 mt-0.5">
                 {user?.userStatus === 'ACTIVE' 
                   ? 'Email của bạn đã được xác thực' 
                   : 'Xác thực email để bảo vệ tài khoản của bạn'
@@ -224,53 +259,55 @@ export default function SettingsPage() {
               </p>
             </div>
             {user?.userStatus === 'ACTIVE' ? (
-              <div className="flex items-center gap-2 text-green-600">
+              <div className="flex items-center gap-2 px-4 py-2 bg-green-50 text-green-600 rounded-xl">
                 <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                 </svg>
-                <span className="text-sm font-medium">Đã xác thực</span>
+                <span className="text-sm font-semibold">Đã xác thực</span>
               </div>
             ) : (
               <Button 
                 onClick={() => setIsEmailVerificationOpen(true)}
                 variant="outline"
+                className="h-10 px-5 rounded-xl border-slate-200 hover:bg-slate-100 hover:border-slate-300 font-medium transition-all"
               >
                 Xác thực Email
               </Button>
             )}
           </div>
 
-          <div className="flex items-center justify-between py-3 border-b">
+          <div className="flex items-center justify-between py-4 px-4 rounded-xl hover:bg-slate-50 transition-all">
             <div>
-              <h4 className="font-medium">Xác thực 2 yếu tố</h4>
-              <p className="text-sm text-gray-500">
+              <h4 className="font-semibold text-slate-900">Xác thực 2 yếu tố</h4>
+              <p className="text-sm text-slate-500 mt-0.5">
                 Bảo vệ tài khoản với xác thực 2 bước
               </p>
             </div>
             <div className="flex items-center gap-3">
               <Button
                 onClick={is2FAEnabled ? () => setIsDisableTwoFAOpen(true) : handleEnable2FA}
-                variant="outline"
+                variant={is2FAEnabled ? "outline" : "default"}
                 size="sm"
                 disabled={toggling2FA || loading}
-                className="ml-auto"
+                className={`h-10 px-5 rounded-xl font-medium transition-all ${
+                  is2FAEnabled 
+                    ? 'border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300' 
+                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25'
+                }`}
               >
                 {toggling2FA ? 'Đang xử lý...' : (is2FAEnabled ? 'Tắt 2FA' : 'Bật 2FA')}
               </Button>
             </div>
           </div>
 
-          <div className="flex items-center justify-between py-3">
-            <div>
-              <h4 className="font-medium">Phiên đăng nhập</h4>
-              <p className="text-sm text-gray-500">
+          <div className="py-4 px-4 rounded-xl">
+            <div className="mb-4">
+              <h4 className="font-semibold text-slate-900">Phiên đăng nhập</h4>
+              <p className="text-sm text-slate-500 mt-0.5">
                 Quản lý các thiết bị đã đăng nhập
               </p>
             </div>
-          </div>
-
-          {/* Session Management Component */}
-          <div className="mt-4">
+            {/* Session Management Component */}
             <SessionManagement />
           </div>
         </div>

@@ -76,9 +76,12 @@ export default function ConversationList({
 
   if (loading) {
     return (
-      <Card className="h-full p-4">
-        <div className="flex items-center justify-center h-full">
-          <div className="text-gray-500">Đang tải...</div>
+      <Card className="h-full p-4 border-0 rounded-none">
+        <div className="flex flex-col items-center justify-center h-full">
+          <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center mb-4 animate-pulse">
+            <MessageCircle className="w-6 h-6 text-white" />
+          </div>
+          <div className="text-slate-500">Đang tải...</div>
         </div>
       </Card>
     );
@@ -86,21 +89,28 @@ export default function ConversationList({
 
   if (error) {
     return (
-      <Card className="h-full p-4">
+      <Card className="h-full p-4 border-0 rounded-none">
         <div className="flex flex-col items-center justify-center h-full gap-4">
           <div className="text-red-500">{error}</div>
-          <Button onClick={loadConversations} variant="outline">Thử lại</Button>
+          <Button onClick={loadConversations} variant="outline" className="rounded-xl">Thử lại</Button>
         </div>
       </Card>
     );
   }
 
   return (
-    <Card className="h-full flex flex-col">
-      <div className="p-4 border-b flex items-center justify-between">
-        <h2 className="text-xl font-semibold">Tin nhắn</h2>
+    <Card className="h-full flex flex-col border-0 rounded-none bg-transparent">
+      <div className="p-5 border-b border-slate-200/60 flex items-center justify-between backdrop-blur-sm">
+        <div>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Tin nhắn</h2>
+          <p className="text-xs text-slate-500 mt-0.5">{conversations.length} cuộc hội thoại</p>
+        </div>
         {onCreateGroup && (
-          <Button size="sm" variant="outline" onClick={onCreateGroup} className="gap-2">
+          <Button 
+            size="sm" 
+            onClick={onCreateGroup} 
+            className="gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg shadow-blue-500/30 transition-all hover:scale-105"
+          >
             <Plus className="w-4 h-4" />
             Nhóm mới
           </Button>
@@ -110,46 +120,57 @@ export default function ConversationList({
       <ScrollArea className="flex-1">
         {conversations.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-            <MessageCircle className="w-12 h-12 text-gray-300 mb-4" />
-            <p className="text-gray-500">Chưa có cuộc hội thoại nào</p>
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mb-4">
+              <MessageCircle className="w-8 h-8 text-blue-500" />
+            </div>
+            <p className="text-slate-500">Chưa có cuộc hội thoại nào</p>
           </div>
         ) : (
-          <div className="divide-y">
+          <div className="p-3">
             {conversations.map((conversation) => (
               <div
                 key={conversation.conversationId}
                 onClick={() => onSelectConversation(conversation)}
-                className={`p-4 cursor-pointer hover:bg-gray-50 transition-colors ${
-                  selectedConversationId === conversation.conversationId ? 'bg-blue-50' : ''
+                className={`p-3 cursor-pointer rounded-2xl mb-2 transition-all border ${
+                  selectedConversationId === conversation.conversationId 
+                    ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-300 shadow-md shadow-blue-500/10' 
+                    : 'hover:bg-white border-transparent hover:shadow-md hover:border-slate-200'
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-purple-500 flex items-center justify-center flex-shrink-0">
-                    {conversation.type === 'GROUP' ? (
-                      <Users className="w-6 h-6 text-white" />
-                    ) : (
-                      <MessageCircle className="w-6 h-6 text-white" />
+                  <div className="relative">
+                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/25">
+                      {conversation.type === 'GROUP' ? (
+                        <Users className="w-7 h-7 text-white" />
+                      ) : (
+                        <MessageCircle className="w-7 h-7 text-white" />
+                      )}
+                    </div>
+                    {conversation.unreadCount > 0 && (
+                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-red-500 to-rose-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-red-500/40">
+                        {conversation.unreadCount > 9 ? '9+' : conversation.unreadCount}
+                      </div>
                     )}
                   </div>
 
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-semibold text-sm truncate">
+                      <h3 className="font-semibold text-base truncate text-slate-900">
                         {conversation.type === 'PRIVATE'
                           ? userNames[conversation.participants.find((p) => p !== currentUser?.userId) || ''] || conversation.name || 'Người dùng'
                           : conversation.name}
                       </h3>
-                    </div>
-                    <div className="flex items-center justify-between">
-                      <p className="text-sm text-gray-600 truncate">
-                        {conversation.lastMessage?.message || 'Chưa có tin nhắn'}
-                      </p>
-                      {conversation.unreadCount > 0 && (
-                        <Badge variant="default" className="ml-2 bg-red-500 flex-shrink-0">
-                          {conversation.unreadCount}
-                        </Badge>
+                      {conversation.lastMessage && (
+                        <span className="text-xs text-slate-400 ml-2 flex-shrink-0">
+                          {new Date(conversation.lastMessage.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                        </span>
                       )}
                     </div>
+                    <p className={`text-sm truncate ${
+                      conversation.unreadCount > 0 ? 'text-slate-900 font-medium' : 'text-slate-500'
+                    }`}>
+                      {conversation.lastMessage?.message || 'Chưa có tin nhắn'}
+                    </p>
                   </div>
                 </div>
               </div>

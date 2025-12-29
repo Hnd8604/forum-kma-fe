@@ -1,61 +1,45 @@
 import { useState, useEffect } from 'react';
-import { Card } from '../../../shared/components/ui/card';
 import { Button } from '../../../shared/components/ui/button';
 import {
   MessageSquare,
-  Share2,
   Bookmark,
   MoreHorizontal,
-  ThumbsUp,
-  Heart,
-  Laugh,
-  Frown,
-  Angry,
+  ArrowBigUp,
+  ArrowBigDown,
   Image as ImageIcon,
   FileText,
+  ExternalLink,
 } from 'lucide-react';
 import { ApiPost, ReactionType } from '../types/post.types';
 import { InteractionService } from '../services/interaction.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from '../../../shared/components/ui/popover';
 
 interface PostCardProps {
   post: ApiPost;
   onReactionChange?: (postId: string, newCount: number, myReaction: string | null) => void;
 }
 
-const reactionIcons: Record<ReactionType, { icon: React.ReactNode; color: string; bg: string }> = {
-  LIKE: { icon: <ThumbsUp className="w-4 h-4" />, color: 'text-blue-600', bg: 'bg-blue-50' },
-  LOVE: { icon: <Heart className="w-4 h-4" />, color: 'text-red-500', bg: 'bg-red-50' },
-  HAHA: { icon: <Laugh className="w-4 h-4" />, color: 'text-yellow-500', bg: 'bg-yellow-50' },
-  WOW: { icon: <span className="text-sm">😮</span>, color: 'text-yellow-500', bg: 'bg-yellow-50' },
-  SAD: { icon: <Frown className="w-4 h-4" />, color: 'text-yellow-600', bg: 'bg-yellow-50' },
-  ANGRY: { icon: <Angry className="w-4 h-4" />, color: 'text-orange-600', bg: 'bg-orange-50' },
-};
-
 export default function PostCard({ post, onReactionChange }: PostCardProps) {
   const [authorName, setAuthorName] = useState<string>('');
   const [reacting, setReacting] = useState(false);
-  const [showReactions, setShowReactions] = useState(false);
+  const [voteState, setVoteState] = useState<'up' | 'down' | null>(
+    post.myReaction === 'LIKE' ? 'up' : post.myReaction === 'ANGRY' ? 'down' : null
+  );
 
   // Safe date formatting
   const getTimeAgo = () => {
     try {
-      if (!post.createdAt) return 'Vừa xong';
+      if (!post.createdAt) return 'vừa xong';
       const date = new Date(post.createdAt);
-      if (isNaN(date.getTime())) return 'Vừa xong';
+      if (isNaN(date.getTime())) return 'vừa xong';
       return formatDistanceToNow(date, {
-        addSuffix: true,
+        addSuffix: false,
         locale: vi,
       });
     } catch {
-      return 'Vừa xong';
+      return 'vừa xong';
     }
   };
 
@@ -68,16 +52,17 @@ export default function PostCard({ post, onReactionChange }: PostCardProps) {
         const name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || post.authorId;
         setAuthorName(name);
       } catch {
-        setAuthorName(post.authorId?.substring(0, 8) || 'Ẩn danh');
+        setAuthorName(post.authorId?.substring(0, 8) || 'anonymous');
       }
     };
     loadAuthor();
   }, [post.authorId]);
 
-  const handleReaction = async (type: ReactionType) => {
+  const handleVote = async (direction: 'up' | 'down') => {
     if (reacting) return;
     setReacting(true);
-    setShowReactions(false);
+
+    const type: ReactionType = direction === 'up' ? 'LIKE' : 'ANGRY';
 
     try {
       await InteractionService.createOrUpdateInteraction({
@@ -85,168 +70,152 @@ export default function PostCard({ post, onReactionChange }: PostCardProps) {
         type,
       });
 
-      // Toggle logic: if same reaction, it's removed
-      const isToggle = post.myReaction === type;
-      const newCount = isToggle ? post.reactionCount - 1 : post.reactionCount + (post.myReaction ? 0 : 1);
-      const newReaction = isToggle ? null : type;
-
-      onReactionChange?.(post.postId, newCount, newReaction);
+      const isToggle = (direction === 'up' && voteState === 'up') || (direction === 'down' && voteState === 'down');
+      
+      let newCount = post.reactionCount;
+      if (isToggle) {
+        // Removing vote
+        newCount = direction === 'up' ? post.reactionCount - 1 : post.reactionCount + 1;
+        setVoteState(null);
+        onReactionChange?.(post.postId, newCount, null);
+      } else {
+        // Adding/changing vote
+        if (voteState === null) {
+          newCount = direction === 'up' ? post.reactionCount + 1 : post.reactionCount - 1;
+        } else {
+          newCount = direction === 'up' ? post.reactionCount + 2 : post.reactionCount - 2;
+        }
+        setVoteState(direction);
+        onReactionChange?.(post.postId, newCount, type);
+      }
     } catch (err) {
-      console.error('Failed to react:', err);
+      console.error('Failed to vote:', err);
     } finally {
       setReacting(false);
     }
   };
 
-  const getInitials = (name: string) => {
-    if (!name) return '??';
-    return name
-      .split(' ')
-      .map((n) => n[0])
-      .join('')
-      .substring(0, 2)
-      .toUpperCase();
+  const formatVoteCount = (count: number) => {
+    if (count >= 1000) {
+      return (count / 1000).toFixed(1) + 'k';
+    }
+    return count.toString();
   };
 
-  const currentReaction = post.myReaction ? reactionIcons[post.myReaction] : null;
-
   return (
-    <Card className="bg-white/80 backdrop-blur-sm border border-red-100 overflow-hidden hover:shadow-xl hover:scale-[1.01] transition-all duration-300 rounded-2xl group">
-      {/* Post Header */}
-      <div className="p-5 pb-3">
-        <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-11 h-11 rounded-full bg-gradient-to-br from-red-500 via-red-400 to-yellow-400 flex items-center justify-center flex-shrink-0 shadow-md ring-2 ring-white">
-              <span className="text-white text-sm font-medium">{getInitials(authorName)}</span>
-            </div>
-            <div>
-              <div className="flex items-center space-x-2">
-                <span className="hover:underline cursor-pointer hover:text-red-600 transition-colors font-medium">
-                  {authorName || 'Đang tải...'}
-                </span>
-              </div>
-              <div className="flex items-center space-x-2 text-sm text-gray-500">
-                <span>{timeAgo}</span>
-                {post.type !== 'TEXT' && (
-                  <>
-                    <span>•</span>
-                    <span className="flex items-center gap-1">
-                      {post.type === 'IMAGE' ? <ImageIcon className="w-3 h-3" /> : <FileText className="w-3 h-3" />}
-                      {post.type === 'IMAGE' ? 'Hình ảnh' : 'Tài liệu'}
-                    </span>
-                  </>
-                )}
-              </div>
-            </div>
+    <div className="bg-white border border-slate-200 hover:border-slate-300 rounded-2xl transition-all duration-200 mb-4 hover:shadow-lg hover:shadow-slate-200/50 overflow-hidden">
+      <div className="p-4">
+        {/* Post Header */}
+        <div className="flex items-center text-sm text-slate-500 mb-3">
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center mr-2.5 shadow-md shadow-blue-500/20">
+            <span className="text-white text-xs font-bold">
+              {authorName?.[0]?.toUpperCase() || 'U'}
+            </span>
           </div>
+          <div className="flex flex-col">
+            <span className="font-semibold text-slate-900 hover:text-blue-600 cursor-pointer transition-colors">
+              {authorName || 'loading...'}
+            </span>
+            <span className="text-xs text-slate-400">{timeAgo}</span>
+          </div>
+          {post.type !== 'TEXT' && (
+            <span className="ml-auto flex items-center gap-1 px-2 py-1 bg-slate-100 rounded-full text-xs text-slate-500">
+              {post.type === 'IMAGE' ? <ImageIcon className="w-3 h-3" /> : <FileText className="w-3 h-3" />}
+              {post.type === 'IMAGE' ? 'Hình ảnh' : 'Tài liệu'}
+            </span>
+          )}
+        </div>
+
+        {/* Post Title */}
+        <h3 className="text-lg font-semibold text-slate-900 mb-2 cursor-pointer hover:text-blue-600 transition-colors leading-snug">
+          {post.title}
+        </h3>
+
+        {/* Post Content */}
+        <p className="text-sm text-slate-600 mb-3 whitespace-pre-line line-clamp-3 leading-relaxed">
+          {post.content}
+        </p>
+
+        {/* Post Image */}
+        {post.type === 'IMAGE' && post.resourceUrl && (
+          <div className="mb-3 overflow-hidden rounded-xl">
+            <img
+              src={post.resourceUrl}
+              alt={post.title}
+              className="w-full object-cover max-h-[400px] hover:scale-105 transition-transform duration-300"
+            />
+          </div>
+        )}
+
+        {/* Post Document Link */}
+        {post.type === 'DOC' && post.resourceUrl && (
+          <a
+            href={post.resourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 mb-3 hover:border-blue-200 hover:shadow-md transition-all group"
+          >
+            <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center shadow-md shadow-blue-500/20">
+              <ExternalLink className="w-5 h-5 text-white" />
+            </div>
+            <span className="text-sm font-medium text-blue-600 group-hover:text-blue-700">Xem tài liệu đính kèm</span>
+          </a>
+        )}
+
+        {/* Post Actions */}
+        <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
+          {/* Vote buttons */}
+          <div className="flex items-center gap-0.5 bg-slate-100 rounded-full p-0.5">
+            <button
+              onClick={() => handleVote('up')}
+              disabled={reacting}
+              className={`p-2 rounded-full transition-all duration-200 ${voteState === 'up' ? 'bg-blue-500 text-white shadow-md shadow-blue-500/30' : 'text-slate-500 hover:bg-slate-200'}`}
+            >
+              <ArrowBigUp className={`w-4 h-4 ${voteState === 'up' ? 'fill-white' : ''}`} />
+            </button>
+            <span className={`text-sm font-bold min-w-[28px] text-center ${
+              voteState === 'up' ? 'text-blue-600' : 
+              voteState === 'down' ? 'text-red-500' : 
+              'text-slate-700'
+            }`}>
+              {formatVoteCount(post.reactionCount)}
+            </span>
+            <button
+              onClick={() => handleVote('down')}
+              disabled={reacting}
+              className={`p-2 rounded-full transition-all duration-200 ${voteState === 'down' ? 'bg-red-500 text-white shadow-md shadow-red-500/30' : 'text-slate-500 hover:bg-slate-200'}`}
+            >
+              <ArrowBigDown className={`w-4 h-4 ${voteState === 'down' ? 'fill-white' : ''}`} />
+            </button>
+          </div>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-full transition-all"
+          >
+            <MessageSquare className="w-4 h-4 mr-2" />
+            {post.commentCount || 0}
+          </Button>
+
+          <Button
+            variant="ghost"
+            size="sm"
+            className="h-9 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-amber-600 rounded-full transition-all"
+          >
+            <Bookmark className="w-4 h-4 mr-2" />
+            Lưu
+          </Button>
+
           <Button
             variant="ghost"
             size="icon"
-            className="h-8 w-8 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-gray-100"
+            className="h-9 w-9 text-slate-500 hover:bg-slate-100 rounded-full ml-auto transition-all"
           >
             <MoreHorizontal className="w-4 h-4" />
           </Button>
         </div>
       </div>
-
-      {/* Post Content */}
-      <div className="px-5 pb-3">
-        <h3 className="text-lg font-semibold mb-2 cursor-pointer hover:text-red-600 transition-colors">
-          {post.title}
-        </h3>
-        <p className="text-gray-700 whitespace-pre-line leading-relaxed">{post.content}</p>
-      </div>
-
-      {/* Post Image (if exists) */}
-      {post.type === 'IMAGE' && post.resourceUrl && (
-        <div className="px-5 pb-4">
-          <img
-            src={post.resourceUrl}
-            alt={post.title}
-            className="w-full max-h-96 object-cover rounded-xl"
-          />
-        </div>
-      )}
-
-      {/* Post Document Link */}
-      {post.type === 'DOC' && post.resourceUrl && (
-        <div className="px-5 pb-4">
-          <a
-            href={post.resourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center gap-2 p-3 bg-gray-50 rounded-xl hover:bg-gray-100 transition-colors"
-          >
-            <FileText className="w-5 h-5 text-blue-600" />
-            <span className="text-blue-600 hover:underline">Xem tài liệu đính kèm</span>
-          </a>
-        </div>
-      )}
-
-      {/* Post Actions */}
-      <div className="px-5 py-3 border-t border-red-50 bg-gradient-to-r from-gray-50/50 to-red-50/30 flex items-center justify-between">
-        {/* Reaction Button with Popover */}
-        <Popover open={showReactions} onOpenChange={setShowReactions}>
-          <PopoverTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={reacting}
-              className={`${
-                currentReaction
-                  ? `${currentReaction.color} ${currentReaction.bg}`
-                  : 'text-gray-600 hover:bg-blue-50 hover:text-blue-600'
-              } rounded-xl transition-all transform hover:scale-105`}
-            >
-              {currentReaction ? currentReaction.icon : <ThumbsUp className="w-5 h-5" />}
-              <span className="ml-2">{post.reactionCount}</span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-2" side="top">
-            <div className="flex gap-1">
-              {(Object.keys(reactionIcons) as ReactionType[]).map((type) => (
-                <Button
-                  key={type}
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => handleReaction(type)}
-                  className={`rounded-full p-2 hover:scale-125 transition-transform ${
-                    post.myReaction === type ? reactionIcons[type].bg : ''
-                  }`}
-                >
-                  {reactionIcons[type].icon}
-                </Button>
-              ))}
-            </div>
-          </PopoverContent>
-        </Popover>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-gray-600 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-all transform hover:scale-105"
-        >
-          <MessageSquare className="w-4 h-4 mr-2" />
-          Bình luận
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="sm"
-          className="text-gray-600 hover:bg-green-50 hover:text-green-600 rounded-xl transition-all transform hover:scale-105"
-        >
-          <Share2 className="w-4 h-4 mr-2" />
-          Chia sẻ
-        </Button>
-
-        <Button
-          variant="ghost"
-          size="icon"
-          className="text-gray-600 hover:bg-yellow-50 hover:text-yellow-600 rounded-xl transition-all transform hover:scale-105"
-        >
-          <Bookmark className="w-4 h-4" />
-        </Button>
-      </div>
-    </Card>
+    </div>
   );
 }
