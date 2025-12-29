@@ -166,4 +166,93 @@ export class ApiService {
       requiresAuth
     );
   }
+
+  /**
+   * Upload file using multipart/form-data
+   */
+  static async uploadFile<T>(
+    endpoint: string,
+    file: File,
+    additionalData?: Record<string, any>,
+    requiresAuth: boolean = true
+  ): Promise<T> {
+    const url = `${API_BASE_URL}${endpoint}`;
+    const formData = new FormData();
+    formData.append('file', file);
+
+    // Add any additional data fields
+    if (additionalData) {
+      Object.entries(additionalData).forEach(([key, value]) => {
+        formData.append(key, value.toString());
+      });
+    }
+
+    // Headers for file upload (no Content-Type, browser will set it with boundary)
+    const headers: HeadersInit = {};
+    if (requiresAuth) {
+      const token = this.getAuthToken();
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+    }
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers,
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({
+          message: response.statusText || 'Upload failed',
+        }));
+
+        throw {
+          message: errorData.message || 'Upload failed',
+          statusCode: response.status,
+          errors: errorData.errors,
+        };
+      }
+
+      const contentType = response.headers.get('content-type');
+      if (contentType && contentType.includes('application/json')) {
+        const jsonData = await response.json();
+        
+        console.log('📦 Upload Response:', jsonData);
+
+        // Check for error codes (code is string "200" not number)
+        if (jsonData && typeof jsonData === 'object' && 'code' in jsonData) {
+          const code = String(jsonData.code);
+          if (code !== '200') {
+            throw {
+              message: jsonData.message || 'Upload failed',
+              statusCode: response.status,
+              code: jsonData.code,
+            };
+          }
+        }
+
+        // Extract result/data from response
+        if ('result' in jsonData) {
+          return jsonData.result as T;
+        }
+        if ('data' in jsonData) {
+          return jsonData.data as T;
+        }
+
+        return jsonData as T;
+      }
+
+      return {} as T;
+    } catch (error: any) {
+      if (error.statusCode) {
+        throw error;
+      }
+      throw {
+        message: error.message || 'Upload error occurred',
+        statusCode: 0,
+      };
+    }
+  }
 }

@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '../../../shared/components/ui/alert';
 import EmailVerificationDialog from './EmailVerificationDialog';
 import ChangePasswordDialog from './ChangePasswordDialog';
 import DisableTwoFADialog from './DisableTwoFADialog';
+import SessionManagement from './SessionManagement';
 
 export default function SettingsPage() {
   const user = useAuthStore((s) => s.user);
@@ -266,7 +267,11 @@ export default function SettingsPage() {
                 Quản lý các thiết bị đã đăng nhập
               </p>
             </div>
-            <Button variant="outline" disabled>Đang phát triển</Button>
+          </div>
+
+          {/* Session Management Component */}
+          <div className="mt-4">
+            <SessionManagement />
           </div>
         </div>
       </div>

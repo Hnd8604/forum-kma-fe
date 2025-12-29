@@ -1,25 +1,70 @@
-import { Home, TrendingUp, Users, BookOpen, Code, Palette, Music, Dumbbell, Globe, Plus } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Home, TrendingUp, Users, BookOpen, Code, Palette, Music, Dumbbell, Globe, Plus, Loader2 } from 'lucide-react';
 import { Button } from '../../../shared/components/ui/button';
 import { ScrollArea } from '../../../shared/components/ui/scroll-area';
 import { Separator } from '../../../shared/components/ui/separator';
+import { GroupService } from '../services/group.service';
+import type { Group } from '../types/post.types';
 
 const popularGroups = [
   { id: 1, name: 'Trang chủ', icon: Home, members: null, color: 'text-red-600', bgColor: 'bg-red-50' },
   { id: 2, name: 'Phổ biến', icon: TrendingUp, members: null, color: 'text-yellow-600', bgColor: 'bg-yellow-50' },
 ];
 
-const groups = [
-  { id: 3, name: 'Khoa học Máy tính', icon: Code, members: 15420, color: 'text-blue-600', bgColor: 'bg-blue-50' },
-  { id: 4, name: 'Kinh tế & Quản trị', icon: BookOpen, members: 12350, color: 'text-green-600', bgColor: 'bg-green-50' },
-  { id: 5, name: 'Nghệ thuật & Thiết kế', icon: Palette, members: 8920, color: 'text-purple-600', bgColor: 'bg-purple-50' },
-  { id: 6, name: 'Âm nhạc', icon: Music, members: 7540, color: 'text-pink-600', bgColor: 'bg-pink-50' },
-  { id: 7, name: 'Thể thao & Sức khỏe', icon: Dumbbell, members: 9230, color: 'text-orange-600', bgColor: 'bg-orange-50' },
-  { id: 8, name: 'Ngôn ngữ', icon: Globe, members: 11240, color: 'text-indigo-600', bgColor: 'bg-indigo-50' },
-  { id: 9, name: 'Toán học', icon: BookOpen, members: 6780, color: 'text-red-500', bgColor: 'bg-red-50' },
-  { id: 10, name: 'Văn học', icon: BookOpen, members: 5420, color: 'text-yellow-700', bgColor: 'bg-yellow-50' },
+// Icon mapping for different group types
+const iconMap: Record<string, any> = {
+  'code': Code,
+  'book': BookOpen,
+  'palette': Palette,
+  'music': Music,
+  'dumbbell': Dumbbell,
+  'globe': Globe,
+  'users': Users,
+};
+
+const colorCombos = [
+  { color: 'text-blue-600', bgColor: 'bg-blue-50' },
+  { color: 'text-green-600', bgColor: 'bg-green-50' },
+  { color: 'text-purple-600', bgColor: 'bg-purple-50' },
+  { color: 'text-pink-600', bgColor: 'bg-pink-50' },
+  { color: 'text-orange-600', bgColor: 'bg-orange-50' },
+  { color: 'text-indigo-600', bgColor: 'bg-indigo-50' },
+  { color: 'text-red-500', bgColor: 'bg-red-50' },
+  { color: 'text-yellow-700', bgColor: 'bg-yellow-50' },
 ];
 
 export default function Sidebar() {
+  const navigate = useNavigate();
+  const [groups, setGroups] = useState<Group[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    loadMyGroups();
+  }, []);
+
+  const loadMyGroups = async () => {
+    try {
+      setLoading(true);
+      const myGroups = await GroupService.getMyGroups({ limit: 50 });
+      setGroups(myGroups || []);
+    } catch (err) {
+      console.error('Failed to load groups:', err);
+      setGroups([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const getGroupIcon = (index: number) => {
+    const icons = [Code, BookOpen, Palette, Music, Dumbbell, Globe, Users];
+    return icons[index % icons.length];
+  };
+
+  const getColorCombo = (index: number) => {
+    return colorCombos[index % colorCombos.length];
+  };
+
   return (
     <aside className="w-72 bg-white/60 backdrop-blur-sm border-r border-red-100 h-[calc(100vh-65px)] sticky top-[65px]">
       <ScrollArea className="h-full">
@@ -30,6 +75,13 @@ export default function Sidebar() {
               <Button
                 key={item.id}
                 variant="ghost"
+                onClick={() => {
+                  if (item.id === 1) {
+                    // Trang chủ
+                    navigate('/forum');
+                  }
+                  // Can add more handlers for other items
+                }}
                 className="w-full justify-start hover:bg-gradient-to-r hover:from-red-50 hover:to-red-100/50 rounded-xl transition-all group h-12"
               >
                 <div className={`flex items-center justify-center w-9 h-9 rounded-lg ${item.bgColor} mr-3 group-hover:scale-110 transition-transform`}>
@@ -56,25 +108,42 @@ export default function Sidebar() {
             </div>
 
             <div className="space-y-1">
-              {groups.map((group) => (
-                <Button
-                  key={group.id}
-                  variant="ghost"
-                  className="w-full justify-start hover:bg-gradient-to-r hover:from-gray-50 hover:to-red-50/50 rounded-xl h-auto py-3 transition-all group"
-                >
-                  <div className="flex items-center w-full">
-                    <div className={`flex items-center justify-center w-10 h-10 rounded-xl ${group.bgColor} mr-3 flex-shrink-0 group-hover:scale-110 transition-transform`}>
-                      <group.icon className={`w-5 h-5 ${group.color}`} />
-                    </div>
-                    <div className="flex-1 text-left min-w-0">
-                      <div className="truncate text-sm group-hover:translate-x-1 transition-transform">{group.name}</div>
-                      <div className="text-xs text-gray-500">
-                        {group.members.toLocaleString('vi-VN')} thành viên
+              {loading ? (
+                <div className="flex items-center justify-center py-4">
+                  <Loader2 className="w-5 h-5 animate-spin text-red-500" />
+                  <span className="ml-2 text-sm text-gray-500">Đang tải...</span>
+                </div>
+              ) : groups.length > 0 ? (
+                groups.map((group, index) => {
+                  const GroupIcon = getGroupIcon(index);
+                  const { color, bgColor } = getColorCombo(index);
+                  const groupName = group.groupName || group.name || 'Nhóm';
+                  
+                  return (
+                    <Button
+                      key={group.groupId}
+                      variant="ghost"
+                      className="w-full justify-start hover:bg-gradient-to-r hover:from-gray-50 hover:to-red-50/50 rounded-xl h-auto py-3 transition-all group"
+                    >
+                      <div className="flex items-center w-full">
+                        <div className={`flex items-center justify-center w-10 h-10 rounded-xl ${bgColor} mr-3 flex-shrink-0 group-hover:scale-110 transition-transform`}>
+                          <GroupIcon className={`w-5 h-5 ${color}`} />
+                        </div>
+                        <div className="flex-1 text-left min-w-0">
+                          <div className="truncate text-sm group-hover:translate-x-1 transition-transform">{groupName}</div>
+                          <div className="text-xs text-gray-500">
+                            {group.memberCount.toLocaleString('vi-VN')} thành viên
+                          </div>
+                        </div>
                       </div>
-                    </div>
-                  </div>
-                </Button>
-              ))}
+                    </Button>
+                  );
+                })
+              ) : (
+                <div className="text-center py-4 text-sm text-gray-500">
+                  Bạn chưa tham gia nhóm nào
+                </div>
+              )}
             </div>
           </div>
 

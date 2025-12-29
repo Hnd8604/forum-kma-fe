@@ -31,8 +31,8 @@ export default function MainForum({ onLogout, onOpenNotifications, onOpenMiniCha
       <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-red-100 shadow-sm">
         <div className="flex items-center justify-between px-6 py-3">
           {/* Logo */}
-          <div className="flex items-center space-x-3">
-            <div className="flex items-center justify-center w-11 h-11 bg-gradient-to-br from-red-600 to-red-500 rounded-xl shadow-md hover:shadow-lg transition-shadow">
+          <Link to="/forum" className="flex items-center space-x-3 group cursor-pointer">
+            <div className="flex items-center justify-center w-11 h-11 bg-gradient-to-br from-red-600 to-red-500 rounded-xl shadow-md hover:shadow-lg transition-shadow group-hover:scale-105">
               <GraduationCap className="w-6 h-6 text-white" />
             </div>
             <div>
@@ -40,7 +40,7 @@ export default function MainForum({ onLogout, onOpenNotifications, onOpenMiniCha
                 Forum Sinh Viên
               </span>
             </div>
-          </div>
+          </Link>
 
           {/* Search Bar */}
           <div className="flex-1 max-w-2xl mx-8">

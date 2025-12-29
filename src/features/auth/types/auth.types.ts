@@ -48,6 +48,26 @@ export interface ApiError {
   errors?: Record<string, string[]>;
 }
 
+export interface DeviceInfo {
+  deviceName?: string;
+  browser?: string;
+  os?: string;
+  ipAddress?: string;
+  location?: string;
+  lastAccessTime?: string;
+  userAgent?: string;
+}
+
+export interface Session {
+  sessionId: string;
+  deviceInfo: DeviceInfo;
+}
+
+export interface SessionResponse {
+  sessionId: string;
+  deviceInfo: DeviceInfo;
+}
+
 export interface RefreshTokenRequest {
   refreshToken: string;
 }
