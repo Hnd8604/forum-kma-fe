@@ -1,0 +1,89 @@
+import { useState, useCallback } from 'react';
+import { ChatService } from '../services/chat.service';
+import type { Conversation } from '../types/chat.types';
+
+export function useChatConversations() {
+    const [openConversations, setOpenConversations] = useState<Conversation[]>([]);
+
+    /**
+     * Start a chat with a user
+     * - If conversation exists, open it
+     * - If not, create a new empty conversation UI
+     */
+    const startChatWithUser = useCallback(async (
+        userId: string,
+        userName: string,
+        userAvatar?: string
+    ) => {
+        try {
+            // Check if conversation already open
+            const existingOpen = openConversations.find(
+                (conv) => conv.partnerId === userId || conv.participantIds.includes(userId)
+            );
+
+            if (existingOpen) {
+                // Already open, just focus it
+                console.log('Conversation already open:', existingOpen.conversationId);
+                return;
+            }
+
+            // Try to find existing conversation from backend
+            const conversations = await ChatService.getConversations();
+            const existingConv = conversations.find(
+                (conv) => conv.type === 'private' &&
+                    (conv.partnerId === userId || conv.participantIds.includes(userId))
+            );
+
+            if (existingConv) {
+                // Open existing conversation
+                setOpenConversations((prev) => [...prev, existingConv]);
+            } else {
+                // Create a temporary conversation object for UI
+                // The actual conversation will be created when first message is sent
+                const tempConversation: Conversation = {
+                    conversationId: `temp-${userId}-${Date.now()}`,
+                    type: 'private',
+                    participantIds: [userId],
+                    partnerId: userId,
+                    lastMessage: null,
+                    lastMessageAt: null,
+                    unreadCounts: {},
+                };
+
+                setOpenConversations((prev) => [...prev, tempConversation]);
+            }
+        } catch (error) {
+            console.error('Failed to start chat:', error);
+        }
+    }, [openConversations]);
+
+    /**
+     * Close a conversation window
+     */
+    const closeConversation = useCallback((conversationId: string) => {
+        setOpenConversations((prev) =>
+            prev.filter((conv) => conv.conversationId !== conversationId)
+        );
+    }, []);
+
+    /**
+     * Update conversation after first message sent
+     */
+    const updateConversation = useCallback((
+        tempId: string,
+        realConversation: Conversation
+    ) => {
+        setOpenConversations((prev) =>
+            prev.map((conv) =>
+                conv.conversationId === tempId ? realConversation : conv
+            )
+        );
+    }, []);
+
+    return {
+        openConversations,
+        startChatWithUser,
+        closeConversation,
+        updateConversation,
+    };
+}

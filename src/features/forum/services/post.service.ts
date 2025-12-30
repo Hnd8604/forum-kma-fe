@@ -106,12 +106,14 @@ export class PostService {
 
     const response = await ApiService.get<PaginatedResponse<ApiPost>>(`/posts/feed?${queryParams}`, true);
     
-    // Debug: Log raw response
-    console.log('Raw API response:', response.content[0]);
+    // Debug: Log raw response to check resourceUrls
+    if (response.content && response.content.length > 0) {
+      console.log('🔍 First post from API:', JSON.stringify(response.content[0], null, 2));
+    }
     
     // Map userReactionType from backend to myReaction for frontend
     const mappedContent = response.content.map((post: any) => {
-      console.log(`Post ${post.postId}: commentCount=${post.commentCount}, reactionCount=${post.reactionCount}`);
+      console.log(`Post ${post.postId}: type=${post.type}, resourceUrls=${JSON.stringify(post.resourceUrls)}, commentCount=${post.commentCount}, reactionCount=${post.reactionCount}`);
       return {
         ...post,
         myReaction: post.userReactionType || post.myReaction || null,

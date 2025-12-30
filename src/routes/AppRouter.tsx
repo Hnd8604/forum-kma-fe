@@ -8,18 +8,22 @@ import MainForum from '../features/forum/components/MainForum';
 import GroupPage from '../features/forum/components/GroupPage';
 import Notifications from '../features/notifications/Notifications';
 import { AIChatButton } from '../features/chatbot';
-import { ChatPage, MiniChatWindow } from '../features/chat';
+import { ChatPage, ChatContainer } from '../features/chat';
 import type { Conversation } from '../features/chat';
+import WebSocketManager from '../shared/components/websocket/WebSocketManager';
+import { Toaster } from '../shared/components/ui/toaster';
+import { FriendsPage } from '../features/friends';
+import { GroupsPage } from '../features/groups';
 import { useAuthStore } from '../store/useStore';
 
 function LoginWrapper() {
     const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
     const navigate = useNavigate();
-    
+
     if (isLoggedIn) return <Navigate to="/forum" replace />;
-    
-    return <LoginPage 
-        onLogin={() => navigate('/forum')} 
+
+    return <LoginPage
+        onLogin={() => navigate('/forum')}
         onSwitchToRegister={() => navigate('/register')}
     />;
 }
@@ -27,11 +31,11 @@ function LoginWrapper() {
 function RegisterWrapper() {
     const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
     const navigate = useNavigate();
-    
+
     if (isLoggedIn) return <Navigate to="/forum" replace />;
-    
-    return <RegisterPage 
-        onRegister={() => navigate('/forum')} 
+
+    return <RegisterPage
+        onRegister={() => navigate('/forum')}
         onSwitchToLogin={() => navigate('/')}
     />;
 }
@@ -46,57 +50,37 @@ function ForumWrapper({ children }: { children?: React.ReactNode }) {
     const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
     const [isAIChatOpen, setIsAIChatOpen] = useState(false);
     const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-    const [openChats, setOpenChats] = useState<OpenChat[]>([]);
+    const [showFriendsList, setShowFriendsList] = useState(false);
 
     const handleAIChatToggle = () => {
         setIsAIChatOpen(!isAIChatOpen);
+        if (!isAIChatOpen) {
+            setShowFriendsList(false);
+        }
     };
 
     const handleNotificationsOpen = () => {
         setIsNotificationsOpen((prev) => !prev);
     };
 
-    const handleOpenMiniChat = (conversation: Conversation) => {
-        // Check if already open
-        const exists = openChats.find(
-            (chat) => chat.conversation.conversationId === conversation.conversationId
-        );
-
-        if (exists) {
-            // Bring to front by moving to end
-            setOpenChats((prev) =>
-                prev.filter((c) => c.id !== exists.id).concat(exists)
-            );
-            return;
+    const handleFriendsListToggle = () => {
+        setShowFriendsList(!showFriendsList);
+        if (!showFriendsList) {
+            setIsAIChatOpen(false);
         }
-
-        // Limit to 3 open chats
-        setOpenChats((prev) => {
-            const newChat: OpenChat = {
-                conversation,
-                id: conversation.conversationId,
-            };
-
-            if (prev.length >= 3) {
-                return [...prev.slice(1), newChat];
-            }
-
-            return [...prev, newChat];
-        });
-    };
-
-    const handleCloseChat = (id: string) => {
-        setOpenChats((prev) => prev.filter((chat) => chat.id !== id));
     };
 
     if (!isLoggedIn) return <Navigate to="/" replace />;
 
     return (
         <>
-            <MainForum 
-                onLogout={logout} 
+            {/* WebSocket Manager - Auto-connects when logged in */}
+            <WebSocketManager />
+
+            <MainForum
+                onLogout={logout}
                 onOpenNotifications={handleNotificationsOpen}
-                onOpenMiniChat={handleOpenMiniChat}
+                onOpenFriendsList={handleFriendsListToggle}
             >
                 {children}
             </MainForum>
@@ -109,15 +93,11 @@ function ForumWrapper({ children }: { children?: React.ReactNode }) {
             {/* AI Chat */}
             <AIChatButton isOpen={isAIChatOpen} onToggle={handleAIChatToggle} />
 
-            {/* Mini Chat Windows */}
-            {openChats.map((chat, index) => (
-                <MiniChatWindow
-                    key={chat.id}
-                    conversation={chat.conversation}
-                    onClose={() => handleCloseChat(chat.id)}
-                    position={index}
-                />
-            ))}
+            {/* Chat Container - Manages all chat windows and friends list */}
+            <ChatContainer showFriendsList={showFriendsList} />
+
+            {/* Toast Notifications */}
+            <Toaster />
         </>
     );
 }
@@ -125,7 +105,7 @@ function ForumWrapper({ children }: { children?: React.ReactNode }) {
 export default function AppRouter() {
     const initAuth = useAuthStore((s) => s.initAuth);
     const hasHydrated = useAuthStore((s) => s._hasHydrated);
-    
+
     // Initialize auth state from localStorage on app start
     useEffect(() => {
         initAuth();
@@ -139,6 +119,9 @@ export default function AppRouter() {
             { path: '/forum/group/:groupId', element: <ForumWrapper><GroupPage /></ForumWrapper> },
             { path: '/settings', element: <ForumWrapper><SettingsPage /></ForumWrapper> },
             { path: '/profile', element: <ForumWrapper><ProfilePage /></ForumWrapper> },
+            { path: '/profile/:userId', element: <ForumWrapper><ProfilePage /></ForumWrapper> },
+            { path: '/friends', element: <ForumWrapper><FriendsPage /></ForumWrapper> },
+            { path: '/groups', element: <ForumWrapper><GroupsPage /></ForumWrapper> },
             { path: '/chat', element: <ForumWrapper><ChatPage /></ForumWrapper> },
             { path: '*', element: <Navigate to="/" replace /> },
         ],

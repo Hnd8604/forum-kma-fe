@@ -6,22 +6,25 @@ import { Card } from '../../../shared/components/ui/card';
 import { Button } from '../../../shared/components/ui/button';
 import { ScrollArea } from '../../../shared/components/ui/scroll-area';
 import { Badge } from '../../../shared/components/ui/badge';
-import { MessageCircle, Users, Plus } from 'lucide-react';
+import { MessageCircle, Users, Plus, PenSquare } from 'lucide-react';
 import { useAuthStore } from '../../../store/useStore';
 
 interface ConversationListProps {
   onSelectConversation: (conversation: Conversation) => void;
   selectedConversationId?: string;
   onCreateGroup?: () => void;
+  onNewMessage?: () => void;
 }
 
 export default function ConversationList({
   onSelectConversation,
   selectedConversationId,
   onCreateGroup,
+  onNewMessage,
 }: ConversationListProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [userNames, setUserNames] = useState<Record<string, string>>({});
+  const [groupNames, setGroupNames] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const currentUser = useAuthStore((s) => s.user);
@@ -34,21 +37,28 @@ export default function ConversationList({
     try {
       setLoading(true);
       setError(null);
+      console.log('🔍 Loading conversations...');
       const data = await ChatService.getConversations();
+      console.log('✅ Conversations loaded:', data);
       setConversations(data);
 
-      // Resolve participant names for PRIVATE conversations
+      // Resolve participant names for private conversations
       if (currentUser) {
-        const idsToFetch = new Set<string>();
+        const userIdsToFetch = new Set<string>();
+        const groupIdsToFetch = new Set<string>();
+
         data.forEach((conv) => {
-          if (conv.type === 'PRIVATE' && conv.participants && conv.participants.length) {
-            const other = conv.participants.find((p) => p !== currentUser.userId);
-            if (other && !userNames[other]) idsToFetch.add(other);
+          if (conv.type === 'private' && conv.participantIds && Array.isArray(conv.participantIds) && conv.participantIds.length) {
+            const other = conv.participantIds.find((p) => p !== currentUser.userId);
+            if (other && !userNames[other]) userIdsToFetch.add(other);
+          } else if (conv.type === 'group' && conv.groupId && !groupNames[conv.groupId]) {
+            groupIdsToFetch.add(conv.groupId);
           }
         });
 
-        if (idsToFetch.size > 0) {
-          const fetches = Array.from(idsToFetch).map(async (id) => {
+        // Fetch user names
+        if (userIdsToFetch.size > 0) {
+          const fetches = Array.from(userIdsToFetch).map(async (id) => {
             try {
               const u = await AuthService.getUserById(id);
               return { id, name: `${u.firstName || u.username || ''} ${u.lastName || ''}`.trim() || u.username || id };
@@ -62,6 +72,26 @@ export default function ConversationList({
           setUserNames((prev) => {
             const next = { ...prev };
             results.forEach((r) => (next[r.id] = r.name));
+            return next;
+          });
+        }
+
+        // Fetch group names
+        if (groupIdsToFetch.size > 0) {
+          const groupFetches = Array.from(groupIdsToFetch).map(async (id) => {
+            try {
+              const group = await ChatService.getGroupById(id);
+              return { id, name: group.name || 'Nhóm chat' };
+            } catch (err) {
+              console.error('Failed to fetch group', id, err);
+              return { id, name: 'Nhóm chat' };
+            }
+          });
+
+          const groupResults = await Promise.all(groupFetches);
+          setGroupNames((prev) => {
+            const next = { ...prev };
+            groupResults.forEach((r) => (next[r.id] = r.name));
             return next;
           });
         }
@@ -105,16 +135,26 @@ export default function ConversationList({
           <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Tin nhắn</h2>
           <p className="text-xs text-slate-500 mt-0.5">{conversations.length} cuộc hội thoại</p>
         </div>
-        {onCreateGroup && (
-          <Button 
-            size="sm" 
-            onClick={onCreateGroup} 
-            className="gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg shadow-blue-500/30 transition-all hover:scale-105"
-          >
-            <Plus className="w-4 h-4" />
-            Nhóm mới
-          </Button>
-        )}
+        <div className="flex gap-2">
+          {onNewMessage && (
+            <Button
+              size="sm"
+              onClick={onNewMessage}
+              className="gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-lg shadow-indigo-500/30 transition-all hover:scale-105"
+            >
+              <PenSquare className="w-4 h-4" />
+            </Button>
+          )}
+          {onCreateGroup && (
+            <Button
+              size="sm"
+              onClick={onCreateGroup}
+              className="gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg shadow-blue-500/30 transition-all hover:scale-105"
+            >
+              <Plus className="w-4 h-4" />
+            </Button>
+          )}
+        </div>
       </div>
 
       <ScrollArea className="flex-1">
@@ -127,54 +167,57 @@ export default function ConversationList({
           </div>
         ) : (
           <div className="p-3">
-            {conversations.map((conversation) => (
-              <div
-                key={conversation.conversationId}
-                onClick={() => onSelectConversation(conversation)}
-                className={`p-3 cursor-pointer rounded-2xl mb-2 transition-all border ${
-                  selectedConversationId === conversation.conversationId 
-                    ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-300 shadow-md shadow-blue-500/10' 
-                    : 'hover:bg-white border-transparent hover:shadow-md hover:border-slate-200'
-                }`}
-              >
-                <div className="flex items-start gap-3">
-                  <div className="relative">
-                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/25">
-                      {conversation.type === 'GROUP' ? (
-                        <Users className="w-7 h-7 text-white" />
-                      ) : (
-                        <MessageCircle className="w-7 h-7 text-white" />
-                      )}
-                    </div>
-                    {conversation.unreadCount > 0 && (
-                      <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-red-500 to-rose-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-red-500/40">
-                        {conversation.unreadCount > 9 ? '9+' : conversation.unreadCount}
-                      </div>
-                    )}
-                  </div>
+            {conversations.map((conversation) => {
+              const unreadCount = currentUser && conversation.unreadCounts?.[currentUser.userId] || 0;
+              const partnerId = conversation.participantIds?.find((p) => p !== currentUser?.userId) || '';
 
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-semibold text-base truncate text-slate-900">
-                        {conversation.type === 'PRIVATE'
-                          ? userNames[conversation.participants.find((p) => p !== currentUser?.userId) || ''] || conversation.name || 'Người dùng'
-                          : conversation.name}
-                      </h3>
-                      {conversation.lastMessage && (
-                        <span className="text-xs text-slate-400 ml-2 flex-shrink-0">
-                          {new Date(conversation.lastMessage.timestamp).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                        </span>
+              return (
+                <div
+                  key={conversation.conversationId}
+                  onClick={() => onSelectConversation(conversation)}
+                  className={`p-3 cursor-pointer rounded-2xl mb-2 transition-all border ${selectedConversationId === conversation.conversationId
+                    ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-300 shadow-md shadow-blue-500/10'
+                    : 'hover:bg-white border-transparent hover:shadow-md hover:border-slate-200'
+                    }`}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="relative">
+                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/25">
+                        {conversation.type === 'group' ? (
+                          <Users className="w-7 h-7 text-white" />
+                        ) : (
+                          <MessageCircle className="w-7 h-7 text-white" />
+                        )}
+                      </div>
+                      {unreadCount > 0 && (
+                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-red-500 to-rose-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-red-500/40">
+                          {unreadCount > 9 ? '9+' : unreadCount}
+                        </div>
                       )}
                     </div>
-                    <p className={`text-sm truncate ${
-                      conversation.unreadCount > 0 ? 'text-slate-900 font-medium' : 'text-slate-500'
-                    }`}>
-                      {conversation.lastMessage?.message || 'Chưa có tin nhắn'}
-                    </p>
+
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="font-semibold text-base truncate text-slate-900">
+                          {conversation.type === 'private'
+                            ? userNames[partnerId] || 'Người dùng'
+                            : conversation.groupId ? (groupNames[conversation.groupId] || 'Nhóm chat') : 'Nhóm chat'}
+                        </h3>
+                        {conversation.lastMessageAt && (
+                          <span className="text-xs text-slate-400 ml-2 flex-shrink-0">
+                            {new Date(conversation.lastMessageAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                          </span>
+                        )}
+                      </div>
+                      <p className={`text-sm truncate ${unreadCount > 0 ? 'text-slate-900 font-medium' : 'text-slate-500'
+                        }`}>
+                        {conversation.lastMessage || 'Chưa có tin nhắn'}
+                      </p>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </ScrollArea>

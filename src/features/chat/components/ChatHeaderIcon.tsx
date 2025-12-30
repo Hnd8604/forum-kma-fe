@@ -10,6 +10,9 @@ import {
 } from '../../../shared/components/ui/popover';
 import ChatDropdown from './ChatDropdown';
 import { ChatService } from '../services/chat.service';
+import { AuthService } from '../../auth/services/auth.service';
+import { startChatWithUser } from '../utils/chatActions';
+import { useAuthStore } from '../../../store/useStore';
 import type { Conversation } from '../types/chat.types';
 
 interface ChatHeaderIconProps {
@@ -20,6 +23,7 @@ export default function ChatHeaderIcon({ onOpenMiniChat }: ChatHeaderIconProps) 
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
+  const currentUser = useAuthStore((s) => s.user);
 
   useEffect(() => {
     loadUnreadCount();
@@ -43,12 +47,35 @@ export default function ChatHeaderIcon({ onOpenMiniChat }: ChatHeaderIconProps) 
     navigate('/chat');
   };
 
-  const handleSelectConversation = (conversation: Conversation) => {
+  const handleSelectConversation = async (conversation: Conversation) => {
+    console.log('🔵 Conversation selected:', conversation);
     setIsOpen(false);
-    if (onOpenMiniChat) {
-      onOpenMiniChat(conversation);
+
+    // Get partner user ID for private chats
+    if (conversation.type === 'private') {
+      // Calculate partnerId from participantIds if not provided
+      const partnerId = conversation.partnerId ||
+        conversation.participantIds?.find(id => id !== currentUser?.userId);
+
+      if (partnerId) {
+        console.log('📞 Opening private chat with:', partnerId);
+        try {
+          const user = await AuthService.getUserById(partnerId);
+          const displayName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username;
+          console.log('👤 User info:', { displayName, avatar: user.avatarUrl });
+          startChatWithUser(partnerId, displayName, user.avatarUrl);
+        } catch (error) {
+          console.error('Failed to get user info:', error);
+          // Fallback to just opening with ID
+          startChatWithUser(partnerId, 'Người dùng');
+        }
+      } else {
+        console.error('❌ No partnerId found for private chat');
+        navigate('/chat');
+      }
     } else {
-      // If no mini chat handler, navigate to full chat page
+      console.log('👥 Group chat - navigating to /chat');
+      // For group chats, navigate to full chat page
       navigate('/chat');
     }
   };

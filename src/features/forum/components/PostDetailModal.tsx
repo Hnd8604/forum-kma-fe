@@ -1,0 +1,298 @@
+import { useState, useEffect } from 'react';
+import { X, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { ApiPost, ReactionType } from '../types/post.types';
+import { AuthService } from '../../auth/services/auth.service';
+import { CommentService } from '../services/comment.service';
+import { formatDistanceToNow } from 'date-fns';
+import { vi } from 'date-fns/locale';
+import ReactionPicker from './ReactionPicker';
+import CommentSection from './CommentSection';
+
+interface PostDetailModalProps {
+  post: ApiPost;
+  isOpen: boolean;
+  onClose: () => void;
+  currentReaction: ReactionType | null;
+  reactionCount: number;
+  onReact: (type: ReactionType) => void;
+  reacting: boolean;
+}
+
+export default function PostDetailModal({
+  post,
+  isOpen,
+  onClose,
+  currentReaction,
+  reactionCount,
+  onReact,
+  reacting,
+}: PostDetailModalProps) {
+  const [authorName, setAuthorName] = useState<string>('');
+  const [commentCount, setCommentCount] = useState(post.commentCount || 0);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isImageExpanded, setIsImageExpanded] = useState(false);
+
+  const getTimeAgo = () => {
+    try {
+      if (!post.createdAt) return 'vừa xong';
+      const date = new Date(post.createdAt);
+      if (isNaN(date.getTime())) return 'vừa xong';
+      return formatDistanceToNow(date, {
+        addSuffix: false,
+        locale: vi,
+      });
+    } catch {
+      return 'vừa xong';
+    }
+  };
+
+  useEffect(() => {
+    const loadAuthor = async () => {
+      try {
+        const user = await AuthService.getUserById(post.authorId);
+        const name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || post.authorId;
+        setAuthorName(name);
+      } catch {
+        setAuthorName(post.authorId?.substring(0, 8) || 'anonymous');
+      }
+    };
+    loadAuthor();
+  }, [post.authorId]);
+
+  const handleCommentCountChange = (count: number) => {
+    setCommentCount(count);
+  };
+
+  const handleImageClick = (index: number) => {
+    setCurrentImageIndex(index);
+    setIsImageExpanded(true);
+  };
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (post.resourceUrls && currentImageIndex < post.resourceUrls.length - 1) {
+      setCurrentImageIndex(currentImageIndex + 1);
+    }
+  };
+
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (currentImageIndex > 0) {
+      setCurrentImageIndex(currentImageIndex - 1);
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <>
+      {/* Backdrop */}
+      <div
+        className="fixed inset-0 bg-black/70 z-50 backdrop-blur-md transition-all duration-300"
+        onClick={onClose}
+      />
+
+      {/* Modal */}
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+        <div
+          className="bg-white rounded-2xl shadow-2xl w-[1200px] max-w-[95vw] max-h-[90vh] flex flex-col pointer-events-auto transform transition-all duration-300 animate-in fade-in zoom-in-95"
+          onClick={(e) => e.stopPropagation()}
+        >
+          {/* Header with Gradient */}
+          <div className="relative flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b border-slate-200 flex-shrink-0 rounded-t-2xl">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/30 ring-4 ring-white">
+                <span className="text-white text-lg font-bold">
+                  {authorName?.[0]?.toUpperCase() || 'U'}
+                </span>
+              </div>
+              <div>
+                <h2 className="text-xl font-bold text-slate-900">{authorName}</h2>
+                <p className="text-sm text-slate-600">{getTimeAgo()}</p>
+              </div>
+            </div>
+            <button
+              onClick={onClose}
+              className="w-10 h-10 flex items-center justify-center rounded-full bg-white hover:bg-slate-100 transition-all duration-200 shadow-md hover:shadow-lg hover:scale-110 group"
+            >
+              <X className="w-5 h-5 text-slate-600 group-hover:text-slate-900 transition-colors" />
+            </button>
+          </div>
+
+          {/* Content - Scrollable */}
+          <div className="flex-1 overflow-y-auto custom-scrollbar">
+            {/* Images if available */}
+            {post.type === 'IMAGE' && post.resourceUrls && post.resourceUrls.length > 0 && (
+              <div className="bg-gradient-to-br from-slate-900 to-slate-800 relative">
+                {post.resourceUrls.length === 1 ? (
+                  <div className="relative group">
+                    <img
+                      src={post.resourceUrls[0]}
+                      alt={post.title}
+                      className="w-full max-h-[600px] object-contain cursor-pointer transition-transform duration-300 group-hover:scale-105"
+                      onClick={() => handleImageClick(0)}
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  </div>
+                ) : (
+                  <div className={`grid ${post.resourceUrls.length === 2 ? 'grid-cols-2' : 'grid-cols-2'} gap-1 p-1`}>
+                    {post.resourceUrls.slice(0, 4).map((url, index) => (
+                      <div
+                        key={index}
+                        className={`relative group overflow-hidden rounded-lg ${post.resourceUrls!.length === 3 && index === 0 ? 'col-span-2' : ''
+                          }`}
+                        style={{
+                          aspectRatio: post.resourceUrls!.length === 3 && index === 0 ? '16/9' : '1/1'
+                        }}
+                      >
+                        <img
+                          src={url}
+                          alt={`${post.title} - ${index + 1}`}
+                          className="w-full h-full object-cover cursor-pointer transition-all duration-300 group-hover:scale-110"
+                          onClick={() => handleImageClick(index)}
+                        />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                        {index === 3 && post.resourceUrls!.length > 4 && (
+                          <div
+                            className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center cursor-pointer hover:bg-black/80 transition-all duration-300"
+                            onClick={() => handleImageClick(index)}
+                          >
+                            <span className="text-white text-4xl font-bold drop-shadow-lg">
+                              +{post.resourceUrls!.length - 4}
+                            </span>
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Post Info */}
+            <div className="px-6 py-5">
+              {/* Title if exists */}
+              {post.title && (
+                <h3 className="text-2xl font-bold text-slate-900 mb-4 leading-tight">
+                  {post.title}
+                </h3>
+              )}
+
+              {/* Content */}
+              <p className="text-slate-700 text-base leading-relaxed mb-5 whitespace-pre-line">
+                {post.content}
+              </p>
+
+              {/* Stats - Separated Layout */}
+              <div className="border-t border-slate-200 pt-3 pb-2">
+                <div className="flex items-center justify-between text-sm">
+                  {/* Likes Section */}
+                  <div className="flex items-center gap-2">
+                    <div className="flex -space-x-1">
+                      <span className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-xs shadow-sm">👍</span>
+                      <span className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center text-xs shadow-sm">❤️</span>
+                      <span className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center text-xs shadow-sm">😆</span>
+                    </div>
+                    <span className="text-slate-600 hover:text-blue-600 cursor-pointer transition-colors">
+                      Thích {reactionCount > 0 && reactionCount}
+                    </span>
+                  </div>
+
+                  {/* Comments Section */}
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-slate-600 hover:text-blue-600 cursor-pointer transition-colors">
+                      Bình luận
+                    </span>
+                    {commentCount > 0 && (
+                      <span className="text-slate-500">({commentCount})</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Action Buttons - Separated with border */}
+              <div className="border-t border-slate-200 pt-2 pb-1">
+                <div className="flex items-center">
+                  {/* Reaction Button */}
+                  <div className="flex-1 flex justify-center border-r border-slate-200">
+                    <ReactionPicker
+                      currentReaction={currentReaction}
+                      reactionCount={reactionCount}
+                      onReact={onReact}
+                      disabled={reacting}
+                      size="md"
+                    />
+                  </div>
+
+                  {/* Comment Button */}
+                  <div className="flex-1 flex justify-center">
+                    <button className="flex items-center justify-center gap-2 py-2 px-4 text-slate-700 hover:bg-slate-50 rounded-lg font-medium transition-all duration-200 group">
+                      <MessageCircle className="w-5 h-5 text-slate-500 group-hover:text-blue-600 transition-colors" />
+                      <span className="group-hover:text-blue-600 transition-colors">Bình luận</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Comments */}
+            <CommentSection
+              postId={post.postId}
+              isOpen={true}
+              onCommentCountChange={handleCommentCountChange}
+            />
+          </div>
+        </div>
+      </div>
+
+      {/* Image Lightbox */}
+      {isImageExpanded && post.resourceUrls && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4"
+          onClick={() => setIsImageExpanded(false)}
+        >
+          <button
+            onClick={() => setIsImageExpanded(false)}
+            className="absolute top-4 right-4 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-all duration-200 backdrop-blur-md"
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+
+          <div className="relative max-w-7xl max-h-full" onClick={(e) => e.stopPropagation()}>
+            <img
+              src={post.resourceUrls[currentImageIndex]}
+              alt={`${post.title} - ${currentImageIndex + 1}`}
+              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+            />
+
+            {post.resourceUrls.length > 1 && (
+              <>
+                {currentImageIndex > 0 && (
+                  <button
+                    onClick={handlePrevImage}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all duration-200 hover:scale-110"
+                  >
+                    <ChevronLeft className="w-6 h-6 text-white" />
+                  </button>
+                )}
+
+                {currentImageIndex < post.resourceUrls.length - 1 && (
+                  <button
+                    onClick={handleNextImage}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all duration-200 hover:scale-110"
+                  >
+                    <ChevronRight className="w-6 h-6 text-white" />
+                  </button>
+                )}
+
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/50 backdrop-blur-md rounded-full text-white text-sm font-medium">
+                  {currentImageIndex + 1} / {post.resourceUrls.length}
+                </div>
+              </>
+            )}
+          </div>
+        </div>
+      )}
+    </>
+  );
+}

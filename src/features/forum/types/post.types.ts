@@ -13,9 +13,10 @@ export interface ApiPost {
   groupId: string;
   status: PostStatus;
   type: PostType;
-  resourceUrl?: string;
+  resourceUrls?: string[]; // Multiple images/documents
   reactionCount: number;
   commentCount?: number;
+  viewCount?: number;
   myReaction?: ReactionType | null;
   createdAt: string;
   updatedAt?: string;
@@ -36,7 +37,7 @@ export interface CreatePostRequest {
   content: string;
   groupId?: string;
   type: PostType;
-  resourceUrl?: string;
+  resourceUrls?: string[]; // Multiple images/documents
 }
 
 // Update post request
@@ -44,7 +45,7 @@ export interface UpdatePostRequest {
   title?: string;
   content?: string;
   type?: PostType;
-  resourceUrl?: string;
+  resourceUrls?: string[];
 }
 
 // Comment types

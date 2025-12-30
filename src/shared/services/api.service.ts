@@ -1,11 +1,55 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://72.60.198.235:8080/api/v1';
 
+// Token refresh state
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value: any) => void;
+  reject: (reason: any) => void;
+}> = [];
+
+const processQueue = (error: any = null, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
 export class ApiService {
   private static getAuthToken(): string | null {
     try {
       return localStorage.getItem('accessToken');
     } catch {
       return null;
+    }
+  }
+
+  private static getRefreshToken(): string | null {
+    try {
+      return localStorage.getItem('refreshToken');
+    } catch {
+      return null;
+    }
+  }
+
+  private static setAuthToken(token: string): void {
+    try {
+      localStorage.setItem('accessToken', token);
+    } catch (error) {
+      console.error('Failed to save access token:', error);
+    }
+  }
+
+  private static clearAuth(): void {
+    try {
+      localStorage.removeItem('accessToken');
+      localStorage.removeItem('refreshToken');
+      localStorage.removeItem('user');
+    } catch (error) {
+      console.error('Failed to clear auth:', error);
     }
   }
 
@@ -24,21 +68,50 @@ export class ApiService {
     return headers;
   }
 
+  private static async refreshAccessToken(): Promise<string> {
+    const refreshToken = this.getRefreshToken();
+
+    if (!refreshToken) {
+      throw new Error('No refresh token available');
+    }
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ refreshToken }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Refresh token failed');
+      }
+
+      const data = await response.json();
+      const newAccessToken = data.result?.accessToken || data.accessToken;
+
+      if (!newAccessToken) {
+        throw new Error('No access token in refresh response');
+      }
+
+      this.setAuthToken(newAccessToken);
+      return newAccessToken;
+    } catch (error) {
+      this.clearAuth();
+      window.location.href = '/';
+      throw error;
+    }
+  }
+
   static async request<T>(
     endpoint: string,
     options: RequestInit = {},
-    requiresAuth: boolean = false
+    requiresAuth: boolean = false,
+    _isRetry: boolean = false
   ): Promise<T> {
     const url = `${API_BASE_URL}${endpoint}`;
     const headers = this.getHeaders(requiresAuth);
-
-    // Debug: Log token and headers
-    if (requiresAuth) {
-      const token = this.getAuthToken();
-      console.log('🔐 API Request - RequiresAuth:', requiresAuth);
-      console.log('🎫 Token from localStorage:', token ? token.substring(0, 20) + '...' : 'NULL');
-      console.log('📋 Headers:', headers);
-    }
 
     const config: RequestInit = {
       ...options,
@@ -50,6 +123,34 @@ export class ApiService {
 
     try {
       const response = await fetch(url, config);
+
+      // Handle 401 - Unauthorized (token expired)
+      if (response.status === 401 && requiresAuth && !_isRetry) {
+        if (isRefreshing) {
+          // Wait for the refresh to complete
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          }).then(() => {
+            // Retry with new token
+            return this.request<T>(endpoint, options, requiresAuth, true);
+          });
+        }
+
+        isRefreshing = true;
+
+        try {
+          const newToken = await this.refreshAccessToken();
+          processQueue(null, newToken);
+          isRefreshing = false;
+
+          // Retry the original request with new token
+          return this.request<T>(endpoint, options, requiresAuth, true);
+        } catch (refreshError) {
+          processQueue(refreshError, null);
+          isRefreshing = false;
+          throw refreshError;
+        }
+      }
 
       // Handle non-OK responses
       if (!response.ok) {
@@ -68,14 +169,12 @@ export class ApiService {
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         const jsonData = await response.json();
-        
-        console.log('📦 Raw API Response:', jsonData);
-        
+
         // Check if backend returned an error in the response body (code !== "200")
         if (jsonData && typeof jsonData === 'object' && 'code' in jsonData) {
           // PS_015 is a special case: interaction removed (toggle) - not an error
-          const isInteractionRemoved = jsonData.code === 'PS_015' || jsonData.code === 'PS_015';
-          
+          const isInteractionRemoved = jsonData.code === 'PS_015';
+
           if (jsonData.code !== '200' && jsonData.code !== 200 && !isInteractionRemoved) {
             throw {
               message: jsonData.message || 'Request failed',
@@ -84,21 +183,19 @@ export class ApiService {
             };
           }
         }
-        
+
         // If response has the API structure {code, message, data/result}, return data/result
         if (jsonData && typeof jsonData === 'object') {
           // Check for 'result' field (backend uses 'result' not 'data')
           if ('result' in jsonData) {
-            console.log('✅ Returning jsonData.result');
             return jsonData.result as T;
           }
           // Fallback to 'data' field
           if ('data' in jsonData) {
-            console.log('✅ Returning jsonData.data');
             return jsonData.data as T;
           }
         }
-        
+
         return jsonData as T;
       }
 
@@ -221,8 +318,6 @@ export class ApiService {
       const contentType = response.headers.get('content-type');
       if (contentType && contentType.includes('application/json')) {
         const jsonData = await response.json();
-        
-        console.log('📦 Upload Response:', jsonData);
 
         // Check for error codes (code is string "200" not number)
         if (jsonData && typeof jsonData === 'object' && 'code' in jsonData) {

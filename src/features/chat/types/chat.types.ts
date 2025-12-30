@@ -1,46 +1,70 @@
-export type MessageType = 'text' | 'image' | 'file' | 'video';
-export type ConversationType = 'PRIVATE' | 'GROUP';
+export type MessageType = 'TEXT' | 'IMAGE' | 'FILE' | 'VIDEO';
+export type ConversationType = 'private' | 'group';
 
+// Backend response for ChatMessage
 export interface Message {
-  messageId: string;
+  id: string; // MongoDB _id (messageId in backend)
+  fromUserId: string;
+  toUserId?: string | null; // null for group messages
+  groupId?: string | null; // null for private messages
   conversationId: string;
-  senderId: string;
-  receiverId?: string;
-  groupId?: string;
-  message: string;
+  message: string; // Text content or URL for media
   type: MessageType;
-  isRead: boolean;
-  createdAt: string;
+  resourceUrl?: string; // URL to media file (for IMAGE, VIDEO, FILE)
+  createdAt: string; // ISO timestamp
 }
 
-export interface LastMessage {
-  messageId: string;
-  senderId: string;
-  message: string;
-  createdAt: string;
-}
-
+// Backend response for Conversation
 export interface Conversation {
-  conversationId: string;
-  type: ConversationType;
-  name: string;
-  participants: string[];
-  lastMessage?: LastMessage;
-  unreadCount: number;
-  createdAt: string;
-  updatedAt: string;
-  createdBy?: string;
+  conversationId: string; // MongoDB _id
+  type: ConversationType; // "private" or "group"
+  participantIds: string[]; // Array of user IDs
+  groupId?: string | null; // null for private conversations
+  partnerId?: string | null; // For private conversations - the other user's ID
+  lastMessage?: string | null; // Last message text
+  lastMessageAt?: string | null; // ISO timestamp
+  unreadCounts: Record<string, number>; // { userId: count }
 }
 
+// Request to send a message
 export interface SendMessageRequest {
-  conversationId?: string;
-  groupId?: string;
-  receiverId?: string;
-  message: string;
-  type?: MessageType;
+  conversationId?: string; // For existing conversations
+  receiverId?: string; // For new private chat (backend expects receiverId, not toUserId)
+  groupId?: string; // For group chat
+  message: string; // Required
+  type?: MessageType; // Optional, defaults to TEXT
 }
 
+// Request to create a group
 export interface CreateGroupRequest {
   name: string;
+  description?: string;
+  memberIds: string[]; // User IDs (creator is auto-added)
+}
+
+// Response when creating a group (from backend CreateGroupChatResponse)
+export interface CreateGroupResponse {
+  // Group info
+  groupId: string;
+  name: string;
+  description?: string;
+  avatarUrl?: string;
+  ownerId: string;
+  adminIds: string[];
   memberIds: string[];
+  settings?: {
+    onlyAdminsCanSendMessages: boolean;
+    onlyAdminsCanAddMembers: boolean;
+    allowMembersToLeave: boolean;
+    maxMembers: number;
+  };
+  createdAt: string;
+  updatedAt?: string;
+  
+  // Conversation info
+  conversationId: string;
+  conversationType: string;
+  participantIds: string[];
+  lastMessage?: string | null;
+  lastMessageAt?: string | null;
 }

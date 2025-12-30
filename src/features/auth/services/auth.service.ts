@@ -385,6 +385,35 @@ export class AuthService {
   }
 
   /**
+   * Get all users with pagination
+   */
+  static async getAllUsers(page: number = 0, size: number = 100): Promise<{ content: User[]; totalElements: number }> {
+    const response = await ApiService.get<any>(`/users?page=${page}&size=${size}`, true);
+    
+    const users = response.data?.map((item: any) => ({
+      userId: item.id || item.userId,
+      username: item.username,
+      email: item.email,
+      firstName: item.firstName,
+      lastName: item.lastName,
+      userStatus: item.userStatus,
+      is2FAEnabled: item.is2FAEnabled,
+      roles: item.roleName ? [item.roleName] : undefined,
+      dob: item.dob,
+      gender: item.gender,
+      address: item.address,
+      avatarUrl: item.avatarUrl,
+      roleId: item.roleId,
+      roleName: item.roleName,
+    })) || [];
+
+    return {
+      content: users,
+      totalElements: response.totalElements || users.length,
+    };
+  }
+
+  /**
    * Get refresh token
    */
   static getRefreshToken(): string | null {

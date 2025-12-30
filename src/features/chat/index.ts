@@ -9,9 +9,16 @@ export { default as ChatHeaderIcon } from './components/ChatHeaderIcon';
 export { default as ChatDropdown } from './components/ChatDropdown';
 export { default as MiniChatWindow } from './components/MiniChatWindow';
 export { default as ChatManager } from './components/ChatManager';
+export { default as NewMessageDialog } from './components/NewMessageDialog';
+export { default as StartChatButton } from './components/StartChatButton';
+export { default as ChatContainer } from './components/ChatContainer';
+export { default as FriendsList } from './components/FriendsList';
 
 // Services
 export { ChatService } from './services/chat.service';
+
+// Utils
+export { startChatWithUser, openFriendsList, closeFriendsList } from './utils/chatActions';
 
 // Types
 export type {
@@ -19,7 +26,7 @@ export type {
   Conversation,
   SendMessageRequest,
   CreateGroupRequest,
+  CreateGroupResponse,
   MessageType,
   ConversationType,
-  LastMessage,
 } from './types/chat.types';

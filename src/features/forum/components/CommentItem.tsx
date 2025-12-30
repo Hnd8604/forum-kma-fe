@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Button } from '../../../shared/components/ui/button';
 import { MoreHorizontal, Edit2, Trash2, Check, X, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
@@ -152,20 +153,22 @@ export default function CommentItem({
   return (
     <div className="flex gap-3 group">
       {/* Avatar */}
-      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center flex-shrink-0">
-        <span className="text-white text-xs font-bold">
-          {comment.authorName?.[0]?.toUpperCase() || 'U'}
-        </span>
-      </div>
+      <Link to={`/profile/${comment.authorId}`} className="flex-shrink-0">
+        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center hover:ring-2 hover:ring-emerald-300 transition-all">
+          <span className="text-white text-xs font-bold">
+            {comment.authorName?.[0]?.toUpperCase() || 'U'}
+          </span>
+        </div>
+      </Link>
 
       {/* Content */}
       <div className="flex-1 min-w-0">
         <div className="bg-white rounded-xl px-4 py-3 shadow-sm border border-slate-100">
           <div className="flex items-center justify-between mb-1">
             <div className="flex items-center gap-2">
-              <span className="font-semibold text-sm text-slate-900">
+              <Link to={`/profile/${comment.authorId}`} className="font-semibold text-sm text-slate-900 hover:text-blue-600 hover:underline transition-colors">
                 {comment.authorName || comment.authorId?.substring(0, 8) || 'Ẩn danh'}
-              </span>
+              </Link>
               <span className="text-xs text-slate-400">{getTimeAgo()}</span>
               {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
                 <span className="text-xs text-slate-400">(đã chỉnh sửa)</span>
