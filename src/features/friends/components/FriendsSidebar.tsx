@@ -6,6 +6,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/
 import { FriendshipResponse, FriendshipStatus } from '../types/friendship.types';
 import { FriendshipService } from '../services/friendship.service';
 import { AuthService, User } from '../../auth';
+import { useFriendSuggestions } from '../hooks/useFriendSuggestions';
 import { toast } from 'sonner';
 
 interface FriendsSidebarProps {
@@ -15,7 +16,8 @@ interface FriendsSidebarProps {
 export default function FriendsSidebar({ onStartChat }: FriendsSidebarProps) {
   const [friends, setFriends] = useState<FriendshipResponse[]>([]);
   const [receivedRequests, setReceivedRequests] = useState<FriendshipResponse[]>([]);
-  const [suggestedUsers, setSuggestedUsers] = useState<User[]>([]);
+  // Sử dụng hook lấy gợi ý kết bạn
+  const { suggestions: suggestedUsers, loading: loadingSuggestions, error: errorSuggestions } = useFriendSuggestions();
   const [loading, setLoading] = useState(true);
   const [processingIds, setProcessingIds] = useState<Set<string>>(new Set());
 
@@ -32,37 +34,10 @@ export default function FriendsSidebar({ onStartChat }: FriendsSidebarProps) {
       ]);
       setFriends(friendsData?.slice(0, 5) || []);
       setReceivedRequests(requestsData?.slice(0, 3) || []);
-      
-      // Load suggested users
-      await loadSuggestedUsers(friendsData || []);
     } catch (error) {
       console.error('Failed to load friends data:', error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const loadSuggestedUsers = async (currentFriends: FriendshipResponse[]) => {
-    try {
-      // Get all users
-      const { content: allUsers } = await AuthService.getAllUsers(0, 100);
-      const currentUser = AuthService.getCurrentUser();
-      
-      if (!currentUser) return;
-      
-      // Get friend user IDs
-      const friendIds = new Set(currentFriends.map(f => f.userId));
-      
-      // Filter out current user and existing friends
-      const nonFriends = allUsers.filter(
-        user => user.userId !== currentUser.userId && !friendIds.has(user.userId)
-      );
-      
-      // Shuffle and take 3 random users
-      const shuffled = nonFriends.sort(() => Math.random() - 0.5);
-      setSuggestedUsers(shuffled.slice(0, 3));
-    } catch (error) {
-      console.error('Failed to load suggested users:', error);
     }
   };
 
@@ -103,13 +78,12 @@ export default function FriendsSidebar({ onStartChat }: FriendsSidebarProps) {
     }
   };
 
-  const handleSendRequest = async (user: User) => {
+  const handleSendRequest = async (user: any) => {
     try {
       setProcessingIds((prev) => new Set(prev).add(user.userId));
       await FriendshipService.sendFriendRequest(user.userId);
       toast.success(`Đã gửi lời mời kết bạn tới ${user.username}`);
-      // Remove from suggestions
-      setSuggestedUsers(prev => prev.filter(u => u.userId !== user.userId));
+      // Không cần cập nhật suggestions ở đây vì hook sẽ tự fetch lại nếu cần
     } catch (error: any) {
       toast.error(error.message || 'Không thể gửi lời mời kết bạn');
     } finally {
@@ -121,15 +95,16 @@ export default function FriendsSidebar({ onStartChat }: FriendsSidebarProps) {
     }
   };
 
-  const getInitials = (item: FriendshipResponse | User) => {
-    if ('firstName' in item && 'lastName' in item && item.firstName && item.lastName) {
+  // Hỗ trợ FriendSuggestion (firstName/lastName có thể undefined)
+  const getInitials = (item: { username: string; firstName?: string; lastName?: string }) => {
+    if (item.firstName && item.lastName) {
       return `${item.firstName[0]}${item.lastName[0]}`.toUpperCase();
     }
     return item.username.substring(0, 2).toUpperCase();
   };
 
-  const getDisplayName = (item: FriendshipResponse | User) => {
-    if ('firstName' in item && 'lastName' in item && item.firstName && item.lastName) {
+  const getDisplayName = (item: { username: string; firstName?: string; lastName?: string }) => {
+    if (item.firstName && item.lastName) {
       return `${item.firstName} ${item.lastName}`;
     }
     return item.username;
@@ -283,7 +258,13 @@ export default function FriendsSidebar({ onStartChat }: FriendsSidebarProps) {
           <UserPlus className="w-4 h-4" />
           Gợi ý kết bạn
         </h3>
-        {suggestedUsers.length === 0 ? (
+        {loadingSuggestions ? (
+          <div className="flex items-center justify-center py-4">
+            <Loader2 className="w-5 h-5 animate-spin text-white" />
+          </div>
+        ) : errorSuggestions ? (
+          <p className="text-sm text-red-100 text-center py-2">{errorSuggestions}</p>
+        ) : suggestedUsers.length === 0 ? (
           <p className="text-sm text-blue-100 text-center py-2">
             Không có gợi ý nào
           </p>
@@ -349,70 +330,6 @@ export default function FriendsSidebar({ onStartChat }: FriendsSidebarProps) {
         </div>
       </div>
 
-      {/* Recent Activity */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-        <h3 className="font-semibold text-slate-900 mb-3">Hoạt động gần đây</h3>
-        <div className="space-y-3">
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center flex-shrink-0">
-              <UserCheck className="w-4 h-4 text-green-600" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm text-slate-900">
-                <span className="font-medium">Phong Nguyễn Tuấn</span> đã chấp nhận lời mời kết bạn
-              </p>
-              <p className="text-xs text-slate-500 mt-0.5">2 giờ trước</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center flex-shrink-0">
-              <UserPlus className="w-4 h-4 text-blue-600" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm text-slate-900">
-                <span className="font-medium">Mai Anh Thu</span> đã gửi lời mời kết bạn
-              </p>
-              <p className="text-xs text-slate-500 mt-0.5">5 giờ trước</p>
-            </div>
-          </div>
-          <div className="flex items-start gap-3">
-            <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center flex-shrink-0">
-              <MessageCircle className="w-4 h-4 text-purple-600" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm text-slate-900">
-                <span className="font-medium">Hoàng Minh</span> đã nhắn tin cho bạn
-              </p>
-              <p className="text-xs text-slate-500 mt-0.5">1 ngày trước</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Community Stats */}
-      <div className="bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl p-4 text-white shadow-lg shadow-purple-500/25">
-        <h3 className="font-semibold mb-3 flex items-center gap-2">
-          <Users className="w-4 h-4" />
-          Forum KMA
-        </h3>
-        <div className="space-y-2 text-sm">
-          <div className="flex justify-between items-center">
-            <span className="text-purple-100">Thành viên</span>
-            <span className="font-semibold">12,453</span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-purple-100">Đang hoạt động</span>
-            <span className="font-semibold flex items-center gap-1">
-              <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></span>
-              1,234
-            </span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-purple-100">Bài viết hôm nay</span>
-            <span className="font-semibold">567</span>
-          </div>
-        </div>
-      </div>
 
       {/* Footer Links */}
       <div className="text-xs text-slate-500 space-y-1 px-2">

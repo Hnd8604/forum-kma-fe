@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, TrendingUp, Users, ChevronDown, ChevronUp, Plus, Loader2, Flame, Star, Clock, Search } from 'lucide-react';
+import { Home, TrendingUp, Users, ChevronDown, ChevronUp, Plus, Loader2, Flame, Star, Search } from 'lucide-react';
 import { Button } from '../../../shared/components/ui/button';
 import { GroupService } from '../services/group.service';
 import CreateGroupDialog from './CreateGroupDialog';
@@ -26,10 +26,34 @@ export default function Sidebar() {
   const [showCommunities, setShowCommunities] = useState(true);
   const [showRecent, setShowRecent] = useState(true);
   const [showCreateGroup, setShowCreateGroup] = useState(false);
+  const [suggestedGroups, setSuggestedGroups] = useState<Group[]>([]);
+  const [joiningGroupId, setJoiningGroupId] = useState<string | null>(null);
 
   useEffect(() => {
     loadMyGroups();
+    loadSuggestedGroups();
+
+    // Listen for group membership changes (join/leave)
+    const handleMembershipChange = () => {
+      loadMyGroups();
+      loadSuggestedGroups();
+    };
+    window.addEventListener('groupMembershipChanged', handleMembershipChange);
+
+    return () => {
+      window.removeEventListener('groupMembershipChanged', handleMembershipChange);
+    };
   }, []);
+
+  const loadSuggestedGroups = async () => {
+    try {
+      // Fetch more groups to ensure we have enough after filtering
+      const response = await GroupService.getAllGroups({ limit: 20 });
+      setSuggestedGroups(response.content || []);
+    } catch (err) {
+      console.error('Failed to load suggested groups:', err);
+    }
+  };
 
   const loadMyGroups = async () => {
     try {
@@ -55,6 +79,28 @@ export default function Sidebar() {
   const handleGroupCreated = () => {
     loadMyGroups();
   };
+
+  const handleJoinGroup = async (e: React.MouseEvent, groupId: string) => {
+    e.stopPropagation();
+    if (joiningGroupId) return;
+
+    try {
+      setJoiningGroupId(groupId);
+      await GroupService.joinGroup({ groupId });
+      // Refresh both lists to update UI
+      await Promise.all([loadMyGroups(), loadSuggestedGroups()]);
+    } catch (err) {
+      console.error('Failed to join group:', err);
+    } finally {
+      setJoiningGroupId(null);
+    }
+  };
+
+  // Filter out groups the user is already a member of
+  const myGroupIds = new Set(groups.map(g => g.groupId));
+  const filteredSuggestedGroups = suggestedGroups
+    .filter(g => !myGroupIds.has(g.groupId))
+    .slice(0, 5);
 
   return (
     <>
@@ -83,25 +129,62 @@ export default function Sidebar() {
 
           <div className="border-t border-[#EDEFF1] my-3"></div>
 
-          {/* Recent Communities */}
+          {/* Suggested Groups */}
           <div className="mb-4 bg-white rounded-2xl border border-slate-200 p-2 shadow-sm">
             <button
               onClick={() => setShowRecent(!showRecent)}
               className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500 hover:bg-slate-100 rounded-lg transition-all"
             >
-              <span>Gần đây</span>
+              <span>Gợi ý tham gia nhóm</span>
               {showRecent ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
 
             {showRecent && (
               <div className="space-y-1 mt-1">
-                <Button
-                  variant="ghost"
-                  className="w-full justify-start h-11 px-3 rounded-xl hover:bg-slate-100 text-sm font-medium text-slate-700 transition-all"
-                >
-                  <Clock className="w-5 h-5 mr-3 text-slate-500" />
-                  Xem gần đây
-                </Button>
+                {filteredSuggestedGroups.length > 0 ? (
+                  filteredSuggestedGroups.map((group, index) => {
+                    const groupName = group.name || group.groupName || 'Nhóm';
+                    const color = getRandomColor(index);
+                    const isJoining = joiningGroupId === group.groupId;
+
+                    return (
+                      <div key={group.groupId} className="flex items-center gap-1 group/item">
+                        <Button
+                          variant="ghost"
+                          onClick={() => handleGroupClick(group.groupId)}
+                          className="flex-1 justify-start h-11 px-3 rounded-xl hover:bg-slate-100 text-sm font-medium text-slate-700 transition-all truncate"
+                        >
+                          <div
+                            className="w-6 h-6 mr-3 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold shadow-sm"
+                            style={{ backgroundColor: color }}
+                          >
+                            {groupName[0]?.toUpperCase()}
+                          </div>
+                          <span className="truncate">{groupName}</span>
+                        </Button>
+
+                        <Button
+                          size="icon"
+                          variant="ghost"
+                          onClick={(e: React.MouseEvent) => handleJoinGroup(e, group.groupId)}
+                          disabled={isJoining}
+                          className="h-8 w-8 rounded-full hover:bg-blue-50 text-slate-400 hover:text-blue-600 opacity-0 group-hover/item:opacity-100 transition-all"
+                          title="Tham gia nhóm"
+                        >
+                          {isJoining ? (
+                            <Loader2 className="w-4 h-4 animate-spin" />
+                          ) : (
+                            <Plus className="w-4 h-4" />
+                          )}
+                        </Button>
+                      </div>
+                    );
+                  })
+                ) : (
+                  <div className="text-center py-4 px-3 text-sm text-slate-500">
+                    Không có gợi ý nào
+                  </div>
+                )}
               </div>
             )}
           </div>

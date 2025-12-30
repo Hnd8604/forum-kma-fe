@@ -16,9 +16,9 @@ import { ApiPost, ReactionType } from '../types/post.types';
 import { InteractionService } from '../services/interaction.service';
 import { CommentService } from '../services/comment.service';
 import { AuthService } from '../../auth/services/auth.service';
+import { GroupService } from '../../groups/services/group.service';
 import { useAuthStore } from '../../../store/useStore';
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { formatTimeAgo } from '../../../shared/utils/date.utils';
 import ReactionPicker from './ReactionPicker';
 import PostDetailModal from './PostDetailModal';
 
@@ -30,6 +30,8 @@ interface PostCardProps {
 export default function PostCard({ post, onReactionChange }: PostCardProps) {
   const currentUser = useAuthStore((s) => s.user);
   const [authorName, setAuthorName] = useState<string>('');
+  const [authorAvatarUrl, setAuthorAvatarUrl] = useState<string | null>(null);
+  const [groupName, setGroupName] = useState<string>(post.groupName || '');
   const [reacting, setReacting] = useState(false);
   const [currentReaction, setCurrentReaction] = useState<ReactionType | null>(
     post.myReaction || null
@@ -57,19 +59,7 @@ export default function PostCard({ post, onReactionChange }: PostCardProps) {
   }, [post.commentCount, post.postId]);
 
   // Safe date formatting
-  const getTimeAgo = () => {
-    try {
-      if (!post.createdAt) return 'vừa xong';
-      const date = new Date(post.createdAt);
-      if (isNaN(date.getTime())) return 'vừa xong';
-      return formatDistanceToNow(date, {
-        addSuffix: false,
-        locale: vi,
-      });
-    } catch {
-      return 'vừa xong';
-    }
-  };
+  const getTimeAgo = () => formatTimeAgo(post.createdAt);
 
   const timeAgo = getTimeAgo();
 
@@ -79,12 +69,31 @@ export default function PostCard({ post, onReactionChange }: PostCardProps) {
         const user = await AuthService.getUserById(post.authorId);
         const name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || post.authorId;
         setAuthorName(name);
+        setAuthorAvatarUrl(user.avatarUrl || null);
       } catch {
         setAuthorName(post.authorId?.substring(0, 8) || 'anonymous');
+        setAuthorAvatarUrl(null);
       }
     };
     loadAuthor();
   }, [post.authorId]);
+
+  // Load group name if not provided
+  useEffect(() => {
+    if (!post.groupName && post.groupId) {
+      const loadGroup = async () => {
+        try {
+          const group = await GroupService.getGroupById(post.groupId);
+          setGroupName(group.groupName || '');
+        } catch {
+          setGroupName('');
+        }
+      };
+      loadGroup();
+    } else if (post.groupName) {
+      setGroupName(post.groupName);
+    }
+  }, [post.groupId, post.groupName]);
 
   // Sync reaction state when post prop changes
   useEffect(() => {
@@ -175,15 +184,37 @@ export default function PostCard({ post, onReactionChange }: PostCardProps) {
         {/* Post Header */}
         <div className="flex items-center text-sm text-slate-500 mb-3">
           <Link to={`/profile/${post.authorId}`} className="flex items-center group">
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center mr-2.5 shadow-md shadow-blue-500/20 group-hover:ring-2 group-hover:ring-blue-300 transition-all">
-              <span className="text-white text-xs font-bold">
-                {authorName?.[0]?.toUpperCase() || 'U'}
-              </span>
-            </div>
+            {authorAvatarUrl ? (
+              <img
+                src={authorAvatarUrl}
+                alt={authorName || 'avatar'}
+                className="w-8 h-8 rounded-full object-cover mr-2.5 shadow-md group-hover:ring-2 group-hover:ring-blue-300 transition-all"
+              />
+            ) : (
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center mr-2.5 shadow-md shadow-blue-500/20 group-hover:ring-2 group-hover:ring-blue-300 transition-all">
+                <span className="text-white text-xs font-bold">
+                  {authorName?.[0]?.toUpperCase() || 'U'}
+                </span>
+              </div>
+            )}
             <div className="flex flex-col">
-              <span className="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
-                {authorName || 'loading...'}
-              </span>
+              <div className="flex items-center gap-1">
+                <span className="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
+                  {authorName || 'loading...'}
+                </span>
+                {groupName && (
+                  <>
+                    <span className="text-slate-400">•</span>
+                    <Link
+                      to={`/forum/group/${post.groupId}`}
+                      className="text-slate-600 hover:text-blue-600 hover:underline transition-colors"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      {groupName}
+                    </Link>
+                  </>
+                )}
+              </div>
               <span className="text-xs text-slate-400">{timeAgo}</span>
             </div>
           </Link>

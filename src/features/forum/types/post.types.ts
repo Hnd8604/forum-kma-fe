@@ -11,6 +11,7 @@ export interface ApiPost {
   content: string;
   authorId: string;
   groupId: string;
+  groupName?: string;
   status: PostStatus;
   type: PostType;
   resourceUrls?: string[]; // Multiple images/documents
@@ -54,6 +55,7 @@ export interface Comment {
   postId: string;
   authorId: string;
   authorName?: string;
+  authorAvatarUrl?: string;
   content: string;
   parentCommentId?: string;
   replyCount?: number;
@@ -123,9 +125,9 @@ export interface CreateGroupRequest {
 }
 
 export interface UpdateGroupRequest {
-  name?: string;
+  groupName?: string;
   description?: string;
-  privacy?: GroupPrivacy;
+  visibility?: GroupPrivacy;
 }
 
 export interface JoinGroupRequest {

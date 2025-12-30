@@ -5,6 +5,7 @@ import { CommentService } from '../services/comment.service';
 import { InteractionService } from '../services/interaction.service';
 import type { Comment, ReactionType } from '../types/post.types';
 import CommentItem from './CommentItem';
+import { useAuthStore } from '../../../store/useStore';
 
 interface CommentSectionProps {
   postId: string;
@@ -20,10 +21,11 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const currentUser = useAuthStore((s) => s.user);
 
   const loadComments = useCallback(async (pageNum: number = 0, append: boolean = false) => {
     if (!isOpen) return;
-    
+
     try {
       if (pageNum === 0) {
         setLoading(true);
@@ -93,7 +95,7 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
         postId,
         content: newComment.trim(),
       });
-      
+
       setComments((prev) => {
         const newComments = [{ ...created, myReaction: null }, ...prev];
         onCommentCountChange?.(newComments.length);
@@ -148,9 +150,19 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
       {/* Comment Input */}
       <div className="p-4 border-b border-slate-100">
         <div className="flex items-start gap-3">
-          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center flex-shrink-0">
-            <span className="text-white text-xs font-bold">U</span>
-          </div>
+          {currentUser?.avatarUrl ? (
+            <img
+              src={currentUser.avatarUrl}
+              alt={currentUser.firstName || 'avatar'}
+              className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+            />
+          ) : (
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center flex-shrink-0">
+              <span className="text-white text-xs font-bold">
+                {currentUser?.firstName?.[0]?.toUpperCase() || 'U'}
+              </span>
+            </div>
+          )}
           <div className="flex-1">
             <textarea
               value={newComment}
