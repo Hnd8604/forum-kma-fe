@@ -23,6 +23,9 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
   const [lastName, setLastName] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [dob, setDob] = useState('');
+  const [gender, setGender] = useState('');
+  const [address, setAddress] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [showEmailVerification, setShowEmailVerification] = useState(false);
@@ -52,6 +55,9 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
         firstName,
         lastName,
         password,
+        dob: dob || undefined,
+        gender: gender || undefined,
+        address: address || undefined,
       });
 
       // Convert AuthData to User for the store
@@ -170,6 +176,55 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
                   />
                 </div>
               </div>
+              
+              {/* Optional Profile Fields */}
+              <div className="pt-2 pb-1">
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Thông tin bổ sung (không bắt buộc)</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="dob" className="text-sm font-medium text-slate-700">Ngày sinh</Label>
+                  <Input
+                    id="dob"
+                    type="date"
+                    value={dob}
+                    onChange={(e) => setDob(e.target.value)}
+                    className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="gender" className="text-sm font-medium text-slate-700">Giới tính</Label>
+                  <select
+                    id="gender"
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    className="w-full h-12 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all px-4 text-slate-900"
+                  >
+                    <option value="">Chọn giới tính</option>
+                    <option value="MALE">Nam</option>
+                    <option value="FEMALE">Nữ</option>
+                    <option value="OTHER">Khác</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="address" className="text-sm font-medium text-slate-700">Địa chỉ</Label>
+                <Input
+                  id="address"
+                  type="text"
+                  placeholder="Nhập địa chỉ của bạn"
+                  value={address}
+                  onChange={(e) => setAddress(e.target.value)}
+                  className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                />
+              </div>
+              
+              <div className="pt-2 pb-1">
+                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Bảo mật</p>
+              </div>
+              
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium text-slate-700">Mật khẩu</Label>
                 <div className="relative group">

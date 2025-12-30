@@ -46,8 +46,15 @@ export class FileUploadService {
         if (xhr.status >= 200 && xhr.status < 300) {
           try {
             const response: ApiResponse<UploadResponse> = JSON.parse(xhr.responseText);
-            if (response.success && response.data) {
-              resolve(response.data.resourceUrl);
+            
+            // Handle both response formats:
+            // Backend format: { code: "200", message: "...", result: { resourceUrl: "..." } }
+            // Old format: { success: true, message: "...", data: { resourceUrl: "..." } }
+            const data = response.result || response.data;
+            const isSuccess = response.code === '200' || response.success === true;
+            
+            if (isSuccess && data && data.resourceUrl) {
+              resolve(data.resourceUrl);
             } else {
               reject(new Error(response.message || 'Upload failed'));
             }

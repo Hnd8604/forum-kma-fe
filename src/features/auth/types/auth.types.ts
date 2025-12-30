@@ -9,6 +9,9 @@ export interface RegisterRequest {
   password: string;
   firstName: string;
   lastName: string;
+  dob?: string;
+  gender?: string;
+  address?: string;
 }
 
 export interface AuthData {
@@ -34,6 +37,12 @@ export interface User {
   is2FAEnabled?: boolean;
   postCount?: number;
   totalPosts?: number;
+  dob?: string;
+  gender?: string;
+  address?: string;
+  avatarUrl?: string;
+  roleId?: number;
+  roleName?: string;
 }
 
 export interface ApiResponse<T = any> {
@@ -88,6 +97,10 @@ export interface UpdateProfileRequest {
   roleId?: string;
   userStatus?: 'PENDING' | 'ACTIVE' | 'BANNED';
   is2FAEnabled?: boolean;
+  dob?: string;
+  gender?: string;
+  address?: string;
+  avatarUrl?: string;
 }
 
 export interface VerifyEmailRequest {

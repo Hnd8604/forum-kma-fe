@@ -4,8 +4,6 @@ import {
   MessageSquare,
   Bookmark,
   MoreHorizontal,
-  ArrowBigUp,
-  ArrowBigDown,
   Image as ImageIcon,
   FileText,
   ExternalLink,
@@ -15,6 +13,8 @@ import { InteractionService } from '../services/interaction.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { formatDistanceToNow } from 'date-fns';
 import { vi } from 'date-fns/locale';
+import ReactionPicker from './ReactionPicker';
+import CommentSection from './CommentSection';
 
 interface PostCardProps {
   post: ApiPost;
@@ -24,9 +24,23 @@ interface PostCardProps {
 export default function PostCard({ post, onReactionChange }: PostCardProps) {
   const [authorName, setAuthorName] = useState<string>('');
   const [reacting, setReacting] = useState(false);
-  const [voteState, setVoteState] = useState<'up' | 'down' | null>(
-    post.myReaction === 'LIKE' ? 'up' : post.myReaction === 'ANGRY' ? 'down' : null
+  const [currentReaction, setCurrentReaction] = useState<ReactionType | null>(
+    post.myReaction || null
   );
+  const [reactionCount, setReactionCount] = useState(post.reactionCount);
+  const [showComments, setShowComments] = useState(false);
+  const [commentCount, setCommentCount] = useState(post.commentCount || 0);
+
+  // Debug: Log post data
+  useEffect(() => {
+    console.log(`PostCard ${post.postId}: commentCount=${post.commentCount}, reactionCount=${post.reactionCount}`);
+  }, [post.postId, post.commentCount, post.reactionCount]);
+
+  // Sync comment count when post prop changes
+  useEffect(() => {
+    console.log(`Syncing commentCount for ${post.postId}: ${post.commentCount}`);
+    setCommentCount(post.commentCount || 0);
+  }, [post.commentCount, post.postId]);
 
   // Safe date formatting
   const getTimeAgo = () => {
@@ -58,11 +72,15 @@ export default function PostCard({ post, onReactionChange }: PostCardProps) {
     loadAuthor();
   }, [post.authorId]);
 
-  const handleVote = async (direction: 'up' | 'down') => {
+  // Sync reaction state when post prop changes
+  useEffect(() => {
+    setCurrentReaction(post.myReaction || null);
+    setReactionCount(post.reactionCount);
+  }, [post.myReaction, post.reactionCount]);
+
+  const handleReaction = async (type: ReactionType) => {
     if (reacting) return;
     setReacting(true);
-
-    const type: ReactionType = direction === 'up' ? 'LIKE' : 'ANGRY';
 
     try {
       await InteractionService.createOrUpdateInteraction({
@@ -70,36 +88,34 @@ export default function PostCard({ post, onReactionChange }: PostCardProps) {
         type,
       });
 
-      const isToggle = (direction === 'up' && voteState === 'up') || (direction === 'down' && voteState === 'down');
+      const isToggle = currentReaction === type;
       
-      let newCount = post.reactionCount;
+      let newCount = reactionCount;
       if (isToggle) {
-        // Removing vote
-        newCount = direction === 'up' ? post.reactionCount - 1 : post.reactionCount + 1;
-        setVoteState(null);
+        // Removing reaction
+        newCount = reactionCount - 1;
+        setCurrentReaction(null);
+        setReactionCount(newCount);
         onReactionChange?.(post.postId, newCount, null);
       } else {
-        // Adding/changing vote
-        if (voteState === null) {
-          newCount = direction === 'up' ? post.reactionCount + 1 : post.reactionCount - 1;
-        } else {
-          newCount = direction === 'up' ? post.reactionCount + 2 : post.reactionCount - 2;
+        // Adding or changing reaction
+        if (currentReaction === null) {
+          newCount = reactionCount + 1;
         }
-        setVoteState(direction);
+        // If changing reaction type, count stays the same
+        setCurrentReaction(type);
+        setReactionCount(newCount);
         onReactionChange?.(post.postId, newCount, type);
       }
     } catch (err) {
-      console.error('Failed to vote:', err);
+      console.error('Failed to react:', err);
     } finally {
       setReacting(false);
     }
   };
 
-  const formatVoteCount = (count: number) => {
-    if (count >= 1000) {
-      return (count / 1000).toFixed(1) + 'k';
-    }
-    return count.toString();
+  const handleCommentCountChange = (count: number) => {
+    setCommentCount(count);
   };
 
   return (
@@ -164,38 +180,27 @@ export default function PostCard({ post, onReactionChange }: PostCardProps) {
 
         {/* Post Actions */}
         <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
-          {/* Vote buttons */}
-          <div className="flex items-center gap-0.5 bg-slate-100 rounded-full p-0.5">
-            <button
-              onClick={() => handleVote('up')}
-              disabled={reacting}
-              className={`p-2 rounded-full transition-all duration-200 ${voteState === 'up' ? 'bg-blue-500 text-white shadow-md shadow-blue-500/30' : 'text-slate-500 hover:bg-slate-200'}`}
-            >
-              <ArrowBigUp className={`w-4 h-4 ${voteState === 'up' ? 'fill-white' : ''}`} />
-            </button>
-            <span className={`text-sm font-bold min-w-[28px] text-center ${
-              voteState === 'up' ? 'text-blue-600' : 
-              voteState === 'down' ? 'text-red-500' : 
-              'text-slate-700'
-            }`}>
-              {formatVoteCount(post.reactionCount)}
-            </span>
-            <button
-              onClick={() => handleVote('down')}
-              disabled={reacting}
-              className={`p-2 rounded-full transition-all duration-200 ${voteState === 'down' ? 'bg-red-500 text-white shadow-md shadow-red-500/30' : 'text-slate-500 hover:bg-slate-200'}`}
-            >
-              <ArrowBigDown className={`w-4 h-4 ${voteState === 'down' ? 'fill-white' : ''}`} />
-            </button>
-          </div>
+          {/* Reaction Picker */}
+          <ReactionPicker
+            currentReaction={currentReaction}
+            reactionCount={reactionCount}
+            onReact={handleReaction}
+            disabled={reacting}
+            size="md"
+          />
 
           <Button
             variant="ghost"
             size="sm"
-            className="h-9 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-blue-600 rounded-full transition-all"
+            onClick={() => setShowComments(!showComments)}
+            className={`h-9 px-4 text-sm font-medium rounded-full transition-all ${
+              showComments 
+                ? 'bg-blue-100 text-blue-600 hover:bg-blue-200' 
+                : 'text-slate-600 hover:bg-slate-100 hover:text-blue-600'
+            }`}
           >
             <MessageSquare className="w-4 h-4 mr-2" />
-            {post.commentCount || 0}
+            {commentCount}
           </Button>
 
           <Button
@@ -216,6 +221,13 @@ export default function PostCard({ post, onReactionChange }: PostCardProps) {
           </Button>
         </div>
       </div>
+
+      {/* Comment Section */}
+      <CommentSection
+        postId={post.postId}
+        isOpen={showComments}
+        onCommentCountChange={handleCommentCountChange}
+      />
     </div>
   );
 }

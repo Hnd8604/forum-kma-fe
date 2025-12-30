@@ -6,6 +6,7 @@ import { useAuthStore } from '../../../store/useStore';
 import { AuthService } from '../services/auth.service';
 import { TwoFAService } from '../services/twofa.service';
 import { Alert, AlertDescription } from '../../../shared/components/ui/alert';
+import { AvatarUpload } from './AvatarUpload';
 import EmailVerificationDialog from './EmailVerificationDialog';
 import ChangePasswordDialog from './ChangePasswordDialog';
 import DisableTwoFADialog from './DisableTwoFADialog';
@@ -19,6 +20,9 @@ export default function SettingsPage() {
   const [email, setEmail] = useState(user?.email ?? '');
   const [firstName, setFirstName] = useState(user?.firstName ?? '');
   const [lastName, setLastName] = useState(user?.lastName ?? '');
+  const [dob, setDob] = useState(user?.dob ?? '');
+  const [gender, setGender] = useState(user?.gender ?? '');
+  const [address, setAddress] = useState(user?.address ?? '');
   const [saving, setSaving] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isEmailVerificationOpen, setIsEmailVerificationOpen] = useState(false);
@@ -28,6 +32,7 @@ export default function SettingsPage() {
   const [toggling2FA, setToggling2FA] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState('');
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   // Fetch user profile on mount
   useEffect(() => {
@@ -42,6 +47,9 @@ export default function SettingsPage() {
         setEmail(profile.email);
         setFirstName(profile.firstName || '');
         setLastName(profile.lastName || '');
+        setDob(profile.dob || '');
+        setGender(profile.gender || '');
+        setAddress(profile.address || '');
         setIs2FAEnabled(profile.is2FAEnabled || false);
       } catch (error) {
         console.error('Failed to fetch user profile:', error);
@@ -68,12 +76,12 @@ export default function SettingsPage() {
     }
 
     try {
-      const updatedUser = await AuthService.updateProfile(user.userId, {
-        username,
-        email,
+      const updatedUser = await AuthService.updateProfileInfo({
         firstName,
         lastName,
-        is2FAEnabled,
+        dob: dob || undefined,
+        gender: gender || undefined,
+        address: address || undefined,
       });
 
       // Update local store
@@ -149,6 +157,43 @@ export default function SettingsPage() {
     <div className="p-8 w-full max-w-3xl mx-auto">
       <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-8">Cài đặt tài khoản</h2>
 
+      {/* Avatar Section */}
+      <div className="bg-white p-6 rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 mb-6">
+        <div className="flex items-center gap-3 mb-6">
+          <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
+            <span className="text-white text-lg">📷</span>
+          </div>
+          <h3 className="text-xl font-semibold text-slate-900">Ảnh đại diện</h3>
+        </div>
+
+        {saveError && (
+          <Alert variant="destructive" className="rounded-xl border-red-200 bg-red-50 mb-4">
+            <AlertDescription className="text-red-600">{saveError}</AlertDescription>
+          </Alert>
+        )}
+
+        {saveSuccess && (
+          <Alert className="border-green-200 text-green-700 bg-green-50 rounded-xl mb-4">
+            <AlertDescription>{saveSuccess}</AlertDescription>
+          </Alert>
+        )}
+
+        {user && (
+          <AvatarUpload
+            user={user}
+            onSuccess={(updatedUser) => {
+              setUser(updatedUser);
+              setSaveSuccess('Cập nhật ảnh đại diện thành công!');
+              setSaveError('');
+            }}
+            onError={(error) => {
+              setSaveError(error);
+              setSaveSuccess('');
+            }}
+          />
+        )}
+      </div>
+
       {/* Thông tin cá nhân */}
       <div className="space-y-5 bg-white p-6 rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 mb-6">
         <div className="flex items-center gap-3 mb-6">
@@ -157,18 +202,6 @@ export default function SettingsPage() {
           </div>
           <h3 className="text-xl font-semibold text-slate-900">Thông tin cá nhân</h3>
         </div>
-        
-        {saveError && (
-          <Alert variant="destructive" className="rounded-xl border-red-200 bg-red-50">
-            <AlertDescription className="text-red-600">{saveError}</AlertDescription>
-          </Alert>
-        )}
-
-        {saveSuccess && (
-          <Alert className="border-green-200 text-green-700 bg-green-50 rounded-xl">
-            <AlertDescription>{saveSuccess}</AlertDescription>
-          </Alert>
-        )}
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -207,6 +240,41 @@ export default function SettingsPage() {
             value={username} 
             onChange={(e) => setUsername(e.target.value)} 
             placeholder="Nhập tên đăng nhập"
+            className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+          />
+        </div>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="text-sm font-medium text-slate-700 block mb-2">Ngày sinh</label>
+            <Input 
+              type="date"
+              value={dob} 
+              onChange={(e) => setDob(e.target.value)} 
+              className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium text-slate-700 block mb-2">Giới tính</label>
+            <select
+              value={gender}
+              onChange={(e) => setGender(e.target.value)}
+              className="w-full h-12 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all px-4 text-slate-900"
+            >
+              <option value="">Chọn giới tính</option>
+              <option value="MALE">Nam</option>
+              <option value="FEMALE">Nữ</option>
+              <option value="OTHER">Khác</option>
+            </select>
+          </div>
+        </div>
+        
+        <div>
+          <label className="text-sm font-medium text-slate-700 block mb-2">Địa chỉ</label>
+          <Input 
+            value={address} 
+            onChange={(e) => setAddress(e.target.value)} 
+            placeholder="Nhập địa chỉ"
             className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
           />
         </div>

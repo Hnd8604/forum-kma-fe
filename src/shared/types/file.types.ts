@@ -3,9 +3,11 @@ export interface UploadResponse {
 }
 
 export interface ApiResponse<T> {
-  success: boolean;
+  code?: string;
   message: string;
-  data: T;
+  result?: T;
+  data?: T;
+  success?: boolean;
 }
 
 export type FileUploadType = 'avatar' | 'image' | 'document';

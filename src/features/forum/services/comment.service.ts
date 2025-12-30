@@ -13,7 +13,7 @@ export interface GetCommentsParams {
 
 export class CommentService {
   /**
-   * Get comments by post ID
+   * Get comments by post ID (top-level comments only)
    */
   static async getCommentsByPost(params: GetCommentsParams): Promise<Comment[]> {
     const { postId, page = 0, size = 10 } = params;
@@ -27,7 +27,14 @@ export class CommentService {
   }
 
   /**
-   * Create a new comment
+   * Get replies for a specific comment
+   */
+  static async getRepliesByCommentId(commentId: string): Promise<Comment[]> {
+    return ApiService.get<Comment[]>(`/comments/${commentId}/replies`, true);
+  }
+
+  /**
+   * Create a new comment or reply
    */
   static async createComment(data: CreateCommentRequest): Promise<Comment> {
     return ApiService.post<Comment>('/comments', data, true);

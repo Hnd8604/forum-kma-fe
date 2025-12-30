@@ -5,6 +5,11 @@ export { default as CreatePost } from './components/CreatePost';
 export { default as PostCard } from './components/PostCard';
 export { default as Sidebar } from './components/Sidebar';
 export { default as ProfilePage } from './components/ProfilePage';
+export { default as CommentSection } from './components/CommentSection';
+export { default as CommentItem } from './components/CommentItem';
+export { default as ReactionPicker } from './components/ReactionPicker';
+export { default as GroupPage } from './components/GroupPage';
+export { default as CreateGroupDialog } from './components/CreateGroupDialog';
 
 // Services
 export { PostService } from './services/post.service';
@@ -34,4 +39,8 @@ export type {
   JoinGroupRequest,
   Post,
   CreatePostData,
+  GroupMember,
+  GroupMemberCheck,
+  MemberRole,
+  UpdateMemberRoleRequest,
 } from './types/post.types';

@@ -5,12 +5,20 @@ import type {
   CreateGroupRequest,
   UpdateGroupRequest,
   JoinGroupRequest,
+  GroupMember,
+  GroupMemberCheck,
+  UpdateMemberRoleRequest,
 } from '../types/post.types';
 
 export interface GetGroupsParams {
   page?: number;
   limit?: number;
   search?: string;
+}
+
+export interface GetMembersParams {
+  page?: number;
+  limit?: number;
 }
 
 export class GroupService {
@@ -64,6 +72,13 @@ export class GroupService {
   }
 
   /**
+   * Leave a group
+   */
+  static async leaveGroup(groupId: string): Promise<void> {
+    return ApiService.post<void>(`/groups/${groupId}/leave`, {}, true);
+  }
+
+  /**
    * Get groups that the current user has joined
    */
   static async getMyGroups(params: GetGroupsParams = {}): Promise<Group[]> {
@@ -87,5 +102,60 @@ export class GroupService {
       }
       throw error;
     }
+  }
+
+  /**
+   * Get group members with pagination
+   */
+  static async getGroupMembers(
+    groupId: string,
+    params: GetMembersParams = {}
+  ): Promise<PaginatedResponse<GroupMember>> {
+    const { page = 0, limit = 20 } = params;
+    const queryParams = new URLSearchParams({
+      page: page.toString(),
+      limit: limit.toString(),
+    });
+
+    return ApiService.get<PaginatedResponse<GroupMember>>(
+      `/groups/${groupId}/members?${queryParams}`,
+      true
+    );
+  }
+
+  /**
+   * Check current user's membership status in a group
+   */
+  static async checkMembership(groupId: string): Promise<GroupMemberCheck> {
+    return ApiService.get<GroupMemberCheck>(`/groups/${groupId}/membership`, true);
+  }
+
+  /**
+   * Update a member's role (OWNER or ADMIN only)
+   */
+  static async updateMemberRole(
+    groupId: string,
+    data: UpdateMemberRoleRequest
+  ): Promise<GroupMember> {
+    return ApiService.put<GroupMember>(`/groups/${groupId}/members/role`, data, true);
+  }
+
+  /**
+   * Remove a member from the group (OWNER or ADMIN only)
+   */
+  static async removeMember(groupId: string, userId: string): Promise<void> {
+    return ApiService.delete<void>(`/groups/${groupId}/members/${userId}`, true);
+  }
+
+  /**
+   * Transfer group ownership to another member (OWNER only)
+   */
+  static async transferOwnership(groupId: string, newOwnerId: string): Promise<GroupMember> {
+    const queryParams = new URLSearchParams({ newOwnerId });
+    return ApiService.post<GroupMember>(
+      `/groups/${groupId}/transfer-ownership?${queryParams}`,
+      {},
+      true
+    );
   }
 }

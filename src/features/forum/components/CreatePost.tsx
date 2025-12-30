@@ -12,13 +12,14 @@ import type { Group, PostType } from '../types/post.types';
 
 interface CreatePostProps {
   onPostCreated?: () => void;
+  defaultGroupId?: string;
 }
 
-export default function CreatePost({ onPostCreated }: CreatePostProps) {
+export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePostProps) {
   const [isExpanded, setIsExpanded] = useState(false);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [selectedGroupId, setSelectedGroupId] = useState('');
+  const [selectedGroupId, setSelectedGroupId] = useState(defaultGroupId || '');
   const [postType, setPostType] = useState<PostType>('TEXT');
   const [resourceUrl, setResourceUrl] = useState('');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -29,6 +30,13 @@ export default function CreatePost({ onPostCreated }: CreatePostProps) {
   const [loadingGroups, setLoadingGroups] = useState(false);
 
   const user = useAuthStore((state) => state.user);
+
+  // Update selectedGroupId when defaultGroupId changes
+  useEffect(() => {
+    if (defaultGroupId) {
+      setSelectedGroupId(defaultGroupId);
+    }
+  }, [defaultGroupId]);
 
   useEffect(() => {
     if (isExpanded && groups.length === 0) {

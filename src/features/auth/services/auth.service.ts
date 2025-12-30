@@ -131,10 +131,26 @@ export class AuthService {
   }
 
   /**
-   * Update user profile
+   * Update user avatar only
    */
-  static async updateProfile(userId: string, data: UpdateProfileRequest): Promise<User> {
-    const response = await ApiService.put<any>(`/users/${userId}`, data, true);
+  static async updateAvatar(avatarUrl: string): Promise<User> {
+    console.log('📡 updateAvatar: Fetching current user profile...');
+    // Get current user to preserve other fields
+    const currentUser = await this.fetchUserProfile();
+    console.log('📋 Current user data:', currentUser);
+    
+    const updatePayload = {
+      firstName: currentUser.firstName || '',
+      lastName: currentUser.lastName || '',
+      dob: currentUser.dob || null,
+      gender: currentUser.gender || null,
+      address: currentUser.address || null,
+      avatarUrl: avatarUrl,
+    };
+    
+    console.log('📡 updateAvatar: Sending PUT request to /users/me with payload:', updatePayload);
+    const response = await ApiService.put<any>('/users/me', updatePayload, true);
+    console.log('📨 updateAvatar: Server response:', response);
     
     // Map backend response to User type
     const user: User = {
@@ -148,6 +164,106 @@ export class AuthService {
       roles: response.roleName ? [response.roleName] : undefined,
       postCount: response.postCount ?? response.totalPosts,
       totalPosts: response.totalPosts ?? response.postCount,
+      dob: response.dob,
+      gender: response.gender,
+      address: response.address,
+      avatarUrl: response.avatarUrl,
+      roleId: response.roleId,
+      roleName: response.roleName,
+    };
+    
+    // Update stored user data
+    try {
+      localStorage.setItem('user', JSON.stringify(user));
+    } catch (error) {
+      console.error('Failed to update user data:', error);
+    }
+    
+    return user;
+  }
+
+  /**
+   * Update user profile info (without avatar)
+   */
+  static async updateProfileInfo(data: { firstName?: string; lastName?: string; dob?: string; gender?: string; address?: string }): Promise<User> {
+    // Get current user to preserve avatar
+    const currentUser = await this.fetchUserProfile();
+    
+    const updatePayload = {
+      firstName: data.firstName ?? currentUser.firstName ?? '',
+      lastName: data.lastName ?? currentUser.lastName ?? '',
+      dob: data.dob ?? currentUser.dob ?? null,
+      gender: data.gender ?? currentUser.gender ?? null,
+      address: data.address ?? currentUser.address ?? null,
+      avatarUrl: currentUser.avatarUrl || null,
+    };
+    
+    const response = await ApiService.put<any>('/users/me', updatePayload, true);
+    
+    // Map backend response to User type
+    const user: User = {
+      userId: response.id || response.userId,
+      username: response.username,
+      email: response.email,
+      firstName: response.firstName,
+      lastName: response.lastName,
+      userStatus: response.userStatus,
+      is2FAEnabled: response.is2FAEnabled,
+      roles: response.roleName ? [response.roleName] : undefined,
+      postCount: response.postCount ?? response.totalPosts,
+      totalPosts: response.totalPosts ?? response.postCount,
+      dob: response.dob,
+      gender: response.gender,
+      address: response.address,
+      avatarUrl: response.avatarUrl,
+      roleId: response.roleId,
+      roleName: response.roleName,
+    };
+    
+    // Update stored user data
+    try {
+      localStorage.setItem('user', JSON.stringify(user));
+    } catch (error) {
+      console.error('Failed to update user data:', error);
+    }
+    
+    return user;
+  }
+
+  /**
+   * Update user profile (legacy - use updateAvatar or updateProfileInfo instead)
+   */
+  static async updateProfile(userId: string, data: UpdateProfileRequest): Promise<User> {
+    // Only send fields that backend accepts in UserUpdateRequest
+    const updatePayload = {
+      firstName: data.firstName,
+      lastName: data.lastName,
+      dob: data.dob,
+      gender: data.gender,
+      address: data.address,
+      avatarUrl: data.avatarUrl,
+    };
+    
+    const response = await ApiService.put<any>('/users/me', updatePayload, true);
+    
+    // Map backend response to User type
+    const user: User = {
+      userId: response.id || response.userId,
+      username: response.username,
+      email: response.email,
+      firstName: response.firstName,
+      lastName: response.lastName,
+      userStatus: response.userStatus,
+      is2FAEnabled: response.is2FAEnabled,
+      roles: response.roleName ? [response.roleName] : undefined,
+      postCount: response.postCount ?? response.totalPosts,
+      totalPosts: response.totalPosts ?? response.postCount,
+      dob: response.dob,
+      gender: response.gender,
+      address: response.address,
+      avatarUrl: response.avatarUrl,
+      roleId: response.roleId,
+      roleName: response.roleName,
     };
     
     // Update stored user data
@@ -224,6 +340,12 @@ export class AuthService {
       userStatus: response.userStatus,
       is2FAEnabled: response.is2FAEnabled,
       roles: response.roleName ? [response.roleName] : undefined,
+      dob: response.dob,
+      gender: response.gender,
+      address: response.address,
+      avatarUrl: response.avatarUrl,
+      roleId: response.roleId,
+      roleName: response.roleName,
     };
     
     // Update localStorage with mapped data
@@ -251,6 +373,12 @@ export class AuthService {
       userStatus: response.userStatus,
       is2FAEnabled: response.is2FAEnabled,
       roles: response.roleName ? [response.roleName] : undefined,
+      dob: response.dob,
+      gender: response.gender,
+      address: response.address,
+      avatarUrl: response.avatarUrl,
+      roleId: response.roleId,
+      roleName: response.roleName,
     };
 
     return user;

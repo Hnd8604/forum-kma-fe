@@ -3,7 +3,6 @@ import { Button } from './ui/button';
 import { Upload, X, FileIcon, ImageIcon, Loader2 } from 'lucide-react';
 import { FileUploadService } from '../services/file-upload.service';
 import { FileUploadType } from '../types/file.types';
-import { cn } from '@/lib/utils';
 
 interface FileUploadProps {
   onUploadSuccess: (url: string) => void;
@@ -116,7 +115,7 @@ export const FileUpload: React.FC<FileUploadProps> = ({
   };
 
   return (
-    <div className={cn('space-y-4', className)}>
+    <div className={`space-y-4 ${className || ''}`}>
       <div className="flex items-center gap-2">
         <Button
           type="button"

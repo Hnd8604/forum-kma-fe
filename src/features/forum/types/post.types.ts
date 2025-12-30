@@ -15,6 +15,7 @@ export interface ApiPost {
   type: PostType;
   resourceUrl?: string;
   reactionCount: number;
+  commentCount?: number;
   myReaction?: ReactionType | null;
   createdAt: string;
   updatedAt?: string;
@@ -51,9 +52,12 @@ export interface Comment {
   commentId: string;
   postId: string;
   authorId: string;
+  authorName?: string;
   content: string;
   parentCommentId?: string;
+  replyCount?: number;
   reactionCount: number;
+  myReaction?: ReactionType | null;
   createdAt: string;
   updatedAt?: string;
 }
@@ -112,9 +116,9 @@ export interface Group {
 }
 
 export interface CreateGroupRequest {
-  name: string;
+  groupName: string;
   description: string;
-  privacy: GroupPrivacy;
+  visibility: GroupPrivacy;
 }
 
 export interface UpdateGroupRequest {
@@ -125,6 +129,34 @@ export interface UpdateGroupRequest {
 
 export interface JoinGroupRequest {
   groupId: string;
+}
+
+// Group member types
+export type MemberRole = 'OWNER' | 'ADMIN' | 'MEMBER';
+
+export interface GroupMember {
+  id: string;
+  groupId: string;
+  userId: string;
+  userName: string;
+  userEmail?: string;
+  role: MemberRole;
+  joinedAt: string;
+}
+
+export interface GroupMemberCheck {
+  isMember: boolean;
+  role: MemberRole | null;
+  isOwner: boolean;
+  isAdmin: boolean;
+  canPost: boolean;
+  canManageMembers: boolean;
+  canManagePosts: boolean;
+}
+
+export interface UpdateMemberRoleRequest {
+  userId: string;
+  role: MemberRole;
 }
 
 // Legacy types for backward compatibility

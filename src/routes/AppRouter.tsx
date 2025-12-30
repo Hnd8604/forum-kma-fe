@@ -5,6 +5,7 @@ import RegisterPage from '../features/auth/components/RegisterPage';
 import SettingsPage from '../features/auth/components/SettingsPage';
 import ProfilePage from '../features/forum/components/ProfilePage';
 import MainForum from '../features/forum/components/MainForum';
+import GroupPage from '../features/forum/components/GroupPage';
 import Notifications from '../features/notifications/Notifications';
 import { AIChatButton } from '../features/chatbot';
 import { ChatPage, MiniChatWindow } from '../features/chat';
@@ -135,6 +136,7 @@ export default function AppRouter() {
             { path: '/', element: <LoginWrapper /> },
             { path: '/register', element: <RegisterWrapper /> },
             { path: '/forum', element: <ForumWrapper /> },
+            { path: '/forum/group/:groupId', element: <ForumWrapper><GroupPage /></ForumWrapper> },
             { path: '/settings', element: <ForumWrapper><SettingsPage /></ForumWrapper> },
             { path: '/profile', element: <ForumWrapper><ProfilePage /></ForumWrapper> },
             { path: '/chat', element: <ForumWrapper><ChatPage /></ForumWrapper> },

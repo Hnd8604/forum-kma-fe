@@ -104,7 +104,27 @@ export class PostService {
       sort,
     });
 
-    return ApiService.get<PaginatedResponse<ApiPost>>(`/posts/feed?${queryParams}`, true);
+    const response = await ApiService.get<PaginatedResponse<ApiPost>>(`/posts/feed?${queryParams}`, true);
+    
+    // Debug: Log raw response
+    console.log('Raw API response:', response.content[0]);
+    
+    // Map userReactionType from backend to myReaction for frontend
+    const mappedContent = response.content.map((post: any) => {
+      console.log(`Post ${post.postId}: commentCount=${post.commentCount}, reactionCount=${post.reactionCount}`);
+      return {
+        ...post,
+        myReaction: post.userReactionType || post.myReaction || null,
+        commentCount: typeof post.commentCount === 'number' ? post.commentCount : 0,
+      };
+    });
+    
+    console.log('Mapped content:', mappedContent[0]);
+    
+    return {
+      ...response,
+      content: mappedContent,
+    };
   }
 
   /**
@@ -123,10 +143,20 @@ export class PostService {
     if (status) queryParams.append('status', status);
     if (type) queryParams.append('type', type);
 
-    return ApiService.get<PaginatedResponse<ApiPost>>(
+    const response = await ApiService.get<PaginatedResponse<ApiPost>>(
       `/posts/feed/group/${groupId}?${queryParams}`,
       true
     );
+
+    // Map userReactionType from backend to myReaction for frontend
+    return {
+      ...response,
+      content: response.content.map((post: any) => ({
+        ...post,
+        myReaction: post.userReactionType || post.myReaction || null,
+        commentCount: post.commentCount || 0,
+      })),
+    };
   }
 
   /**

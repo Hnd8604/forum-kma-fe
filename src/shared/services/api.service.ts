@@ -73,7 +73,10 @@ export class ApiService {
         
         // Check if backend returned an error in the response body (code !== "200")
         if (jsonData && typeof jsonData === 'object' && 'code' in jsonData) {
-          if (jsonData.code !== '200' && jsonData.code !== 200) {
+          // PS_015 is a special case: interaction removed (toggle) - not an error
+          const isInteractionRemoved = jsonData.code === 'PS_015' || jsonData.code === 'PS_015';
+          
+          if (jsonData.code !== '200' && jsonData.code !== 200 && !isInteractionRemoved) {
             throw {
               message: jsonData.message || 'Request failed',
               statusCode: response.status,

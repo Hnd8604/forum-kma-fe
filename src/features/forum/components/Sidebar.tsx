@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Home, TrendingUp, Users, ChevronDown, ChevronUp, Plus, Loader2, Flame, Star, Clock } from 'lucide-react';
 import { Button } from '../../../shared/components/ui/button';
 import { GroupService } from '../services/group.service';
+import CreateGroupDialog from './CreateGroupDialog';
 import type { Group } from '../types/post.types';
 
 const feedOptions = [
@@ -23,6 +24,7 @@ export default function Sidebar() {
   const [loading, setLoading] = useState(false);
   const [showCommunities, setShowCommunities] = useState(true);
   const [showRecent, setShowRecent] = useState(true);
+  const [showCreateGroup, setShowCreateGroup] = useState(false);
 
   useEffect(() => {
     loadMyGroups();
@@ -45,9 +47,18 @@ export default function Sidebar() {
     return communityColors[index % communityColors.length];
   };
 
+  const handleGroupClick = (groupId: string) => {
+    navigate(`/forum/group/${groupId}`);
+  };
+
+  const handleGroupCreated = () => {
+    loadMyGroups();
+  };
+
   return (
-    <aside className="hidden lg:block w-64 flex-shrink-0 mr-6">
-      <div className="pr-2 max-h-[calc(100vh-2rem)] overflow-y-auto">
+    <>
+      <aside className="hidden lg:block w-64 flex-shrink-0 mr-6">
+        <div className="pr-2 max-h-[calc(100vh-2rem)] overflow-y-auto">
             {/* Feed Options */}
             <div className="mb-4">
               {feedOptions.map((item) => (
@@ -107,6 +118,7 @@ export default function Sidebar() {
                   {/* Create Community Button */}
                   <Button
                     variant="ghost"
+                    onClick={() => setShowCreateGroup(true)}
                     className="w-full justify-start h-11 px-3 rounded-xl hover:bg-blue-50 text-sm font-medium text-blue-600 transition-all"
                   >
                     <div className="w-6 h-6 mr-3 rounded-full border-2 border-dashed border-blue-400 flex items-center justify-center">
@@ -128,6 +140,7 @@ export default function Sidebar() {
                         <Button
                           key={group.groupId}
                           variant="ghost"
+                          onClick={() => handleGroupClick(group.groupId)}
                           className="w-full justify-start h-11 px-3 rounded-xl hover:bg-slate-100 text-sm font-medium text-slate-700 transition-all"
                         >
                           <div 
@@ -187,5 +200,13 @@ export default function Sidebar() {
             </div>
       </div>
     </aside>
+
+    {/* Create Group Dialog */}
+    <CreateGroupDialog 
+      isOpen={showCreateGroup}
+      onClose={() => setShowCreateGroup(false)}
+      onGroupCreated={handleGroupCreated}
+    />
+    </>
   );
 }
