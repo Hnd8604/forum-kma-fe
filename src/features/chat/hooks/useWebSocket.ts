@@ -25,7 +25,7 @@ export function useWebSocket({
   // Get WebSocket base URL from environment or use default
   const getWsUrl = useCallback(() => {
     // WebSocket is on port 8090, not 8080 (API port)
-    const wsBase = import.meta.env.VITE_WS_BASE_URL || 'ws://72.60.198.235:8090';
+    const wsBase = import.meta.env.VITE_WS_BASE_URL || 'ws://localhost:8090';
     return `${wsBase}/ws?userId=${userId}`;
   }, [userId]);
 
@@ -47,7 +47,8 @@ export function useWebSocket({
       ws.onmessage = (event) => {
         try {
           const data = JSON.parse(event.data);
-          console.log('📨 WebSocket message received:', data);
+          // Note: Global event dispatch is handled by WebSocketManager
+          // No need to dispatch here to avoid duplicates
           onMessage(data);
         } catch (err) {
           console.error('❌ Failed to parse WebSocket message:', err);

@@ -33,13 +33,98 @@ export default function ConversationList({
     loadConversations();
   }, []);
 
+  // Listen for WebSocket messages to update conversation list in real-time
+  useEffect(() => {
+    const handleChatMessage = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const data = customEvent.detail;
+
+      // Update the conversation in the list
+      if (data.chatId) {
+        setConversations((prev) => {
+          return prev.map((conv) => {
+            if (conv.conversationId === data.chatId) {
+              // Update lastMessage and lastMessageAt
+              const updated = { ...conv };
+              updated.lastMessage = data.message;
+              updated.lastMessageAt = data.sentAt;
+
+              // Increment unread count for current user if not the sender
+              if (currentUser && data.senderId !== currentUser.userId) {
+                updated.unreadCounts = {
+                  ...updated.unreadCounts,
+                  [currentUser.userId]: (updated.unreadCounts?.[currentUser.userId] || 0) + 1
+                };
+              }
+
+              return updated;
+            }
+            return conv;
+          }).sort((a, b) => {
+            // Sort by lastMessageAt descending (newest first)
+            const timeA = a.lastMessageAt ? new Date(a.lastMessageAt).getTime() : 0;
+            const timeB = b.lastMessageAt ? new Date(b.lastMessageAt).getTime() : 0;
+            return timeB - timeA;
+          });
+        });
+      }
+    };
+
+    window.addEventListener('chat-message-received', handleChatMessage as EventListener);
+
+    return () => {
+      window.removeEventListener('chat-message-received', handleChatMessage as EventListener);
+    };
+  }, [currentUser]);
+
+  // Listen for conversation marked as read events
+  useEffect(() => {
+    const handleConversationRead = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { conversationId, userId } = customEvent.detail;
+
+      setConversations((prev) => {
+        return prev.map((conv) => {
+          if (conv.conversationId === conversationId) {
+            const updated = { ...conv };
+            // Reset unread count for this user
+            updated.unreadCounts = {
+              ...updated.unreadCounts,
+              [userId]: 0
+            };
+            return updated;
+          }
+          return conv;
+        });
+      });
+    };
+
+    window.addEventListener('conversation-marked-read', handleConversationRead as EventListener);
+
+    return () => {
+      window.removeEventListener('conversation-marked-read', handleConversationRead as EventListener);
+    };
+  }, []);
+
+  // Auto-update selected conversation when list changes
+  useEffect(() => {
+    if (selectedConversationId) {
+      const updated = conversations.find(c => c.conversationId === selectedConversationId);
+      if (updated) {
+        // Dispatch event to update ChatPage's selectedConversation
+        window.dispatchEvent(new CustomEvent('conversation-updated', {
+          detail: updated
+        }));
+      }
+    }
+  }, [conversations, selectedConversationId]);
+
+
   const loadConversations = async () => {
     try {
       setLoading(true);
       setError(null);
-      console.log('🔍 Loading conversations...');
       const data = await ChatService.getConversations();
-      console.log('✅ Conversations loaded:', data);
       setConversations(data);
 
       // Resolve participant names for private conversations

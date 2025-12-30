@@ -74,23 +74,27 @@ export default function MiniChatWindow({
   useEffect(() => {
     const handleNewMessage = (event: CustomEvent) => {
       const data = event.detail;
+      // Log message from WebSocket
+      console.log('Received WS message:', data);
 
-      // Check if message belongs to this conversation
-      if (data.chatId === conversation.conversationId) {
+      // Đồng bộ: chấp nhận cả chatId hoặc conversationId
+      if ((data.chatId === conversation.conversationId || data.conversationId === conversation.conversationId)) {
         // Add new message to the list
         const newMessage: Message = {
-          id: data.chatId + '-' + Date.now(),
-          conversationId: data.chatId,
-          fromUserId: data.senderId,
+          id: data.id || data.messageId || data.chatId + '-' + Date.now(),
+          conversationId: data.chatId || data.conversationId,
+          fromUserId: data.senderId || data.fromUserId,
           toUserId: data.receiverId,
           message: data.message,
-          type: 'TEXT',
-          createdAt: data.sentAt,
+          type: data.type || 'TEXT',
+          createdAt: data.sentAt || data.createdAt,
         };
-
-        setMessages((prev) => [...prev, newMessage]);
-
-        // Mark as read if window is open
+        setMessages((prev) => {
+          // Tránh trùng tin nhắn
+          if (prev.some(m => m.id === newMessage.id)) return prev;
+          return [...prev, newMessage];
+        });
+        // Mark as read nếu cửa sổ đang mở
         markAsRead();
       }
     };
@@ -149,41 +153,23 @@ export default function MiniChatWindow({
 
   const handleSendMessage = async () => {
     if (!newMessage.trim() || sending) return;
-
     const messageText = newMessage.trim();
     setNewMessage('');
     setSending(true);
-
     try {
-      // Check if this is a temp conversation (not yet created on backend)
-      const isTempConversation = conversation.conversationId.startsWith('temp-');
-
-      if (isTempConversation && conversation.partnerId) {
-        // First message - create conversation by sending to user
-        const sentMessage = await ChatService.sendMessage({
-          receiverId: conversation.partnerId,
-          message: messageText,
-          type: 'TEXT',
-        });
-
-        // Update with real conversation ID
-        setMessages([sentMessage]);
-
-        // Notify parent to update conversation
+      // Luôn gọi API gửi tin nhắn (tránh lỗi không gửi được)
+      const sentMessage = conversation.conversationId.startsWith('temp-') && conversation.partnerId
+        ? await ChatService.sendMessage({ receiverId: conversation.partnerId, message: messageText, type: 'TEXT' })
+        : await ChatService.sendMessage({ conversationId: conversation.conversationId, message: messageText, type: 'TEXT' });
+      setMessages((prev) => [...prev, sentMessage]);
+      // Nếu là tạo mới, thông báo cho parent
+      if (conversation.conversationId.startsWith('temp-') && sentMessage.conversationId) {
         window.dispatchEvent(new CustomEvent('conversation-created', {
           detail: {
             tempId: conversation.conversationId,
             realConversationId: sentMessage.conversationId,
           }
         }));
-      } else {
-        // Normal message send
-        const sentMessage = await ChatService.sendMessage({
-          conversationId: conversation.conversationId,
-          message: messageText,
-          type: 'TEXT',
-        });
-        setMessages((prev) => [...prev, sentMessage]);
       }
     } catch (error) {
       console.error('Failed to send message:', error);

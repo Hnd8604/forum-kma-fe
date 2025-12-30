@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { ChatService } from '../services/chat.service';
 import type { Conversation, Message } from '../types/chat.types';
 import { Card } from '../../../shared/components/ui/card';
@@ -13,9 +13,10 @@ import { useWebSocket } from '../hooks/useWebSocket';
 interface ChatWindowProps {
   conversation: Conversation;
   onBack?: () => void;
+  onConversationRead?: (conversationId: string, userId: string) => void;
 }
 
-export default function ChatWindow({ conversation, onBack }: ChatWindowProps) {
+export default function ChatWindow({ conversation, onBack, onConversationRead }: ChatWindowProps) {
   const user = useAuthStore((s) => s.user);
   const token = localStorage.getItem('accessToken') || '';
   const [displayName, setDisplayName] = useState<string>('');
@@ -30,31 +31,70 @@ export default function ChatWindow({ conversation, onBack }: ChatWindowProps) {
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  // WebSocket connection
-  const { send: sendWsMessage, isConnected } = useWebSocket({
-    userId: user?.userId || '',
-    token,
-    onMessage: (data: any) => {
-      // Handle incoming WebSocket messages
-      if (data.type === 'MESSAGE' && data.conversationId === conversation.conversationId) {
-        const newMsg: Message = {
-          id: data.id || `msg-${Date.now()}`,
-          fromUserId: data.fromUserId,
-          conversationId: data.conversationId,
-          message: data.message || data.text,
-          type: data.messageType || 'TEXT',
-          createdAt: data.createdAt || new Date().toISOString(),
-        };
-        setMessages((prev) => [...prev, newMsg]);
-      }
-    },
-    autoConnect: !!user?.userId && !!token,
-  });
+  // Use ref to track current conversation ID to avoid stale closure
+  const currentConversationIdRef = useRef(conversation.conversationId);
+
+  // Update ref when conversation changes
+  useEffect(() => {
+    currentConversationIdRef.current = conversation.conversationId;
+  }, [conversation.conversationId]);
+
+  // WebSocket message handler - memoized to prevent reconnections
+  const handleWsMessage = useCallback((data: any) => {
+    const currentConvId = currentConversationIdRef.current;
+
+    // Handle incoming messages - check against current conversation
+    if ((data.type === 'MESSAGE' || !data.type) && (data.conversationId === currentConvId || data.chatId === currentConvId)) {
+      const newMsg: Message = {
+        id: data.id || data.messageId || `msg-${Date.now()}`,
+        fromUserId: data.fromUserId || data.senderId,
+        conversationId: data.conversationId || data.chatId,
+        message: data.message || data.text,
+        type: data.messageType || 'TEXT',
+        createdAt: data.createdAt || data.sentAt || new Date().toISOString(),
+      };
+      setMessages((prev) => {
+        // Prevent duplicates - check if message with same id already exists
+        const exists = prev.some(m => m.id === newMsg.id);
+        if (exists) {
+          return prev;
+        }
+        return [...prev, newMsg];
+      });
+    }
+  }, []); // Empty deps - uses ref for current value
+
+  const handleWsError = useCallback((error: Event) => {
+    console.error('❌ WebSocket error in ChatWindow:', error);
+  }, []);
+
+  // Listen to global WebSocket events (WebSocketManager handles the connection)
+  useEffect(() => {
+    const wrappedHandler = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      handleWsMessage(customEvent.detail);
+    };
+
+    window.addEventListener('chat-message-received', wrappedHandler);
+
+    return () => {
+      window.removeEventListener('chat-message-received', wrappedHandler);
+    };
+  }, [handleWsMessage]);
 
   useEffect(() => {
+    // Clear messages from previous conversation first
+    setMessages([]);
     loadMessages();
     markAsRead();
   }, [conversation.conversationId]);
+
+  // Automatically mark as read when receiving new messages while viewing
+  useEffect(() => {
+    if (messages.length > 0 && user) {
+      markAsRead();
+    }
+  }, [messages.length]);
 
   useEffect(() => {
     const resolveName = async () => {
@@ -125,6 +165,12 @@ export default function ChatWindow({ conversation, onBack }: ChatWindowProps) {
     }
   }, [messages, conversation.type]);
 
+  // Debug: Log messages state
+  useEffect(() => {
+    console.log('🗨️ [ChatWindow] Messages state updated, count:', messages.length);
+    console.log('📋 [ChatWindow] Messages:', messages);
+  }, [messages]);
+
   const loadMessages = async () => {
     try {
       setLoading(true);
@@ -142,6 +188,10 @@ export default function ChatWindow({ conversation, onBack }: ChatWindowProps) {
   const markAsRead = async () => {
     try {
       await ChatService.markAsRead(conversation.conversationId);
+      // Notify parent component to update conversation list
+      if (user && onConversationRead) {
+        onConversationRead(conversation.conversationId, user.userId);
+      }
     } catch (err) {
       console.error('Failed to mark as read:', err);
     }
@@ -154,32 +204,65 @@ export default function ChatWindow({ conversation, onBack }: ChatWindowProps) {
     setNewMessage('');
     setSending(true);
 
+    // Optimistic update - add message to UI immediately
+    const tempId = `temp-${Date.now()}`;
+    const optimisticMessage: Message = {
+      id: tempId,
+      fromUserId: user?.userId || '',
+      conversationId: conversation.conversationId,
+      message: messageText,
+      type: 'TEXT',
+      createdAt: new Date().toISOString(),
+    };
+    setMessages((prev) => [...prev, optimisticMessage]);
+
     try {
-      // Try to send via WebSocket first for real-time delivery
-      if (isConnected) {
-        console.log('📤 Sending message via WebSocket...');
-        sendWsMessage({
-          type: 'MESSAGE',
-          conversationId: conversation.conversationId,
-          message: messageText,
-          messageType: 'TEXT',
-        });
-        setError(null);
-      } else {
-        // Fallback to HTTP API
-        console.log('📤 Sending message via API...');
-        const sentMessage = await ChatService.sendMessage({
-          conversationId: conversation.conversationId,
-          message: messageText,
-          type: 'TEXT',
-        });
-        setMessages((prev) => [...prev, sentMessage]);
-        setError(null);
+      // Always send via HTTP API so backend can save and broadcast via WebSocket
+      console.log('📤 Sending message via API...');
+
+      // Build request based on conversation type
+      let request: any = {
+        message: messageText,
+        type: 'TEXT',
+      };
+
+      if (conversation.type === 'private') {
+        // For private chat: send receiverId (the other user's ID)
+        const receiverId = conversation.participantIds.find(id => id !== user?.userId);
+        if (!receiverId) {
+          throw new Error('Cannot find receiver ID for private conversation');
+        }
+        request.receiverId = receiverId;
+        console.log('📤 Sending private message to:', receiverId);
+      } else if (conversation.type === 'group') {
+        // For group chat: send groupId
+        if (!conversation.groupId) {
+          throw new Error('Group conversation missing groupId');
+        }
+        request.groupId = conversation.groupId;
+        console.log('📤 Sending group message to:', conversation.groupId);
       }
+
+      const sentMessage = await ChatService.sendMessage(request);
+
+      console.log('✅ Message sent successfully, waiting for WebSocket broadcast...');
+
+      // Replace the optimistic message with the real one from API
+      setMessages((prev) =>
+        prev.map(msg => msg.id === tempId ? sentMessage : msg)
+      );
+
+      // Backend will broadcast this message via WebSocket to all users
+      // including the sender, so we'll receive it via onMessage callback
+
+      setError(null);
     } catch (err: any) {
       console.error('Failed to send message:', err);
       setError(err.message || 'Không thể gửi tin nhắn');
       setNewMessage(messageText);
+
+      // Remove optimistic message on error
+      setMessages((prev) => prev.filter(msg => msg.id !== tempId));
     } finally {
       setSending(false);
       inputRef.current?.focus();
@@ -267,8 +350,8 @@ export default function ChatWindow({ conversation, onBack }: ChatWindowProps) {
                         <p className="text-xs font-semibold mb-1 text-blue-600 px-1">{senderName || 'Người dùng'}</p>
                       )}
                       <div className={`rounded-2xl px-4 py-3 shadow-sm break-words ${isMine
-                          ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
-                          : 'bg-white text-slate-900 border border-slate-100'
+                        ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
+                        : 'bg-white text-slate-900 border border-slate-100'
                         }`}>
                         <p className="text-sm">{message.message}</p>
                       </div>

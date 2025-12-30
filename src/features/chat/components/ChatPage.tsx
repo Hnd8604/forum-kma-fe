@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import ConversationList from './ConversationList';
 import ChatWindow from './ChatWindow';
 import CreateGroupDialog from './CreateGroupDialog';
@@ -21,12 +21,50 @@ export default function ChatPage() {
     // You might want to fetch and select it here
   };
 
+  // Callback when conversation is marked as read
+  const handleConversationRead = useCallback((conversationId: string, userId: string) => {
+    // Dispatch event for ConversationList to update unread count
+    window.dispatchEvent(new CustomEvent('conversation-marked-read', {
+      detail: { conversationId, userId }
+    }));
+  }, []);
+
+  const handleSelectConversation = useCallback((conversation: Conversation) => {
+    setSelectedConversation(conversation);
+  }, []);
+
+  // Listen for conversation updates from ConversationList
+  useEffect(() => {
+    const handleConversationUpdate = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const updated = customEvent.detail as Conversation;
+
+      setSelectedConversation(prev => {
+        if (!prev) return prev;
+
+        // If conversationId changed, update it
+        if (prev.conversationId !== updated.conversationId) {
+          return updated;
+        }
+
+        // Same conversationId - don't update to prevent remount
+        return prev;
+      });
+    };
+
+    window.addEventListener('conversation-updated', handleConversationUpdate as EventListener);
+
+    return () => {
+      window.removeEventListener('conversation-updated', handleConversationUpdate as EventListener);
+    };
+  }, []);
+
   return (
     <div className="h-full flex bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
       <div className={`w-full md:w-[400px] border-r border-white/60 bg-white/95 backdrop-blur-md shadow-xl ${selectedConversation ? 'hidden md:block' : 'block'}`}>
         <ConversationList
           key={refreshKey}
-          onSelectConversation={setSelectedConversation}
+          onSelectConversation={handleSelectConversation}
           selectedConversationId={selectedConversation?.conversationId}
           onCreateGroup={() => setIsCreateGroupOpen(true)}
           onNewMessage={() => setIsNewMessageOpen(true)}
@@ -38,6 +76,7 @@ export default function ChatPage() {
           <ChatWindow
             conversation={selectedConversation}
             onBack={() => setSelectedConversation(null)}
+            onConversationRead={handleConversationRead}
           />
         ) : (
           <div className="h-full hidden md:flex items-center justify-center">
