@@ -1,13 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../../shared/components/ui/button';
 import { MoreHorizontal, Edit2, Trash2, Check, X, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react';
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
 import type { Comment, ReactionType } from '../types/post.types';
 import ReactionPicker from './ReactionPicker';
 import { InteractionService } from '../services/interaction.service';
 import { CommentService } from '../services/comment.service';
+import { AuthService } from '../../auth/services/auth.service';
+import { useAuthStore } from '../../../store/useStore';
+import { formatTimeAgo } from '../../../shared/utils/date.utils';
 
 interface CommentItemProps {
   comment: Comment;
@@ -38,17 +39,25 @@ export default function CommentItem({
   const [showReplies, setShowReplies] = useState(false);
   const [replies, setReplies] = useState<Comment[]>([]);
   const [loadingReplies, setLoadingReplies] = useState(false);
+  const [authorAvatarUrl, setAuthorAvatarUrl] = useState<string | null>(comment.authorAvatarUrl || null);
+  const currentUser = useAuthStore((s) => s.user);
 
-  const getTimeAgo = () => {
-    try {
-      if (!comment.createdAt) return 'vừa xong';
-      const date = new Date(comment.createdAt);
-      if (isNaN(date.getTime())) return 'vừa xong';
-      return formatDistanceToNow(date, { addSuffix: false, locale: vi });
-    } catch {
-      return 'vừa xong';
+  // Fetch author avatar if not provided by backend
+  useEffect(() => {
+    if (!comment.authorAvatarUrl && comment.authorId) {
+      const loadAvatar = async () => {
+        try {
+          const user = await AuthService.getUserById(comment.authorId);
+          setAuthorAvatarUrl(user.avatarUrl || null);
+        } catch {
+          setAuthorAvatarUrl(null);
+        }
+      };
+      loadAvatar();
     }
-  };
+  }, [comment.authorId, comment.authorAvatarUrl]);
+
+  const getTimeAgo = () => formatTimeAgo(comment.createdAt);
 
   const handleSaveEdit = () => {
     if (editContent.trim() && editContent !== comment.content) {
@@ -154,11 +163,19 @@ export default function CommentItem({
     <div className="flex gap-3 group">
       {/* Avatar */}
       <Link to={`/profile/${comment.authorId}`} className="flex-shrink-0">
-        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center hover:ring-2 hover:ring-emerald-300 transition-all">
-          <span className="text-white text-xs font-bold">
-            {comment.authorName?.[0]?.toUpperCase() || 'U'}
-          </span>
-        </div>
+        {authorAvatarUrl ? (
+          <img
+            src={authorAvatarUrl}
+            alt={comment.authorName || 'avatar'}
+            className="w-8 h-8 rounded-full object-cover hover:ring-2 hover:ring-emerald-300 transition-all"
+          />
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-500 to-teal-500 flex items-center justify-center hover:ring-2 hover:ring-emerald-300 transition-all">
+            <span className="text-white text-xs font-bold">
+              {comment.authorName?.[0]?.toUpperCase() || 'U'}
+            </span>
+          </div>
+        )}
       </Link>
 
       {/* Content */}
@@ -170,9 +187,20 @@ export default function CommentItem({
                 {comment.authorName || comment.authorId?.substring(0, 8) || 'Ẩn danh'}
               </Link>
               <span className="text-xs text-slate-400">{getTimeAgo()}</span>
-              {comment.updatedAt && comment.updatedAt !== comment.createdAt && (
-                <span className="text-xs text-slate-400">(đã chỉnh sửa)</span>
-              )}
+              {comment.updatedAt && comment.createdAt && (() => {
+                // Only show "edited" if updatedAt is significantly different from createdAt
+                // (more than 1 second difference to account for precision issues)
+                try {
+                  const created = new Date(comment.createdAt).getTime();
+                  const updated = new Date(comment.updatedAt).getTime();
+                  const diffInSeconds = Math.abs(updated - created) / 1000;
+                  return diffInSeconds > 1;
+                } catch {
+                  return false;
+                }
+              })() && (
+                  <span className="text-xs text-slate-400">(đã chỉnh sửa)</span>
+                )}
             </div>
 
             {/* Actions Menu */}
@@ -263,7 +291,7 @@ export default function CommentItem({
               disabled={reacting}
               size="sm"
             />
-            
+
             {/* Reply Button */}
             {depth < 2 && (
               <button
@@ -275,7 +303,7 @@ export default function CommentItem({
             )}
 
             {/* Show Replies Button */}
-            {comment.replyCount > 0 && (
+            {(comment.replyCount ?? 0) > 0 && (
               <button
                 onClick={handleLoadReplies}
                 disabled={loadingReplies}
@@ -301,9 +329,19 @@ export default function CommentItem({
         {showReplyInput && depth < 2 && (
           <div className="mt-3 ml-2">
             <div className="flex items-start gap-2">
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center flex-shrink-0">
-                <span className="text-white text-xs font-bold">U</span>
-              </div>
+              {currentUser?.avatarUrl ? (
+                <img
+                  src={currentUser.avatarUrl}
+                  alt={currentUser.firstName || 'avatar'}
+                  className="w-6 h-6 rounded-full object-cover flex-shrink-0"
+                />
+              ) : (
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center flex-shrink-0">
+                  <span className="text-white text-xs font-bold">
+                    {currentUser?.firstName?.[0]?.toUpperCase() || 'U'}
+                  </span>
+                </div>
+              )}
               <div className="flex-1">
                 <textarea
                   value={replyContent}

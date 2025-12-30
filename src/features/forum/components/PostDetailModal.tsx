@@ -2,9 +2,9 @@ import { useState, useEffect } from 'react';
 import { X, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ApiPost, ReactionType } from '../types/post.types';
 import { AuthService } from '../../auth/services/auth.service';
+import { GroupService } from '../../groups/services/group.service';
 import { CommentService } from '../services/comment.service';
-import { formatDistanceToNow } from 'date-fns';
-import { vi } from 'date-fns/locale';
+import { formatTimeAgo } from '../../../shared/utils/date.utils';
 import ReactionPicker from './ReactionPicker';
 import CommentSection from './CommentSection';
 
@@ -28,23 +28,13 @@ export default function PostDetailModal({
   reacting,
 }: PostDetailModalProps) {
   const [authorName, setAuthorName] = useState<string>('');
+  const [authorAvatarUrl, setAuthorAvatarUrl] = useState<string | null>(null);
+  const [groupName, setGroupName] = useState<string>(post.groupName || '');
   const [commentCount, setCommentCount] = useState(post.commentCount || 0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageExpanded, setIsImageExpanded] = useState(false);
 
-  const getTimeAgo = () => {
-    try {
-      if (!post.createdAt) return 'vừa xong';
-      const date = new Date(post.createdAt);
-      if (isNaN(date.getTime())) return 'vừa xong';
-      return formatDistanceToNow(date, {
-        addSuffix: false,
-        locale: vi,
-      });
-    } catch {
-      return 'vừa xong';
-    }
-  };
+  const getTimeAgo = () => formatTimeAgo(post.createdAt);
 
   useEffect(() => {
     const loadAuthor = async () => {
@@ -52,12 +42,31 @@ export default function PostDetailModal({
         const user = await AuthService.getUserById(post.authorId);
         const name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || post.authorId;
         setAuthorName(name);
+        setAuthorAvatarUrl(user.avatarUrl || null);
       } catch {
         setAuthorName(post.authorId?.substring(0, 8) || 'anonymous');
+        setAuthorAvatarUrl(null);
       }
     };
     loadAuthor();
   }, [post.authorId]);
+
+  // Load group name if not provided
+  useEffect(() => {
+    if (!post.groupName && post.groupId) {
+      const loadGroup = async () => {
+        try {
+          const group = await GroupService.getGroupById(post.groupId);
+          setGroupName(group.groupName || '');
+        } catch {
+          setGroupName('');
+        }
+      };
+      loadGroup();
+    } else if (post.groupName) {
+      setGroupName(post.groupName);
+    }
+  }, [post.groupId, post.groupName]);
 
   const handleCommentCountChange = (count: number) => {
     setCommentCount(count);
@@ -101,13 +110,29 @@ export default function PostDetailModal({
           {/* Header with Gradient */}
           <div className="relative flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b border-slate-200 flex-shrink-0 rounded-t-2xl">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/30 ring-4 ring-white">
-                <span className="text-white text-lg font-bold">
-                  {authorName?.[0]?.toUpperCase() || 'U'}
-                </span>
-              </div>
+              {authorAvatarUrl ? (
+                <img
+                  src={authorAvatarUrl}
+                  alt={authorName || 'avatar'}
+                  className="w-12 h-12 rounded-full object-cover shadow-lg ring-4 ring-white"
+                />
+              ) : (
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/30 ring-4 ring-white">
+                  <span className="text-white text-lg font-bold">
+                    {authorName?.[0]?.toUpperCase() || 'U'}
+                  </span>
+                </div>
+              )}
               <div>
-                <h2 className="text-xl font-bold text-slate-900">{authorName}</h2>
+                <div className="flex items-center gap-1.5">
+                  <h2 className="text-xl font-bold text-slate-900">{authorName}</h2>
+                  {groupName && (
+                    <>
+                      <span className="text-slate-400">•</span>
+                      <span className="text-base font-medium text-slate-600">{groupName}</span>
+                    </>
+                  )}
+                </div>
                 <p className="text-sm text-slate-600">{getTimeAgo()}</p>
               </div>
             </div>
@@ -242,57 +267,59 @@ export default function PostDetailModal({
               onCommentCountChange={handleCommentCountChange}
             />
           </div>
-        </div>
-      </div>
+        </div >
+      </div >
 
       {/* Image Lightbox */}
-      {isImageExpanded && post.resourceUrls && (
-        <div
-          className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4"
-          onClick={() => setIsImageExpanded(false)}
-        >
-          <button
+      {
+        isImageExpanded && post.resourceUrls && (
+          <div
+            className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4"
             onClick={() => setIsImageExpanded(false)}
-            className="absolute top-4 right-4 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-all duration-200 backdrop-blur-md"
           >
-            <X className="w-6 h-6 text-white" />
-          </button>
+            <button
+              onClick={() => setIsImageExpanded(false)}
+              className="absolute top-4 right-4 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-all duration-200 backdrop-blur-md"
+            >
+              <X className="w-6 h-6 text-white" />
+            </button>
 
-          <div className="relative max-w-7xl max-h-full" onClick={(e) => e.stopPropagation()}>
-            <img
-              src={post.resourceUrls[currentImageIndex]}
-              alt={`${post.title} - ${currentImageIndex + 1}`}
-              className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
-            />
+            <div className="relative max-w-7xl max-h-full" onClick={(e) => e.stopPropagation()}>
+              <img
+                src={post.resourceUrls[currentImageIndex]}
+                alt={`${post.title} - ${currentImageIndex + 1}`}
+                className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+              />
 
-            {post.resourceUrls.length > 1 && (
-              <>
-                {currentImageIndex > 0 && (
-                  <button
-                    onClick={handlePrevImage}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all duration-200 hover:scale-110"
-                  >
-                    <ChevronLeft className="w-6 h-6 text-white" />
-                  </button>
-                )}
+              {post.resourceUrls.length > 1 && (
+                <>
+                  {currentImageIndex > 0 && (
+                    <button
+                      onClick={handlePrevImage}
+                      className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all duration-200 hover:scale-110"
+                    >
+                      <ChevronLeft className="w-6 h-6 text-white" />
+                    </button>
+                  )}
 
-                {currentImageIndex < post.resourceUrls.length - 1 && (
-                  <button
-                    onClick={handleNextImage}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all duration-200 hover:scale-110"
-                  >
-                    <ChevronRight className="w-6 h-6 text-white" />
-                  </button>
-                )}
+                  {currentImageIndex < post.resourceUrls.length - 1 && (
+                    <button
+                      onClick={handleNextImage}
+                      className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all duration-200 hover:scale-110"
+                    >
+                      <ChevronRight className="w-6 h-6 text-white" />
+                    </button>
+                  )}
 
-                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/50 backdrop-blur-md rounded-full text-white text-sm font-medium">
-                  {currentImageIndex + 1} / {post.resourceUrls.length}
-                </div>
-              </>
-            )}
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/50 backdrop-blur-md rounded-full text-white text-sm font-medium">
+                    {currentImageIndex + 1} / {post.resourceUrls.length}
+                  </div>
+                </>
+              )}
+            </div>
           </div>
-        </div>
-      )}
+        )
+      }
     </>
   );
 }

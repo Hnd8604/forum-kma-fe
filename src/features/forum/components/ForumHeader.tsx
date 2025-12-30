@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '../../../shared/components/ui/button';
 import { Input } from '../../../shared/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/ui/avatar';
-import { Search, Bell, User, LogOut, Settings, ChevronDown, UserPlus } from 'lucide-react';
+import { Search, User, LogOut, Settings, ChevronDown, UserPlus } from 'lucide-react';
 import { ChatHeaderIcon } from '../../chat';
 import { useAuthStore } from '../../../store/useStore';
 import {
@@ -26,7 +26,6 @@ export default function ForumHeader({
   searchQuery,
   onSearchChange,
   onLogout,
-  onOpenNotifications,
   onOpenMiniChat,
   onOpenFriendsList,
 }: ForumHeaderProps) {
@@ -83,18 +82,7 @@ export default function ForumHeader({
         <div className="flex items-center space-x-1">
           <ChatHeaderIcon onOpenMiniChat={onOpenMiniChat} />
 
-          {/* Notifications */}
-          <Button
-            variant="ghost"
-            size="icon"
-            className="relative h-8 w-8 rounded hover:bg-[#F6F7F8]"
-            onClick={() => onOpenNotifications?.()}
-          >
-            <Bell className="w-5 h-5 text-[#878A8C]" />
-            <span className="absolute -top-0.5 -right-0.5 w-5 h-5 bg-gradient-to-r from-red-500 to-rose-500 text-white text-[10px] font-bold rounded-full flex items-center justify-center shadow-lg shadow-red-500/30">
-              3
-            </span>
-          </Button>
+
 
           {/* User Menu */}
           <DropdownMenu>
@@ -149,19 +137,19 @@ export default function ForumHeader({
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer rounded-xl p-3 hover:bg-slate-50">
-                  <Link to="/settings" className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
-                      <Settings className="w-4 h-4 text-indigo-600" />
-                    </div>
-                    <span className="font-medium text-slate-900">Cài đặt</span>
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className="cursor-pointer rounded-xl p-3 hover:bg-slate-50">
                   <Link to="/friends" className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-lg bg-green-100 flex items-center justify-center">
                       <UserPlus className="w-4 h-4 text-green-600" />
                     </div>
                     <span className="font-medium text-slate-900">Bạn bè</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild className="cursor-pointer rounded-xl p-3 hover:bg-slate-50">
+                  <Link to="/settings" className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
+                      <Settings className="w-4 h-4 text-indigo-600" />
+                    </div>
+                    <span className="font-medium text-slate-900">Cài đặt</span>
                   </Link>
                 </DropdownMenuItem>
               </div>

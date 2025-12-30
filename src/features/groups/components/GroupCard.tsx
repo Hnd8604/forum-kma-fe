@@ -29,6 +29,8 @@ export default function GroupCard({
       await GroupService.joinGroup(group.groupId);
       toast.success(`Đã tham gia nhóm ${group.groupName}`);
       setMemberStatus(true);
+      // Dispatch event to notify sidebar to refresh
+      window.dispatchEvent(new CustomEvent('groupMembershipChanged'));
       onJoinSuccess?.();
     } catch (error: any) {
       toast.error(error.message || 'Không thể tham gia nhóm');
@@ -43,6 +45,8 @@ export default function GroupCard({
       await GroupService.leaveGroup(group.groupId);
       toast.success(`Đã rời khỏi nhóm ${group.groupName}`);
       setMemberStatus(false);
+      // Dispatch event to notify sidebar to refresh
+      window.dispatchEvent(new CustomEvent('groupMembershipChanged'));
       onLeaveSuccess?.();
     } catch (error: any) {
       toast.error(error.message || 'Không thể rời nhóm');
