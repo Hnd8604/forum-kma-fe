@@ -33,10 +33,24 @@ export default function ForumFeed() {
 
       const response = await PostService.getFeed({ page: pageNum, limit: 10, sort: sortParam });
 
+      // Sort posts on client side to ensure correct order
+      let sortedPosts = [...response.content];
+      if (sortBy === 'new' || sortBy === 'all') {
+        // Sort by createdAt descending (newest first)
+        sortedPosts.sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+          return dateB - dateA; // Descending: newer posts first
+        });
+      } else if (sortBy === 'popular') {
+        // Sort by reaction count (likes) only - descending
+        sortedPosts.sort((a, b) => (b.reactionCount || 0) - (a.reactionCount || 0));
+      }
+
       if (append) {
-        setPosts((prev) => [...prev, ...response.content]);
+        setPosts((prev) => [...prev, ...sortedPosts]);
       } else {
-        setPosts(response.content);
+        setPosts(sortedPosts);
       }
 
       setHasMore(pageNum < response.totalPages - 1);
@@ -52,7 +66,7 @@ export default function ForumFeed() {
 
   useEffect(() => {
     loadPosts(0, false);
-  }, [sortBy]);
+  }, [sortBy, loadPosts]);
 
   const handleLoadMore = () => {
     if (!loadingMore && hasMore) {

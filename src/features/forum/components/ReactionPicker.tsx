@@ -8,10 +8,12 @@ interface ReactionPickerProps {
   onReact: (type: ReactionType) => void;
   disabled?: boolean;
   size?: 'sm' | 'md';
+  showCount?: boolean;
+  className?: string; // Class for the button
 }
 
 // Facebook-style emoji reactions
-const REACTIONS: { type: ReactionType; emoji: string; label: string; color: string; hoverBg: string }[] = [
+export const REACTIONS: { type: ReactionType; emoji: string; label: string; color: string; hoverBg: string }[] = [
   { type: 'LIKE', emoji: '👍', label: 'Thích', color: 'text-blue-600', hoverBg: 'hover:bg-blue-50' },
   { type: 'LOVE', emoji: '❤️', label: 'Yêu thích', color: 'text-red-500', hoverBg: 'hover:bg-red-50' },
   { type: 'HAHA', emoji: '😆', label: 'Haha', color: 'text-amber-500', hoverBg: 'hover:bg-amber-50' },
@@ -26,6 +28,8 @@ export default function ReactionPicker({
   onReact,
   disabled = false,
   size = 'md',
+  showCount = true,
+  className = '',
 }: ReactionPickerProps) {
   const [showPicker, setShowPicker] = useState(false);
 
@@ -38,18 +42,19 @@ export default function ReactionPicker({
   const textSize = size === 'sm' ? 'text-xs' : 'text-sm';
 
   return (
-    <div className="relative">
+    <div
+      className={`relative ${className.includes('w-full') ? 'w-full' : ''}`}
+      onMouseEnter={() => setShowPicker(true)}
+      onMouseLeave={() => setShowPicker(false)}
+    >
       {/* Main Button - Shows current reaction or default */}
       <button
-        onMouseEnter={() => setShowPicker(true)}
-        onMouseLeave={() => setShowPicker(false)}
         onClick={() => onReact(currentReaction || 'LIKE')}
         disabled={disabled}
-        className={`flex items-center gap-1.5 ${buttonPadding} rounded-full transition-all duration-200 ${
-          currentReaction
-            ? `${currentReactionData?.hoverBg} ${currentReactionData?.color}`
-            : 'text-slate-500 hover:bg-slate-100'
-        } disabled:opacity-50`}
+        className={`flex items-center gap-1.5 ${buttonPadding} transition-all duration-200 ${className || 'rounded-full'} ${currentReaction
+          ? `${currentReactionData?.hoverBg} ${currentReactionData?.color}`
+          : 'text-slate-500 hover:bg-slate-100'
+          } disabled:opacity-50`}
       >
         {currentReactionData ? (
           <>
@@ -62,7 +67,7 @@ export default function ReactionPicker({
             <span className={`font-medium ${textSize}`}>Thích</span>
           </>
         )}
-        {reactionCount > 0 && (
+        {showCount && reactionCount > 0 && (
           <span className={`${textSize} font-semibold text-slate-600 ml-0.5`}>
             {reactionCount}
           </span>
@@ -71,11 +76,7 @@ export default function ReactionPicker({
 
       {/* Reaction Picker Popup - Facebook style */}
       {showPicker && (
-        <div
-          onMouseEnter={() => setShowPicker(true)}
-          onMouseLeave={() => setShowPicker(false)}
-          className="absolute bottom-full left-0 mb-2 z-50"
-        >
+        <div className="absolute bottom-full left-0 pb-2 z-50">
           <div className="bg-white rounded-full shadow-2xl border border-slate-100 px-2 py-1.5 flex items-center gap-0.5 animate-in fade-in slide-in-from-bottom-2 duration-200">
             {REACTIONS.map((reaction, index) => {
               const isActive = currentReaction === reaction.type;
@@ -90,9 +91,8 @@ export default function ReactionPicker({
                   disabled={disabled}
                   title={reaction.label}
                   style={{ animationDelay: `${index * 30}ms` }}
-                  className={`p-1.5 rounded-full transition-all duration-200 hover:scale-150 hover:-translate-y-2 ${
-                    isActive ? 'scale-125 -translate-y-1' : ''
-                  } disabled:opacity-50 animate-in zoom-in-50`}
+                  className={`p-1.5 rounded-full transition-all duration-200 hover:scale-150 hover:-translate-y-2 ${isActive ? 'scale-125 -translate-y-1' : ''
+                    } disabled:opacity-50 animate-in zoom-in-50`}
                 >
                   <span className="text-2xl block">{reaction.emoji}</span>
                 </button>

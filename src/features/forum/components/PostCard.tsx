@@ -13,6 +13,7 @@ import {
   Send,
   Trash,
   Loader2,
+  ThumbsUp,
 } from 'lucide-react';
 import { ApiPost, ReactionType } from '../types/post.types';
 import { InteractionService } from '../services/interaction.service';
@@ -39,7 +40,7 @@ import { AuthService } from '../../auth/services/auth.service';
 import { GroupService } from '../../groups/services/group.service';
 import { useAuthStore } from '../../../store/useStore';
 import { formatTimeAgo } from '../../../shared/utils/date.utils';
-import ReactionPicker from './ReactionPicker';
+import ReactionPicker, { REACTIONS } from './ReactionPicker';
 import PostDetailModal from './PostDetailModal';
 
 interface PostCardProps {
@@ -414,34 +415,65 @@ export default function PostCard({ post, onReactionChange, onDelete }: PostCardP
           </div>
         )}
 
-        {/* Post Actions */}
-        <div className="flex items-center gap-2 pt-3 border-t border-slate-100">
-          {/* Reaction Picker */}
-          <ReactionPicker
-            currentReaction={currentReaction}
-            reactionCount={reactionCount}
-            onReact={handleReaction}
-            disabled={reacting}
-            size="md"
-          />
+        {/* Post Stats */}
+        <div className="flex items-center justify-between text-sm text-slate-500 py-2 border-t border-slate-100 mt-2">
+          {reactionCount > 0 && (
+            <div className="flex items-center gap-1">
+              {currentReaction ? (
+                <>
+                  <div className="text-lg">
+                    {REACTIONS.find((r) => r.type === currentReaction)?.emoji || '👍'}
+                  </div>
+                  {reactionCount > 1 && (
+                    <span className="hover:underline cursor-pointer">Bạn và {reactionCount - 1} người khác</span>
+                  )}
+                  {reactionCount === 1 && (
+                    <span className="hover:underline cursor-pointer">Bạn</span>
+                  )}
+                </>
+              ) : (
+                <>
+                  <div className="bg-blue-500 rounded-full p-1">
+                    <ThumbsUp className="w-3 h-3 text-white fill-white" />
+                  </div>
+                  <span className="hover:underline cursor-pointer">{reactionCount}</span>
+                </>
+              )}
+            </div>
+          )}
+          {!reactionCount && <div />} {/* Spacer if no likes */}
+
+          {commentCount > 0 && (
+            <div
+              className="hover:underline cursor-pointer"
+              onClick={() => setShowModal(true)}
+            >
+              {commentCount} bình luận
+            </div>
+          )}
+        </div>
+
+        {/* Post Actions Buttons */}
+        <div className="flex items-center gap-1 border-t border-slate-100 pt-1">
+          <div className="flex-1">
+            <ReactionPicker
+              currentReaction={currentReaction}
+              reactionCount={reactionCount}
+              onReact={handleReaction}
+              disabled={reacting}
+              size="md"
+              showCount={false}
+              className="w-full justify-center hover:bg-slate-50 rounded-lg py-2"
+            />
+          </div>
 
           <Button
             variant="ghost"
-            size="sm"
+            className="flex-1 flex items-center justify-center gap-2 hover:bg-slate-50 rounded-lg text-slate-600 font-medium h-10 transition-colors"
             onClick={() => setShowModal(true)}
-            className="h-9 px-4 text-sm font-medium rounded-full transition-all text-slate-600 hover:bg-slate-100 hover:text-blue-600"
           >
-            <MessageSquare className="w-4 h-4 mr-2" />
-            {commentCount}
-          </Button>
-
-          <Button
-            variant="ghost"
-            size="sm"
-            className="h-9 px-4 text-sm font-medium text-slate-600 hover:bg-slate-100 hover:text-amber-600 rounded-full transition-all"
-          >
-            <Bookmark className="w-4 h-4 mr-2" />
-            Lưu
+            <MessageSquare className="w-5 h-5" />
+            Bình luận
           </Button>
 
           {canDelete && (
@@ -450,9 +482,9 @@ export default function PostCard({ post, onReactionChange, onDelete }: PostCardP
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="h-9 w-9 text-slate-500 hover:bg-slate-100 rounded-full ml-auto transition-all"
+                  className="h-10 w-10 text-slate-500 hover:bg-slate-50 rounded-full ml-1 transition-all"
                 >
-                  <MoreHorizontal className="w-4 h-4" />
+                  <MoreHorizontal className="w-5 h-5" />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="bg-white dark:bg-slate-900">

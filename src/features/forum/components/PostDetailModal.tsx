@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import { X, MessageCircle, ChevronLeft, ChevronRight, FileText, ExternalLink } from 'lucide-react';
+import { X, MessageCircle, ChevronLeft, ChevronRight, FileText, ExternalLink, ThumbsUp } from 'lucide-react';
 import { ApiPost, ReactionType } from '../types/post.types';
 import { AuthService } from '../../auth/services/auth.service';
 import { GroupService } from '../../groups/services/group.service';
 import { CommentService } from '../services/comment.service';
 import { formatTimeAgo } from '../../../shared/utils/date.utils';
-import ReactionPicker from './ReactionPicker';
+import ReactionPicker, { REACTIONS } from './ReactionPicker';
 import CommentSection from './CommentSection';
 
 interface PostDetailModalProps {
@@ -266,52 +266,70 @@ export default function PostDetailModal({
 
               {/* Stats - Separated Layout */}
               <div className="border-t border-slate-200 pt-3 pb-2">
-                <div className="flex items-center justify-between text-sm">
+                <div className="flex items-center justify-between text-sm text-slate-500">
                   {/* Likes Section */}
-                  <div className="flex items-center gap-2">
-                    <div className="flex -space-x-1">
-                      <span className="w-5 h-5 rounded-full bg-blue-500 flex items-center justify-center text-xs shadow-sm">👍</span>
-                      <span className="w-5 h-5 rounded-full bg-red-500 flex items-center justify-center text-xs shadow-sm">❤️</span>
-                      <span className="w-5 h-5 rounded-full bg-amber-500 flex items-center justify-center text-xs shadow-sm">😆</span>
+                  {reactionCount > 0 && (
+                    <div className="flex items-center gap-1">
+                      {currentReaction ? (
+                        <>
+                          <div className="text-lg">
+                            {REACTIONS.find((r) => r.type === currentReaction)?.emoji || '👍'}
+                          </div>
+                          {reactionCount > 1 && (
+                            <span className="hover:underline cursor-pointer">Bạn và {reactionCount - 1} người khác</span>
+                          )}
+                          {reactionCount === 1 && (
+                            <span className="hover:underline cursor-pointer">Bạn</span>
+                          )}
+                        </>
+                      ) : (
+                        <>
+                          <div className="bg-blue-500 rounded-full p-1">
+                            <ThumbsUp className="w-3 h-3 text-white fill-white" />
+                          </div>
+                          <span className="hover:underline cursor-pointer">{reactionCount}</span>
+                        </>
+                      )}
                     </div>
-                    <span className="text-slate-600 hover:text-blue-600 cursor-pointer transition-colors">
-                      Thích {reactionCount > 0 && reactionCount}
-                    </span>
-                  </div>
+                  )}
+                  {!reactionCount && <div />} {/* Spacer if no likes */}
 
                   {/* Comments Section */}
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-slate-600 hover:text-blue-600 cursor-pointer transition-colors">
-                      Bình luận
-                    </span>
-                    {commentCount > 0 && (
-                      <span className="text-slate-500">({commentCount})</span>
-                    )}
-                  </div>
+                  {commentCount > 0 && (
+                    <div className="hover:underline cursor-pointer">
+                      {commentCount} bình luận
+                    </div>
+                  )}
                 </div>
               </div>
 
               {/* Action Buttons - Separated with border */}
               <div className="border-t border-slate-200 pt-2 pb-1">
-                <div className="flex items-center">
+                <div className="flex items-center gap-1">
                   {/* Reaction Button */}
-                  <div className="flex-1 flex justify-center border-r border-slate-200">
+                  <div className="flex-1">
                     <ReactionPicker
                       currentReaction={currentReaction}
                       reactionCount={reactionCount}
                       onReact={onReact}
                       disabled={reacting}
                       size="md"
+                      showCount={false}
+                      className="w-full justify-center hover:bg-slate-50 rounded-lg py-2"
                     />
                   </div>
 
                   {/* Comment Button */}
-                  <div className="flex-1 flex justify-center">
-                    <button className="flex items-center justify-center gap-2 py-2 px-4 text-slate-700 hover:bg-slate-50 rounded-lg font-medium transition-all duration-200 group">
-                      <MessageCircle className="w-5 h-5 text-slate-500 group-hover:text-blue-600 transition-colors" />
-                      <span className="group-hover:text-blue-600 transition-colors">Bình luận</span>
-                    </button>
-                  </div>
+                  <button
+                    className="flex-1 flex items-center justify-center gap-2 py-2 px-4 text-slate-700 hover:bg-slate-50 rounded-lg font-medium transition-all duration-200 group h-10"
+                    onClick={() => {
+                      // Focus on comment input if possible, or just scroll to it
+                      // Since CommentSection is already there, maybe just scroll
+                    }}
+                  >
+                    <MessageCircle className="w-5 h-5 text-slate-500 group-hover:text-slate-600 transition-colors" />
+                    <span className="group-hover:text-slate-600 transition-colors">Bình luận</span>
+                  </button>
                 </div>
               </div>
             </div>

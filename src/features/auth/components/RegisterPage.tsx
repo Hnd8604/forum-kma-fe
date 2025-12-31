@@ -16,7 +16,7 @@ interface RegisterPageProps {
 
 export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPageProps) {
   const { login: setAuthLogin } = useAuthStore();
-  
+
   const [username, setUsername] = useState('');
   const [email, setEmail] = useState('');
   const [firstName, setFirstName] = useState('');
@@ -33,7 +33,7 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    
+
     // Validate passwords match
     if (password !== confirmPassword) {
       setError('Mật khẩu xác nhận không khớp!');
@@ -47,7 +47,7 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
     }
 
     setLoading(true);
-    
+
     try {
       const response = await AuthService.register({
         username,
@@ -71,7 +71,7 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
 
       // Update auth store with user data
       setAuthLogin(user);
-      
+
       // Show email verification dialog
       setShowEmailVerification(true);
     } catch (error: any) {
@@ -123,7 +123,7 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
                     <Input
                       id="lastName"
                       type="text"
-                      placeholder="Nguyễn Văn"
+
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
@@ -138,7 +138,7 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
                     <Input
                       id="firstName"
                       type="text"
-                      placeholder="An"
+
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
                       className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
@@ -154,7 +154,7 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
                   <Input
                     id="username"
                     type="text"
-                    placeholder="username"
+
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
                     className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
@@ -176,12 +176,10 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
                   />
                 </div>
               </div>
-              
+
               {/* Optional Profile Fields */}
-              <div className="pt-2 pb-1">
-                <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Thông tin bổ sung (không bắt buộc)</p>
-              </div>
-              
+
+
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="space-y-2">
                   <Label htmlFor="dob" className="text-sm font-medium text-slate-700">Ngày sinh</Label>
@@ -201,30 +199,30 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
                     onChange={(e) => setGender(e.target.value)}
                     className="w-full h-12 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all px-4 text-slate-900"
                   >
-                    <option value="">Chọn giới tính</option>
+                    <option value=""></option>
                     <option value="MALE">Nam</option>
                     <option value="FEMALE">Nữ</option>
                     <option value="OTHER">Khác</option>
                   </select>
                 </div>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="address" className="text-sm font-medium text-slate-700">Địa chỉ</Label>
                 <Input
                   id="address"
                   type="text"
-                  placeholder="Nhập địa chỉ của bạn"
+
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
                   className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
                 />
               </div>
-              
+
               <div className="pt-2 pb-1">
                 <p className="text-xs font-medium text-slate-500 uppercase tracking-wide">Bảo mật</p>
               </div>
-              
+
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium text-slate-700">Mật khẩu</Label>
                 <div className="relative group">
@@ -232,7 +230,7 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
                   <Input
                     id="password"
                     type="password"
-                    placeholder="••••••••"
+
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
@@ -247,7 +245,7 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
                   <Input
                     id="confirmPassword"
                     type="password"
-                    placeholder="••••••••"
+
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
@@ -263,7 +261,7 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
               )}
             </CardContent>
             <CardFooter className="flex flex-col gap-4 pt-2 pb-6 px-6">
-              <Button 
+              <Button
                 type="submit"
                 disabled={loading}
                 className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/25 hover:shadow-xl transform hover:scale-[1.02] transition-all rounded-xl disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
