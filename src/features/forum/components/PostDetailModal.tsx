@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { X, MessageCircle, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, MessageCircle, ChevronLeft, ChevronRight, FileText, ExternalLink } from 'lucide-react';
 import { ApiPost, ReactionType } from '../types/post.types';
 import { AuthService } from '../../auth/services/auth.service';
 import { GroupService } from '../../groups/services/group.service';
@@ -217,6 +217,52 @@ export default function PostDetailModal({
               <p className="text-slate-700 text-base leading-relaxed mb-5 whitespace-pre-line">
                 {post.content}
               </p>
+
+              {/* Post Document Links */}
+              {post.type === 'DOC' && post.resourceUrls && post.resourceUrls.length > 0 && (
+                <div className="mb-5 space-y-2">
+                  <h4 className="text-sm font-semibold text-slate-900 mb-2">Tài liệu đính kèm ({post.resourceUrls.length})</h4>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    {post.resourceUrls.map((url, index) => {
+                      // Extract filename from URL
+                      const getFileName = (fileUrl: string) => {
+                        try {
+                          const urlObj = new URL(fileUrl);
+                          const pathname = urlObj.pathname;
+                          const filename = pathname.split('/').pop();
+                          return filename ? decodeURIComponent(filename) : `Tài liệu đính kèm ${index + 1}`;
+                        } catch {
+                          return `Tài liệu đính kèm ${index + 1}`;
+                        }
+                      };
+
+                      const fileName = getFileName(url);
+                      const fileExt = fileName.split('.').pop()?.toUpperCase() || 'FILE';
+
+                      return (
+                        <a
+                          key={index}
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 hover:border-blue-400 hover:shadow-md transition-all group"
+                        >
+                          <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-100 transition-colors">
+                            <FileText className="w-5 h-5 text-indigo-600" />
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-slate-700 truncate group-hover:text-blue-600 transition-colors">
+                              {fileName}
+                            </p>
+                            <p className="text-xs text-slate-400">{fileExt}</p>
+                          </div>
+                          <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
 
               {/* Stats - Separated Layout */}
               <div className="border-t border-slate-200 pt-3 pb-2">

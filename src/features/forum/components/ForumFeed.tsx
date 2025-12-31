@@ -2,18 +2,21 @@ import { useState, useEffect, useCallback } from 'react';
 import CreatePost from './CreatePost';
 import PostCard from './PostCard';
 import { Button } from '../../../shared/components/ui/button';
-import { Flame, Sparkles, TrendingUp, Loader2, ChevronDown, LayoutGrid, List } from 'lucide-react';
+import { Flame, Sparkles, Loader2, ChevronDown, LayoutGrid, List, Layers } from 'lucide-react';
 import { PostService } from '../services/post.service';
 import type { ApiPost } from '../types/post.types';
+
+import { useAuthStore } from '../../../store/useStore';
 
 export default function ForumFeed() {
   const [posts, setPosts] = useState<ApiPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState<'hot' | 'new' | 'top'>('hot');
+  const [sortBy, setSortBy] = useState<'all' | 'popular' | 'new'>('all');
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const user = useAuthStore((state) => state.user);
 
   const loadPosts = useCallback(async (pageNum: number = 0, append: boolean = false) => {
     try {
@@ -24,8 +27,11 @@ export default function ForumFeed() {
       }
       setError(null);
 
-      const sort = sortBy === 'top' ? 'reactionCount,DESC' : 'createdAt,DESC';
-      const response = await PostService.getFeed({ page: pageNum, limit: 10, sort });
+      let sortParam: 'createdAt,DESC' | 'reactionCount,DESC' = 'createdAt,DESC';
+      if (sortBy === 'popular') sortParam = 'reactionCount,DESC';
+      // 'new' and 'all' use createdAt,DESC
+
+      const response = await PostService.getFeed({ page: pageNum, limit: 10, sort: sortParam });
 
       if (append) {
         setPosts((prev) => [...prev, ...response.content]);
@@ -54,8 +60,30 @@ export default function ForumFeed() {
     }
   };
 
-  const handlePostCreated = () => {
-    loadPosts(0, false);
+  const handlePostCreated = (newPost?: ApiPost) => {
+    if (newPost) {
+      // Format the new post to match feed structure and include user details
+      const formattedPost: ApiPost = {
+        ...newPost,
+        authorName: user?.username || newPost.authorName || 'Người dùng', // fallback
+        authorAvatarUrl: user?.avatarUrl, // Use current user avatar
+        // Construct display name if available
+        ...(user?.firstName && user?.lastName ? {
+          authorName: `${user.firstName} ${user.lastName}`
+        } : {}),
+        reactionCount: 0,
+        commentCount: 0,
+        myReaction: null,
+      };
+
+      // Prepend to posts list instantly
+      setPosts((prev) => [formattedPost, ...prev]);
+
+      // Optional: Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      loadPosts(0, false);
+    }
   };
 
   const handleReactionChange = (postId: string, newReactionCount: number, myReaction: string | null) => {
@@ -68,10 +96,14 @@ export default function ForumFeed() {
     );
   };
 
+  const handlePostDelete = (postId: string) => {
+    setPosts((prev) => prev.filter((post) => post.postId !== postId));
+  };
+
   const sortOptions = [
-    { id: 'hot', label: 'Hot', icon: Flame },
+    { id: 'all', label: 'Tất cả', icon: Layers },
+    { id: 'popular', label: 'Phổ biến', icon: Flame },
     { id: 'new', label: 'Mới', icon: Sparkles },
-    { id: 'top', label: 'Top', icon: TrendingUp },
   ];
 
   return (
@@ -80,8 +112,8 @@ export default function ForumFeed() {
       <CreatePost onPostCreated={handlePostCreated} />
 
       {/* Sort Bar */}
-      <div className="bg-white rounded-2xl border border-slate-200 mb-5 p-2 flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-1">
+      <div className="bg-white rounded-2xl border border-slate-200 mb-5 p-2 flex items-center shadow-sm">
+        <div className="flex items-center gap-1 w-full">
           {sortOptions.map((option) => {
             const Icon = option.icon;
             const isActive = sortBy === option.id;
@@ -89,32 +121,16 @@ export default function ForumFeed() {
               <button
                 key={option.id}
                 onClick={() => setSortBy(option.id as any)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                  isActive 
-                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-500/25' 
-                    : 'text-slate-600 hover:bg-slate-100'
-                }`}
+                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${isActive
+                  ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-500/25'
+                  : 'text-slate-600 hover:bg-slate-100'
+                  }`}
               >
                 <Icon className={`w-4 h-4 ${isActive ? 'text-white' : ''}`} />
                 {option.label}
               </button>
             );
           })}
-          
-          <div className="h-5 w-px bg-[#EDEFF1] mx-1"></div>
-          
-          <button className="flex items-center gap-1 px-2 py-1.5 rounded text-sm text-[#878A8C] hover:bg-[#F6F7F8]">
-            <ChevronDown className="w-4 h-4" />
-          </button>
-        </div>
-
-        <div className="flex items-center gap-1 bg-slate-100 rounded-lg p-1">
-          <button className="p-2 rounded-lg hover:bg-white text-slate-500 transition-all">
-            <LayoutGrid className="w-4 h-4" />
-          </button>
-          <button className="p-2 rounded-lg bg-white text-blue-600 shadow-sm">
-            <List className="w-4 h-4" />
-          </button>
         </div>
       </div>
 
@@ -133,8 +149,8 @@ export default function ForumFeed() {
               <span className="text-2xl">😕</span>
             </div>
             <p className="text-red-500 mb-4 text-sm">{error}</p>
-            <Button 
-              onClick={() => loadPosts(0, false)} 
+            <Button
+              onClick={() => loadPosts(0, false)}
               className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl px-6 text-sm font-medium shadow-lg shadow-blue-500/25"
             >
               Thử lại
@@ -155,6 +171,7 @@ export default function ForumFeed() {
                 key={post.postId}
                 post={post}
                 onReactionChange={handleReactionChange}
+                onDelete={handlePostDelete}
               />
             ))}
 

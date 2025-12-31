@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../../shared/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/ui/avatar';
@@ -11,10 +11,30 @@ import {
   ExternalLink,
   Smile,
   Send,
+  Trash,
+  Loader2,
 } from 'lucide-react';
 import { ApiPost, ReactionType } from '../types/post.types';
 import { InteractionService } from '../services/interaction.service';
 import { CommentService } from '../services/comment.service';
+import { toast } from 'sonner';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '../../../shared/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '../../../shared/components/ui/alert-dialog';
+import { PostService } from '../services/post.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { GroupService } from '../../groups/services/group.service';
 import { useAuthStore } from '../../../store/useStore';
@@ -25,9 +45,10 @@ import PostDetailModal from './PostDetailModal';
 interface PostCardProps {
   post: ApiPost;
   onReactionChange?: (postId: string, newCount: number, myReaction: string | null) => void;
+  onDelete?: (postId: string) => void;
 }
 
-export default function PostCard({ post, onReactionChange }: PostCardProps) {
+export default function PostCard({ post, onReactionChange, onDelete }: PostCardProps) {
   const currentUser = useAuthStore((s) => s.user);
   // Use author info from backend if available, otherwise fetch
   const [authorName, setAuthorName] = useState<string>(post.authorName || '');
@@ -42,6 +63,14 @@ export default function PostCard({ post, onReactionChange }: PostCardProps) {
   const [commentCount, setCommentCount] = useState(post.commentCount || 0);
   const [commentText, setCommentText] = useState('');
   const [sendingComment, setSendingComment] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  // Check ownership
+  // Check ownership
+  const isOwner = currentUser?.userId === post.authorId;
+  const canDelete = isOwner;
+
 
   // Debug: Log post data
   useEffect(() => {
@@ -144,6 +173,22 @@ export default function PostCard({ post, onReactionChange }: PostCardProps) {
       console.error('Failed to react:', err);
     } finally {
       setReacting(false);
+    }
+  };
+
+  const handleDeletePost = async () => {
+    if (isDeleting) return;
+    setIsDeleting(true);
+    try {
+      await PostService.deletePost(post.postId);
+      toast.success('Đã xóa bài viết');
+      onDelete?.(post.postId);
+    } catch (error) {
+      console.error('Failed to delete post:', error);
+      toast.error('Không thể xóa bài viết');
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
     }
   };
 
@@ -329,22 +374,43 @@ export default function PostCard({ post, onReactionChange }: PostCardProps) {
         {/* Post Document Links */}
         {post.type === 'DOC' && post.resourceUrls && post.resourceUrls.length > 0 && (
           <div className="mb-3 space-y-2">
-            {post.resourceUrls.map((url, index) => (
-              <a
-                key={index}
-                href={url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-100 hover:border-blue-200 hover:shadow-md transition-all group"
-              >
-                <div className="w-10 h-10 bg-blue-500 rounded-lg flex items-center justify-center shadow-md shadow-blue-500/20">
-                  <ExternalLink className="w-5 h-5 text-white" />
-                </div>
-                <span className="text-sm font-medium text-blue-600 group-hover:text-blue-700">
-                  Tài liệu đính kèm {post.resourceUrls!.length > 1 ? `(${index + 1}/${post.resourceUrls!.length})` : ''}
-                </span>
-              </a>
-            ))}
+            {post.resourceUrls.map((url, index) => {
+              // Extract filename from URL
+              const getFileName = (fileUrl: string) => {
+                try {
+                  const urlObj = new URL(fileUrl);
+                  const pathname = urlObj.pathname;
+                  const filename = pathname.split('/').pop();
+                  return filename ? decodeURIComponent(filename) : `Tài liệu đính kèm ${index + 1}`;
+                } catch {
+                  return `Tài liệu đính kèm ${index + 1}`;
+                }
+              };
+
+              const fileName = getFileName(url);
+              const fileExt = fileName.split('.').pop()?.toUpperCase() || 'FILE';
+
+              return (
+                <a
+                  key={index}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 hover:border-blue-400 hover:shadow-md transition-all group"
+                >
+                  <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-100 transition-colors">
+                    <FileText className="w-5 h-5 text-indigo-600" />
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-sm font-medium text-slate-700 truncate group-hover:text-blue-600 transition-colors">
+                      {fileName}
+                    </p>
+                    <p className="text-xs text-slate-400">{fileExt}</p>
+                  </div>
+                  <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                </a>
+              );
+            })}
           </div>
         )}
 
@@ -378,13 +444,31 @@ export default function PostCard({ post, onReactionChange }: PostCardProps) {
             Lưu
           </Button>
 
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-9 w-9 text-slate-500 hover:bg-slate-100 rounded-full ml-auto transition-all"
-          >
-            <MoreHorizontal className="w-4 h-4" />
-          </Button>
+          {canDelete && (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-9 w-9 text-slate-500 hover:bg-slate-100 rounded-full ml-auto transition-all"
+                >
+                  <MoreHorizontal className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-white dark:bg-slate-900">
+                <DropdownMenuItem
+                  className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    setShowDeleteDialog(true);
+                  }}
+                >
+                  <Trash className="w-4 h-4 mr-2" />
+                  Xóa bài viết
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
         </div>
       </div>
 
@@ -435,6 +519,37 @@ export default function PostCard({ post, onReactionChange }: PostCardProps) {
         onReact={handleReaction}
         reacting={reacting}
       />
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent className="bg-white dark:bg-slate-900">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xóa bài viết?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Hành động này không thể hoàn tác. Bài viết sẽ bị xóa vĩnh viễn khỏi hệ thống.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e: React.MouseEvent) => {
+                e.preventDefault();
+                handleDeletePost();
+              }}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Đang xóa...
+                </>
+              ) : (
+                'Xóa bài viết'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

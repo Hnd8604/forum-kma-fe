@@ -95,6 +95,10 @@ export default function ProfilePage() {
     );
   };
 
+  const handlePostDelete = (postId: string) => {
+    setPosts((prev) => prev.filter((p) => p.postId !== postId));
+  };
+
   const getDisplayName = () => {
     if (!profileUser) return '';
     if (profileUser.firstName && profileUser.lastName) {
@@ -155,10 +159,10 @@ export default function ProfilePage() {
                   </h1>
                   {profileUser?.roleName && (
                     <span className={`px-2 py-0.5 text-xs font-semibold rounded-full ${profileUser.roleName === 'ADMIN'
-                        ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
-                        : profileUser.roleName === 'MODERATOR'
-                          ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300'
-                          : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                      ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
+                      : profileUser.roleName === 'MODERATOR'
+                        ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300'
+                        : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
                       }`}>
                       {profileUser.roleName}
                     </span>
@@ -242,7 +246,9 @@ export default function ProfilePage() {
             posts={posts}
             loading={postsLoading}
             isOwnProfile={isOwnProfile}
+            user={profileUser}
             onReactionChange={handleReactionChange}
+            onDelete={handlePostDelete}
           />
         )}
 
@@ -270,8 +276,8 @@ function TabButton({
     <button
       onClick={onClick}
       className={`flex items-center gap-2 px-4 py-2.5 text-sm font-medium rounded-full transition-colors ${active
-          ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm border border-gray-200 dark:border-gray-700'
-          : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
+        ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm border border-gray-200 dark:border-gray-700'
+        : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800'
         }`}
     >
       {icon}
@@ -354,12 +360,16 @@ function PostsSection({
   posts,
   loading,
   isOwnProfile,
-  onReactionChange
+  user,
+  onReactionChange,
+  onDelete
 }: {
   posts: ApiPost[];
   loading: boolean;
   isOwnProfile: boolean;
+  user: User | null;
   onReactionChange: (postId: string, newCount: number, myReaction: string | null) => void;
+  onDelete: (postId: string) => void;
 }) {
   if (loading) {
     return (
@@ -384,13 +394,29 @@ function PostsSection({
 
   return (
     <div className="space-y-4">
-      {posts.map((post) => (
-        <PostCard
-          key={post.postId}
-          post={post}
-          onReactionChange={onReactionChange}
-        />
-      ))}
+      {posts.map((post) => {
+        // Hydrate post with user info if missing, since we are on their profile
+        const hydratedPost = { ...post };
+        if (user) {
+          if (!hydratedPost.authorName || hydratedPost.authorName === post.authorId) {
+            hydratedPost.authorName = user.firstName && user.lastName
+              ? `${user.firstName} ${user.lastName}`
+              : user.username;
+          }
+          if (!hydratedPost.authorAvatarUrl) {
+            hydratedPost.authorAvatarUrl = user.avatarUrl;
+          }
+        }
+
+        return (
+          <PostCard
+            key={post.postId}
+            post={hydratedPost}
+            onReactionChange={onReactionChange}
+            onDelete={onDelete}
+          />
+        );
+      })}
     </div>
   );
 }

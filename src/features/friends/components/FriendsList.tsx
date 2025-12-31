@@ -199,7 +199,7 @@ export default function FriendsList({ onStartChat }: FriendsListProps) {
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-48">
+                  <DropdownMenuContent align="end" className="w-48 bg-white shadow-lg border-slate-200">
                     <DropdownMenuItem
                       onClick={() =>
                         setConfirmDialog({ isOpen: true, type: 'unfriend', friend })
@@ -230,10 +230,7 @@ export default function FriendsList({ onStartChat }: FriendsListProps) {
                   size="sm"
                   showIcon={true}
                   className="flex-1 rounded-xl h-9 border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
-                >
-                  <MessageCircle className="h-4 w-4 mr-2" />
-                  Nhắn tin
-                </StartChatButton>
+                />
                 <Link to={`/profile/${friend.userId}`}>
                   <Button
                     variant="outline"
@@ -256,7 +253,7 @@ export default function FriendsList({ onStartChat }: FriendsListProps) {
           !open && setConfirmDialog({ isOpen: false, type: 'unfriend', friend: null })
         }
       >
-        <AlertDialogContent className="rounded-2xl">
+        <AlertDialogContent className="rounded-2xl bg-white shadow-2xl border-slate-100 p-6 sm:max-w-[400px]">
           <AlertDialogHeader>
             <AlertDialogTitle>
               {confirmDialog.type === 'unfriend' ? 'Hủy kết bạn' : 'Chặn người dùng'}
@@ -272,8 +269,8 @@ export default function FriendsList({ onStartChat }: FriendsListProps) {
             <AlertDialogAction
               onClick={confirmDialog.type === 'unfriend' ? handleUnfriend : handleBlock}
               className={`rounded-xl ${confirmDialog.type === 'block'
-                  ? 'bg-red-600 hover:bg-red-700'
-                  : 'bg-orange-600 hover:bg-orange-700'
+                ? 'bg-red-600 hover:bg-red-700'
+                : 'bg-orange-600 hover:bg-orange-700'
                 }`}
             >
               {confirmDialog.type === 'unfriend' ? 'Hủy kết bạn' : 'Chặn'}
