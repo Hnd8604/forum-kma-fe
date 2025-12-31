@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, UserMinus, Ban, MoreVertical, Search } from 'lucide-react';
+import { Users, UserMinus, Ban, MoreVertical, Search, MessageCircle, UserX } from 'lucide-react';
 import { Button } from '../../../shared/components/ui/button';
 import { Input } from '../../../shared/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/ui/avatar';
@@ -120,82 +120,91 @@ export default function FriendsList({ onStartChat }: FriendsListProps) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center p-8">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
+      <div className="flex flex-col items-center justify-center py-16">
+        <div className="w-12 h-12 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin"></div>
+        <p className="mt-4 text-slate-500">Đang tải...</p>
       </div>
     );
   }
 
   return (
-    <div className="space-y-4">
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-        <Input
-          placeholder="Tìm kiếm bạn bè..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          className="pl-10"
-        />
+    <div className="space-y-6">
+      {/* Search & Stats */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <div className="relative flex-1 max-w-md">
+          <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+          <Input
+            placeholder="Tìm kiếm bạn bè..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-11 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white transition-colors"
+          />
+        </div>
+        <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+            <Users className="h-4 w-4 text-white" />
+          </div>
+          <span className="font-semibold text-slate-700">{friends.length}</span>
+          <span className="text-slate-500">bạn bè</span>
+        </div>
       </div>
 
-      {/* Friends count */}
-      <div className="flex items-center gap-2 text-sm text-muted-foreground">
-        <Users className="h-4 w-4" />
-        <span>{friends.length} bạn bè</span>
-      </div>
-
-      {/* Friends list */}
+      {/* Friends Grid */}
       {filteredFriends.length === 0 ? (
-        <div className="text-center py-8 text-muted-foreground">
-          {searchQuery ? 'Không tìm thấy bạn bè nào' : 'Bạn chưa có bạn bè nào'}
+        <div className="flex flex-col items-center justify-center py-16 text-center">
+          <div className="w-20 h-20 rounded-full bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center mb-4">
+            <UserX className="h-10 w-10 text-slate-400" />
+          </div>
+          <h3 className="text-lg font-semibold text-slate-700 mb-2">
+            {searchQuery ? 'Không tìm thấy bạn bè' : 'Chưa có bạn bè nào'}
+          </h3>
+          <p className="text-slate-500 max-w-sm">
+            {searchQuery
+              ? 'Thử tìm kiếm với từ khóa khác'
+              : 'Hãy kết bạn với những người dùng khác để bắt đầu trò chuyện!'
+            }
+          </p>
         </div>
       ) : (
-        <div className="space-y-2">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {filteredFriends.map((friend) => (
             <div
               key={friend.id}
-              className="flex items-center justify-between p-3 rounded-lg border bg-card hover:bg-accent/50 transition-colors"
+              className="group bg-white rounded-2xl border border-slate-100 p-5 hover:shadow-xl hover:shadow-blue-500/10 hover:border-blue-100 transition-all duration-300"
             >
-              <div className="flex items-center gap-3">
-                <Link to={`/profile/${friend.userId}`}>
-                  <Avatar className="h-10 w-10 hover:ring-2 hover:ring-blue-300 transition-all">
+              <div className="flex items-start gap-4">
+                <Link to={`/profile/${friend.userId}`} className="relative">
+                  <Avatar className="h-14 w-14 ring-4 ring-slate-100 group-hover:ring-blue-100 transition-all">
                     <AvatarImage src={friend.avatarUrl} alt={friend.username} />
-                    <AvatarFallback className="bg-gradient-to-br from-red-400 to-yellow-400 text-white text-sm">
+                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-semibold">
                       {getInitials(friend)}
                     </AvatarFallback>
                   </Avatar>
+                  <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-slate-400 border-2 border-white rounded-full"></span>
                 </Link>
-                <Link to={`/profile/${friend.userId}`} className="hover:text-blue-600 transition-colors">
-                  <p className="font-medium">{getDisplayName(friend)}</p>
-                  <p className="text-sm text-muted-foreground">@{friend.username}</p>
-                </Link>
-              </div>
-
-              <div className="flex items-center gap-2">
-                <StartChatButton
-                  userId={friend.userId}
-                  userName={getDisplayName(friend)}
-                  variant="ghost"
-                  size="icon"
-                  showIcon={true}
-                  className="h-9 w-9"
-                >
-                  <span className="sr-only">Nhắn tin</span>
-                </StartChatButton>
-
+                <div className="flex-1 min-w-0">
+                  <Link to={`/profile/${friend.userId}`} className="hover:text-blue-600 transition-colors">
+                    <h3 className="font-semibold text-slate-900 truncate">{getDisplayName(friend)}</h3>
+                    <p className="text-sm text-slate-500 truncate">@{friend.username}</p>
+                  </Link>
+                  <p className="text-xs text-slate-400 mt-1">Offline</p>
+                </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                    >
                       <MoreVertical className="h-4 w-4" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="w-48">
                     <DropdownMenuItem
                       onClick={() =>
                         setConfirmDialog({ isOpen: true, type: 'unfriend', friend })
                       }
-                      className="text-orange-600"
+                      className="text-orange-600 focus:text-orange-600 focus:bg-orange-50"
                     >
                       <UserMinus className="h-4 w-4 mr-2" />
                       Hủy kết bạn
@@ -204,13 +213,36 @@ export default function FriendsList({ onStartChat }: FriendsListProps) {
                       onClick={() =>
                         setConfirmDialog({ isOpen: true, type: 'block', friend })
                       }
-                      className="text-red-600"
+                      className="text-red-600 focus:text-red-600 focus:bg-red-50"
                     >
                       <Ban className="h-4 w-4 mr-2" />
-                      Chặn
+                      Chặn người này
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
+              </div>
+
+              <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100">
+                <StartChatButton
+                  userId={friend.userId}
+                  userName={getDisplayName(friend)}
+                  variant="outline"
+                  size="sm"
+                  showIcon={true}
+                  className="flex-1 rounded-xl h-9 border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                >
+                  <MessageCircle className="h-4 w-4 mr-2" />
+                  Nhắn tin
+                </StartChatButton>
+                <Link to={`/profile/${friend.userId}`}>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-xl h-9 border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                  >
+                    Xem trang
+                  </Button>
+                </Link>
               </div>
             </div>
           ))}
@@ -224,7 +256,7 @@ export default function FriendsList({ onStartChat }: FriendsListProps) {
           !open && setConfirmDialog({ isOpen: false, type: 'unfriend', friend: null })
         }
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>
               {confirmDialog.type === 'unfriend' ? 'Hủy kết bạn' : 'Chặn người dùng'}
@@ -236,14 +268,13 @@ export default function FriendsList({ onStartChat }: FriendsListProps) {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Hủy</AlertDialogCancel>
+            <AlertDialogCancel className="rounded-xl">Hủy</AlertDialogCancel>
             <AlertDialogAction
               onClick={confirmDialog.type === 'unfriend' ? handleUnfriend : handleBlock}
-              className={
-                confirmDialog.type === 'block'
+              className={`rounded-xl ${confirmDialog.type === 'block'
                   ? 'bg-red-600 hover:bg-red-700'
                   : 'bg-orange-600 hover:bg-orange-700'
-              }
+                }`}
             >
               {confirmDialog.type === 'unfriend' ? 'Hủy kết bạn' : 'Chặn'}
             </AlertDialogAction>

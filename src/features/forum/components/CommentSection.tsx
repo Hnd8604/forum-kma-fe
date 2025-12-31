@@ -2,7 +2,6 @@ import { useState, useEffect, useCallback } from 'react';
 import { Button } from '../../../shared/components/ui/button';
 import { Send, Loader2, MessageSquare } from 'lucide-react';
 import { CommentService } from '../services/comment.service';
-import { InteractionService } from '../services/interaction.service';
 import type { Comment, ReactionType } from '../types/post.types';
 import CommentItem from './CommentItem';
 import { useAuthStore } from '../../../store/useStore';
@@ -21,9 +20,16 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
   const [page, setPage] = useState(0);
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const currentUser = useAuthStore((s) => s.user);
 
+  // Debug: Log when component renders
+  useEffect(() => {
+    console.log('🔍 CommentSection rendered:', { postId, isOpen, commentsCount: comments.length });
+  }, [postId, isOpen, comments.length]);
+
   const loadComments = useCallback(async (pageNum: number = 0, append: boolean = false) => {
+    console.log('📥 loadComments called:', { pageNum, append, isOpen, postId });
     if (!isOpen) return;
 
     try {
@@ -33,23 +39,21 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
         setLoadingMore(true);
       }
 
+      console.log('📡 Calling CommentService.getCommentsByPost...');
       const response = await CommentService.getCommentsByPost({
         postId,
         page: pageNum,
         size: 10,
       });
+      console.log('✅ CommentService response:', response);
 
-      // Load user's reaction for each comment
-      const commentsWithReactions = await Promise.all(
-        response.map(async (comment) => {
-          try {
-            const reaction = await InteractionService.getMyReaction(postId, comment.commentId);
-            return { ...comment, myReaction: reaction?.type || null };
-          } catch {
-            return { ...comment, myReaction: null };
-          }
-        })
-      );
+      // Backend now returns userReactionType directly, map to myReaction
+      const commentsWithReactions = response.map((comment) => ({
+        ...comment,
+        myReaction: comment.myReaction || null,
+      }));
+
+      console.log('📦 Mapped comments:', commentsWithReactions.length, 'items');
 
       if (append) {
         setComments((prev) => {
@@ -66,8 +70,10 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
 
       setHasMore(response.length === 10);
       setPage(pageNum);
-    } catch (err) {
-      console.error('Failed to load comments:', err);
+      setError(null);
+    } catch (err: any) {
+      console.error('❌ Failed to load comments:', err);
+      setError(err?.message || 'Không thể tải bình luận');
     } finally {
       setLoading(false);
       setLoadingMore(false);
@@ -96,8 +102,20 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
         content: newComment.trim(),
       });
 
+      // Use current user info if backend doesn't return full author info
+      const authorName = created.authorName && created.authorName !== created.authorId
+        ? created.authorName
+        : `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim() || currentUser?.username || created.authorId;
+
+      const authorAvatarUrl = created.authorAvatarUrl || currentUser?.avatarUrl;
+
       setComments((prev) => {
-        const newComments = [{ ...created, myReaction: null }, ...prev];
+        const newComments = [{
+          ...created,
+          authorName,
+          authorAvatarUrl,
+          myReaction: null
+        }, ...prev];
         onCommentCountChange?.(newComments.length);
         return newComments;
       });
@@ -204,6 +222,17 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
           <div className="flex items-center justify-center py-8">
             <Loader2 className="w-5 h-5 animate-spin text-blue-500 mr-2" />
             <span className="text-sm text-slate-500">Đang tải bình luận...</span>
+          </div>
+        ) : error ? (
+          <div className="flex flex-col items-center justify-center py-8 text-red-500">
+            <MessageSquare className="w-8 h-8 mb-2 opacity-50" />
+            <p className="text-sm font-medium">Lỗi: {error}</p>
+            <button
+              onClick={() => loadComments(0, false)}
+              className="mt-2 text-xs text-blue-500 hover:underline"
+            >
+              Thử lại
+            </button>
           </div>
         ) : comments.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-8 text-slate-400">

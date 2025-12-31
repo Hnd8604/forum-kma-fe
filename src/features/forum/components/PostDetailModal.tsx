@@ -27,8 +27,9 @@ export default function PostDetailModal({
   onReact,
   reacting,
 }: PostDetailModalProps) {
-  const [authorName, setAuthorName] = useState<string>('');
-  const [authorAvatarUrl, setAuthorAvatarUrl] = useState<string | null>(null);
+  // Use author info from backend if available
+  const [authorName, setAuthorName] = useState<string>(post.authorName || '');
+  const [authorAvatarUrl, setAuthorAvatarUrl] = useState<string | null>(post.authorAvatarUrl || null);
   const [groupName, setGroupName] = useState<string>(post.groupName || '');
   const [commentCount, setCommentCount] = useState(post.commentCount || 0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
@@ -36,7 +37,16 @@ export default function PostDetailModal({
 
   const getTimeAgo = () => formatTimeAgo(post.createdAt);
 
+  // Only fetch author info if not provided by backend
   useEffect(() => {
+    // If backend already provided author info, use it directly
+    if (post.authorName) {
+      setAuthorName(post.authorName);
+      setAuthorAvatarUrl(post.authorAvatarUrl || null);
+      return;
+    }
+
+    // Fallback: fetch from AuthService
     const loadAuthor = async () => {
       try {
         const user = await AuthService.getUserById(post.authorId);
@@ -49,7 +59,7 @@ export default function PostDetailModal({
       }
     };
     loadAuthor();
-  }, [post.authorId]);
+  }, [post.authorId, post.authorName, post.authorAvatarUrl]);
 
   // Load group name if not provided
   useEffect(() => {

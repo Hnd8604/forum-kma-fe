@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { AuthService, User } from '@/features/auth/services/auth.service';
+import { useEffect, useState, useCallback } from 'react';
+import { AuthService } from '@/features/auth/services/auth.service';
+import { User } from '@/features/auth/types/auth.types';
 import { FriendshipService } from '../services/friendship.service';
 
 export interface FriendSuggestion {
@@ -23,40 +24,72 @@ export function useFriendSuggestions() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    let isMounted = true;
-    async function fetchSuggestions() {
-      setLoading(true);
-      setError(null);
-      try {
-        // Lấy tất cả user
-        const { content: allUsers } = await AuthService.getAllUsers(0, 100);
-        // Lấy danh sách bạn bè
-        const friends = await FriendshipService.getFriends();
-        // Lấy user hiện tại
-        const currentUser = AuthService.getCurrentUser ? AuthService.getCurrentUser() : null;
-        const friendIds = new Set(friends.map(f => f.userId));
-        // Lọc user chưa là bạn và không phải chính mình
-        const nonFriends = allUsers.filter(
-          user => user.userId !== currentUser?.userId && !friendIds.has(user.userId)
-        );
-        // Debug log
-        console.log('[Gợi ý kết bạn] allUsers:', allUsers);
-        console.log('[Gợi ý kết bạn] friends:', friends);
-        console.log('[Gợi ý kết bạn] currentUser:', currentUser);
-        console.log('[Gợi ý kết bạn] nonFriends:', nonFriends);
-        // Random 3 user
-        const randomSuggestions = shuffleArray(nonFriends).slice(0, 3);
-        if (isMounted) setSuggestions(randomSuggestions);
-      } catch (err: any) {
-        if (isMounted) setError(err?.message || 'Lỗi khi lấy gợi ý kết bạn');
-      } finally {
-        if (isMounted) setLoading(false);
-      }
+  const fetchSuggestions = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      // Lấy tất cả user
+      const { content: allUsers } = await AuthService.getAllUsers(0, 100);
+      // Lấy danh sách bạn bè
+      const friends = await FriendshipService.getFriends();
+      // Lấy lời mời đã gửi và đã nhận (pending)
+      const [sentRequests, receivedRequests] = await Promise.all([
+        FriendshipService.getSentRequests(),
+        FriendshipService.getReceivedRequests(),
+      ]);
+      // Lấy user hiện tại
+      const currentUser = AuthService.getCurrentUser ? AuthService.getCurrentUser() : null;
+
+      // Tạo set các userId cần loại trừ
+      const friendIds = new Set(friends.map(f => f.userId));
+      const sentRequestIds = new Set(sentRequests.map(r => r.userId));
+      const receivedRequestIds = new Set(receivedRequests.map(r => r.userId));
+
+      // Lọc user chưa là bạn, không phải chính mình, và không có lời mời đang chờ
+      const nonFriends = allUsers.filter(
+        (user: User) =>
+          user.userId !== currentUser?.userId &&
+          !friendIds.has(user.userId) &&
+          !sentRequestIds.has(user.userId) &&
+          !receivedRequestIds.has(user.userId)
+      );
+
+      // Debug log
+      console.log('[Gợi ý kết bạn] allUsers:', allUsers);
+      console.log('[Gợi ý kết bạn] friends:', friends);
+      console.log('[Gợi ý kết bạn] sentRequests:', sentRequests);
+      console.log('[Gợi ý kết bạn] receivedRequests:', receivedRequests);
+      console.log('[Gợi ý kết bạn] currentUser:', currentUser);
+      console.log('[Gợi ý kết bạn] nonFriends (filtered):', nonFriends);
+
+      // Map to FriendSuggestion và random 3 user
+      const suggestionList: FriendSuggestion[] = nonFriends.map((user: User) => ({
+        userId: user.userId,
+        username: user.username,
+        email: user.email,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        avatarUrl: user.avatarUrl,
+      }));
+
+      const randomSuggestions = shuffleArray(suggestionList).slice(0, 3);
+      setSuggestions(randomSuggestions);
+    } catch (err: any) {
+      console.error('[Gợi ý kết bạn] Error:', err);
+      setError(err?.message || 'Lỗi khi lấy gợi ý kết bạn');
+    } finally {
+      setLoading(false);
     }
-    fetchSuggestions();
-    return () => { isMounted = false; };
   }, []);
 
-  return { suggestions, loading, error };
+  useEffect(() => {
+    fetchSuggestions();
+  }, [fetchSuggestions]);
+
+  // Cho phép refresh lại danh sách gợi ý
+  const refresh = useCallback(() => {
+    fetchSuggestions();
+  }, [fetchSuggestions]);
+
+  return { suggestions, loading, error, refresh };
 }

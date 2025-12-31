@@ -86,17 +86,17 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
       if (selectedFile && postType !== 'TEXT') {
         setUploading(true);
         try {
-          const uploadEndpoint = postType === 'IMAGE' 
-            ? '/files/upload/image' 
+          const uploadEndpoint = postType === 'IMAGE'
+            ? '/files/upload/image'
             : '/files/upload/document';
-          
-          const uploadResult = await ApiService.uploadFile<{ 
+
+          const uploadResult = await ApiService.uploadFile<{
             resourceUrl: string;
           }>(
             uploadEndpoint,
             selectedFile
           );
-          
+
           finalResourceUrl = uploadResult.resourceUrl;
         } catch (uploadErr: any) {
           console.error('File upload failed:', uploadErr);
@@ -118,9 +118,9 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
         postData.groupId = selectedGroupId;
       }
 
-      // Add resourceUrl for IMAGE and DOC posts
+      // Add resourceUrls for IMAGE and DOC posts (backend expects an array)
       if (postType !== 'TEXT' && finalResourceUrl) {
-        postData.resourceUrl = finalResourceUrl;
+        postData.resourceUrls = [finalResourceUrl];
       }
 
       await PostService.createPost(postData);
@@ -153,7 +153,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
               {user?.firstName?.[0]?.toUpperCase() || 'U'}
             </span>
           </div>
-          
+
           {/* Input Box */}
           <div
             onClick={() => setIsExpanded(true)}
@@ -161,7 +161,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
           >
             Bạn đang nghĩ gì?
           </div>
-          
+
           {/* Quick Actions */}
           <Button
             variant="ghost"
@@ -214,33 +214,30 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
           <div className="flex gap-2 mb-5 bg-slate-100 p-1 rounded-xl">
             <button
               onClick={() => setPostType('TEXT')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${
-                postType === 'TEXT'
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${postType === 'TEXT'
                   ? 'bg-white text-blue-600 shadow-sm'
                   : 'text-slate-500 hover:text-slate-700'
-              }`}
+                }`}
             >
               <FileText className="w-4 h-4" />
               Post
             </button>
             <button
               onClick={() => setPostType('IMAGE')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${
-                postType === 'IMAGE'
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${postType === 'IMAGE'
                   ? 'bg-white text-blue-600 shadow-sm'
                   : 'text-slate-500 hover:text-slate-700'
-              }`}
+                }`}
             >
               <Image className="w-4 h-4" />
               Ảnh
             </button>
             <button
               onClick={() => setPostType('DOC')}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${
-                postType === 'DOC'
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${postType === 'DOC'
                   ? 'bg-white text-blue-600 shadow-sm'
                   : 'text-slate-500 hover:text-slate-700'
-              }`}
+                }`}
             >
               <File className="w-4 h-4" />
               Document

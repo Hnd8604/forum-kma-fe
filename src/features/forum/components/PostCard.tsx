@@ -29,8 +29,9 @@ interface PostCardProps {
 
 export default function PostCard({ post, onReactionChange }: PostCardProps) {
   const currentUser = useAuthStore((s) => s.user);
-  const [authorName, setAuthorName] = useState<string>('');
-  const [authorAvatarUrl, setAuthorAvatarUrl] = useState<string | null>(null);
+  // Use author info from backend if available, otherwise fetch
+  const [authorName, setAuthorName] = useState<string>(post.authorName || '');
+  const [authorAvatarUrl, setAuthorAvatarUrl] = useState<string | null>(post.authorAvatarUrl || null);
   const [groupName, setGroupName] = useState<string>(post.groupName || '');
   const [reacting, setReacting] = useState(false);
   const [currentReaction, setCurrentReaction] = useState<ReactionType | null>(
@@ -63,7 +64,16 @@ export default function PostCard({ post, onReactionChange }: PostCardProps) {
 
   const timeAgo = getTimeAgo();
 
+  // Only fetch author info if not provided by backend
   useEffect(() => {
+    // If backend already provided author info, use it directly
+    if (post.authorName) {
+      setAuthorName(post.authorName);
+      setAuthorAvatarUrl(post.authorAvatarUrl || null);
+      return;
+    }
+
+    // Fallback: fetch from AuthService (for backward compatibility)
     const loadAuthor = async () => {
       try {
         const user = await AuthService.getUserById(post.authorId);
@@ -76,7 +86,7 @@ export default function PostCard({ post, onReactionChange }: PostCardProps) {
       }
     };
     loadAuthor();
-  }, [post.authorId]);
+  }, [post.authorId, post.authorName, post.authorAvatarUrl]);
 
   // Load group name if not provided
   useEffect(() => {

@@ -6,7 +6,6 @@ import type { Comment, ReactionType } from '../types/post.types';
 import ReactionPicker from './ReactionPicker';
 import { InteractionService } from '../services/interaction.service';
 import { CommentService } from '../services/comment.service';
-import { AuthService } from '../../auth/services/auth.service';
 import { useAuthStore } from '../../../store/useStore';
 import { formatTimeAgo } from '../../../shared/utils/date.utils';
 
@@ -39,23 +38,47 @@ export default function CommentItem({
   const [showReplies, setShowReplies] = useState(false);
   const [replies, setReplies] = useState<Comment[]>([]);
   const [loadingReplies, setLoadingReplies] = useState(false);
-  const [authorAvatarUrl, setAuthorAvatarUrl] = useState<string | null>(comment.authorAvatarUrl || null);
+  const [cachedTotalReplies, setCachedTotalReplies] = useState<number | null>(null);
+  // Use avatar URL directly from backend response
+  const authorAvatarUrl = comment.authorAvatarUrl || null;
   const currentUser = useAuthStore((s) => s.user);
 
-  // Fetch author avatar if not provided by backend
+  // Calculate total reply count recursively (children + grandchildren + ...)
+  const calculateTotalReplies = (commentList: Comment[]): number => {
+    return commentList.reduce((total, reply) => {
+      // Count this reply + its replyCount (which represents its direct children)
+      return total + 1 + (reply.replyCount ?? 0);
+    }, 0);
+  };
+
+  // Pre-fetch replies to calculate total count on mount (if comment has replies)
   useEffect(() => {
-    if (!comment.authorAvatarUrl && comment.authorId) {
-      const loadAvatar = async () => {
+    const prefetchTotalCount = async () => {
+      if ((comment.replyCount ?? 0) > 0 && cachedTotalReplies === null) {
         try {
-          const user = await AuthService.getUserById(comment.authorId);
-          setAuthorAvatarUrl(user.avatarUrl || null);
-        } catch {
-          setAuthorAvatarUrl(null);
+          const fetchedReplies = await CommentService.getRepliesByCommentId(comment.commentId);
+          const total = calculateTotalReplies(fetchedReplies);
+          setCachedTotalReplies(total);
+          // Also cache the replies so we don't need to fetch again
+          setReplies(fetchedReplies);
+        } catch (err) {
+          console.error('Failed to prefetch replies count:', err);
         }
-      };
-      loadAvatar();
+      }
+    };
+    prefetchTotalCount();
+  }, [comment.commentId, comment.replyCount]);
+
+  // Get the total count to display
+  // Uses cached value if available, otherwise falls back to backend replyCount
+  const getTotalReplyCount = (): number => {
+    // Use cached total if we've already calculated it
+    if (cachedTotalReplies !== null) {
+      return cachedTotalReplies;
     }
-  }, [comment.authorId, comment.authorAvatarUrl]);
+    // Fallback to original replyCount from backend (only direct children)
+    return comment.replyCount ?? 0;
+  };
 
   const getTimeAgo = () => formatTimeAgo(comment.createdAt);
 
@@ -109,6 +132,9 @@ export default function CommentItem({
     try {
       const fetchedReplies = await CommentService.getRepliesByCommentId(comment.commentId);
       setReplies(fetchedReplies);
+      // Cache the total count including grandchildren
+      const total = calculateTotalReplies(fetchedReplies);
+      setCachedTotalReplies(total);
       setShowReplies(true);
     } catch (err) {
       console.error('Failed to load replies:', err);
@@ -127,7 +153,20 @@ export default function CommentItem({
         content: replyContent.trim(),
         parentCommentId: comment.commentId,
       });
-      setReplies((prev) => [...prev, { ...newReply, myReaction: null }]);
+
+      // Use current user info if backend doesn't return full author info
+      const authorName = newReply.authorName && newReply.authorName !== newReply.authorId
+        ? newReply.authorName
+        : `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim() || currentUser?.username || newReply.authorId;
+
+      const replyAuthorAvatarUrl = newReply.authorAvatarUrl || currentUser?.avatarUrl;
+
+      setReplies((prev) => [...prev, {
+        ...newReply,
+        authorName,
+        authorAvatarUrl: replyAuthorAvatarUrl,
+        myReaction: null
+      }]);
       setReplyContent('');
       setShowReplyInput(false);
       if (!showReplies) setShowReplies(true);
@@ -312,12 +351,12 @@ export default function CommentItem({
                 {showReplies ? (
                   <>
                     <ChevronUp className="w-3 h-3" />
-                    Ẩn {comment.replyCount} câu trả lời
+                    Ẩn {getTotalReplyCount()} câu trả lời
                   </>
                 ) : (
                   <>
                     <ChevronDown className="w-3 h-3" />
-                    {loadingReplies ? 'Đang tải...' : `Xem ${comment.replyCount} câu trả lời`}
+                    {loadingReplies ? 'Đang tải...' : `Xem ${getTotalReplyCount()} câu trả lời`}
                   </>
                 )}
               </button>

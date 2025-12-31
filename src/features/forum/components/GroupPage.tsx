@@ -350,10 +350,10 @@ export default function GroupPage() {
           <div>
             {membership?.isMember ? (
               membership.isOwner ? (
-                <Button disabled variant="outline">
-                  <Crown className="w-4 h-4 mr-2 text-amber-500" />
-                  Chủ nhóm
-                </Button>
+                <div className="inline-flex items-center justify-center h-10 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg shadow-sm cursor-default">
+                  <Crown className="w-4 h-4 mr-2 text-amber-600" />
+                  <span className="text-sm font-bold text-amber-800">Chủ nhóm</span>
+                </div>
               ) : (
                 <Button variant="outline" onClick={handleLeaveGroup}>
                   <UserMinus className="w-4 h-4 mr-2" />

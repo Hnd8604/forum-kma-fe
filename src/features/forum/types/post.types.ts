@@ -10,6 +10,8 @@ export interface ApiPost {
   title: string;
   content: string;
   authorId: string;
+  authorName?: string;      // Author's full name from backend
+  authorAvatarUrl?: string; // Author's avatar URL from backend
   groupId: string;
   groupName?: string;
   status: PostStatus;
