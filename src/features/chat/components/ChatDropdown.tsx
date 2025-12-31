@@ -21,7 +21,9 @@ export default function ChatDropdown({
 }: ChatDropdownProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [userNames, setUserNames] = useState<Record<string, string>>({});
+  const [userAvatars, setUserAvatars] = useState<Record<string, string>>({});
   const [groupNames, setGroupNames] = useState<Record<string, string>>({});
+  const [groupAvatars, setGroupAvatars] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(true);
   const currentUser = useAuthStore((s) => s.user);
 
@@ -55,10 +57,14 @@ export default function ChatDropdown({
           const fetches = Array.from(userIdsToFetch).map(async (id) => {
             try {
               const u = await AuthService.getUserById(id);
-              return { id, name: `${u.firstName || u.username || ''} ${u.lastName || ''}`.trim() || u.username || id };
+              return {
+                id,
+                name: `${u.firstName || u.username || ''} ${u.lastName || ''}`.trim() || u.username || id,
+                avatarUrl: u.avatarUrl || ''
+              };
             } catch (err) {
               console.error('Failed to fetch user', id, err);
-              return { id, name: id };
+              return { id, name: id, avatarUrl: '' };
             }
           });
 
@@ -68,6 +74,11 @@ export default function ChatDropdown({
             results.forEach((r) => (next[r.id] = r.name));
             return next;
           });
+          setUserAvatars((prev) => {
+            const next = { ...prev };
+            results.forEach((r) => (next[r.id] = r.avatarUrl));
+            return next;
+          });
         }
 
         // Fetch group names
@@ -75,10 +86,10 @@ export default function ChatDropdown({
           const groupFetches = Array.from(groupIdsToFetch).map(async (id) => {
             try {
               const group = await ChatService.getGroupById(id);
-              return { id, name: group.name || 'Nhóm chat' };
+              return { id, name: group.name || 'Nhóm chat', avatarUrl: group.avatarUrl || '' };
             } catch (err) {
               console.error('Failed to fetch group', id, err);
-              return { id, name: 'Nhóm chat' };
+              return { id, name: 'Nhóm chat', avatarUrl: '' };
             }
           });
 
@@ -86,6 +97,11 @@ export default function ChatDropdown({
           setGroupNames((prev) => {
             const next = { ...prev };
             groupResults.forEach((r) => (next[r.id] = r.name));
+            return next;
+          });
+          setGroupAvatars((prev) => {
+            const next = { ...prev };
+            groupResults.forEach((r) => (next[r.id] = r.avatarUrl));
             return next;
           });
         }
@@ -155,11 +171,21 @@ export default function ChatDropdown({
                   <div className="flex items-start gap-3">
                     {/* Avatar */}
                     <div className="relative">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/20">
+                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/20 overflow-hidden">
                         {conversation.type === 'group' ? (
-                          <Users className="w-6 h-6 text-white" />
+                          conversation.groupId && groupAvatars[conversation.groupId] ? (
+                            <img src={groupAvatars[conversation.groupId]} alt="Group" className="w-full h-full object-cover" />
+                          ) : (
+                            <Users className="w-6 h-6 text-white" />
+                          )
                         ) : (
-                          <MessageCircle className="w-6 h-6 text-white" />
+                          userAvatars[partnerId] ? (
+                            <img src={userAvatars[partnerId]} alt="User" className="w-full h-full object-cover" />
+                          ) : (
+                            <span className="text-white font-bold">
+                              {(userNames[partnerId] || '?').charAt(0).toUpperCase()}
+                            </span>
+                          )
                         )}
                       </div>
                       {unreadCount > 0 && (

@@ -20,7 +20,7 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
   const user = useAuthStore((s) => s.user);
   const token = localStorage.getItem('accessToken') || '';
   const [displayName, setDisplayName] = useState<string>('');
-  const [groupAvatar, setGroupAvatar] = useState<string>('');
+  const [chatAvatar, setChatAvatar] = useState<string>(''); // Renamed/purposed for both group and user avatar
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [loading, setLoading] = useState(true);
@@ -105,24 +105,26 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
             const u = await AuthService.getUserById(other);
             const name = `${u.firstName || u.username || ''} ${u.lastName || ''}`.trim() || u.username || other;
             setDisplayName(name);
+            setChatAvatar(u.avatarUrl || '');
           } catch (err) {
             console.error('Failed to resolve participant name', err);
             setDisplayName('Người dùng');
+            setChatAvatar('');
           }
         }
       } else if (conversation.type === 'group' && conversation.groupId) {
         try {
           const group = await ChatService.getGroupById(conversation.groupId);
           setDisplayName(group.name || 'Nhóm chat');
-          setGroupAvatar(group.avatarUrl || '');
+          setChatAvatar(group.avatarUrl || '');
         } catch (err) {
           console.error('Failed to fetch group name', err);
           setDisplayName('Nhóm chat');
-          setGroupAvatar('');
+          setChatAvatar('');
         }
       } else {
         setDisplayName('Nhóm chat');
-        setGroupAvatar('');
+        setChatAvatar('');
       }
     };
 
@@ -134,36 +136,40 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
   }, [messages]);
 
   useEffect(() => {
-    // Fetch user names and avatars for group chat messages
-    if (conversation.type === 'group' && messages.length > 0) {
+    // Fetch user names and avatars for ONLY OTHER users' messages (optimize)
+    if (messages.length > 0) {
       const userIds = [...new Set(messages.map(m => m.fromUserId).filter(id => id !== user?.userId))];
 
-      Promise.all(
-        userIds.map(async (userId) => {
-          if (userNames[userId]) return null;
-          try {
-            const u = await AuthService.getUserById(userId);
-            const name = `${u.firstName || u.username || ''} ${u.lastName || ''}`.trim() || u.username || userId;
-            return { userId, name, avatarUrl: u.avatarUrl || '' };
-          } catch (err) {
-            console.error('Failed to fetch user', userId, err);
-            return { userId, name: 'Người dùng', avatarUrl: '' };
-          }
-        })
-      ).then((results) => {
-        const newNames: Record<string, string> = {};
-        const newAvatars: Record<string, string> = {};
-        results.forEach((r) => {
-          if (r) {
-            newNames[r.userId] = r.name;
-            newAvatars[r.userId] = r.avatarUrl;
-          }
+      // If private chat, we might already have the info from resolveName, but good to ensure consistent map
+      const missingIds = userIds.filter(id => !userNames[id] && !userAvatars[id]);
+
+      if (missingIds.length > 0) {
+        Promise.all(
+          missingIds.map(async (userId) => {
+            try {
+              const u = await AuthService.getUserById(userId);
+              const name = `${u.firstName || u.username || ''} ${u.lastName || ''}`.trim() || u.username || userId;
+              return { userId, name, avatarUrl: u.avatarUrl || '' };
+            } catch (err) {
+              console.error('Failed to fetch user', userId, err);
+              return { userId, name: 'Người dùng', avatarUrl: '' };
+            }
+          })
+        ).then((results) => {
+          const newNames: Record<string, string> = {};
+          const newAvatars: Record<string, string> = {};
+          results.forEach((r) => {
+            if (r) {
+              newNames[r.userId] = r.name;
+              newAvatars[r.userId] = r.avatarUrl;
+            }
+          });
+          setUserNames((prev) => ({ ...prev, ...newNames }));
+          setUserAvatars((prev) => ({ ...prev, ...newAvatars }));
         });
-        setUserNames((prev) => ({ ...prev, ...newNames }));
-        setUserAvatars((prev) => ({ ...prev, ...newAvatars }));
-      });
+      }
     }
-  }, [messages, conversation.type]);
+  }, [messages, conversation.conversationId]);
 
   // Debug: Log messages state
   useEffect(() => {
@@ -286,8 +292,8 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
           </Button>
         )}
         <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/20 overflow-hidden">
-          {groupAvatar && conversation.type === 'group' ? (
-            <img src={groupAvatar} alt="Group avatar" className="w-full h-full object-cover" />
+          {chatAvatar ? (
+            <img src={chatAvatar} alt="Avatar" className="w-full h-full object-cover" />
           ) : conversation.type === 'group' ? (
             <Users className="w-5 h-5 text-white" />
           ) : (
@@ -336,7 +342,7 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
                 const senderName = userNames[message.fromUserId];
                 return (
                   <div key={message.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'} gap-2`}>
-                    {!isMine && conversation.type === 'group' && (
+                    {!isMine && (
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center flex-shrink-0 text-xs text-white font-semibold overflow-hidden shadow-sm">
                         {senderAvatar ? (
                           <img src={senderAvatar} alt={senderName} className="w-full h-full object-cover" />
