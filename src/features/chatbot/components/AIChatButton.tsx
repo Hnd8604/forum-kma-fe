@@ -4,13 +4,9 @@ import { Button } from '../../../shared/components/ui/button';
 import { Input } from '../../../shared/components/ui/input';
 import { ScrollArea } from '../../../shared/components/ui/scroll-area';
 import { Card } from '../../../shared/components/ui/card';
+import { ChatBotMessage } from '../types/chatbot.types';
+import { chatbotService } from '../services/chatbot.service';
 
-interface Message {
-  id: string;
-  text: string;
-  sender: 'user' | 'bot';
-  timestamp: Date;
-}
 
 interface AIChatButtonProps {
   isOpen: boolean;
@@ -18,7 +14,9 @@ interface AIChatButtonProps {
 }
 
 export default function AIChatButton({ isOpen, onToggle }: AIChatButtonProps) {
-  const [messages, setMessages] = useState<Message[]>([
+  // Generate a unique sender ID for this session
+  const [senderId] = useState(() => `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
+  const [messages, setMessages] = useState<ChatBotMessage[]>([
     {
       id: '1',
       text: 'Chào bạn, mình là Chatbot KMA!\n\nMình có thể giúp bạn giải đáp các vấn đề về học tập tại KMA như:\n• Lịch học, lịch thi\n• Điểm số và kết quả học tập\n• Quy định đào tạo\n• Hoạt động sinh viên\n\nBạn cần hỗ trợ gì nhé?',
@@ -64,7 +62,7 @@ export default function AIChatButton({ isOpen, onToggle }: AIChatButtonProps) {
 
     setShowIntro(false);
 
-    const userMessage: Message = {
+    const userMessage: ChatBotMessage = {
       id: Date.now().toString(),
       text: inputValue,
       sender: 'user',
@@ -72,36 +70,42 @@ export default function AIChatButton({ isOpen, onToggle }: AIChatButtonProps) {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue('');
     setIsLoading(true);
 
-    setTimeout(() => {
-      const botResponse: Message = {
+    try {
+      // Call the chatbot API
+      const response = await chatbotService.sendMessage({
+        sender: senderId,
+        message: currentInput,
+      });
+
+      // Process the response
+      if (response && response.length > 0) {
+        response.forEach((item, index) => {
+          const botResponse: ChatBotMessage = {
+            id: `${Date.now()}_${index}`,
+            text: item.text,
+            sender: 'bot',
+            timestamp: new Date(),
+            buttons: item.buttons,
+          };
+          setMessages((prev) => [...prev, botResponse]);
+        });
+      }
+    } catch (error) {
+      console.error('Error calling chatbot API:', error);
+      // Fallback to local response if API fails
+      const botResponse: ChatBotMessage = {
         id: (Date.now() + 1).toString(),
-        text: getBotResponse(inputValue),
+        text: 'Xin lỗi, hiện tại hệ thống đang gặp sự cố. Vui lòng thử lại sau hoặc liên hệ với phòng Đào tạo để được hỗ trợ.',
         sender: 'bot',
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botResponse]);
+    } finally {
       setIsLoading(false);
-    }, 1000);
-  };
-
-  const getBotResponse = (userInput: string): string => {
-    const input = userInput.toLowerCase();
-    
-    if (input.includes('hello') || input.includes('xin chào') || input.includes('chào')) {
-      return 'Xin chào! Mình là Chatbot KMA. Bạn cần hỗ trợ gì về học tập không?';
-    } else if (input.includes('lịch học') || input.includes('thời khóa biểu')) {
-      return 'Bạn có thể xem lịch học trên hệ thống KMA hoặc ứng dụng KMA Student. Nếu cần hỗ trợ cụ thể, vui lòng liên hệ phòng Đào tạo nhé!';
-    } else if (input.includes('điểm') || input.includes('kết quả học tập')) {
-      return 'Điểm số và kết quả học tập được cập nhật trên hệ thống KMA. Bạn có thể đăng nhập để kiểm tra. Nếu có thắc mắc, liên hệ giảng viên bộ môn nhé!';
-    } else if (input.includes('quy định') || input.includes('quy chế')) {
-      return 'Bạn có thể tìm hiểu quy định đào tạo tại website KMA hoặc hỏi phòng Đào tạo. Bạn muốn biết cụ thể về vấn đề gì?';
-    } else if (input.includes('help') || input.includes('giúp') || input.includes('trợ giúp')) {
-      return 'Tôi có thể giúp bạn về:\n• Lịch học, lịch thi\n• Điểm số và kết quả học tập\n• Quy định đào tạo\n• Hoạt động sinh viên\n• Thông tin chung về KMA\n\nBạn muốn biết thêm về điều gì?';
-    } else {
-      return 'Cảm ơn bạn đã hỏi! Tôi sẽ cố gắng hỗ trợ bạn về các vấn đề học tập tại KMA. Bạn có thể hỏi cụ thể hơn được không?';
     }
   };
 
@@ -125,7 +129,7 @@ export default function AIChatButton({ isOpen, onToggle }: AIChatButtonProps) {
               </div>
               <div>
                 <h3 className="font-bold text-sm flex items-center gap-1">
-                  Chatbot KMA 
+                  Chatbot KMA
                   <span className="text-red-500">🎓</span>
                 </h3>
               </div>
@@ -183,14 +187,33 @@ export default function AIChatButton({ isOpen, onToggle }: AIChatButtonProps) {
                         <Bot className="w-4 h-4 text-white" />
                       </div>
                     )}
-                    <div
-                      className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-                        message.sender === 'user'
+                    <div className={`flex flex-col gap-2 ${message.sender === 'user' ? 'items-end' : 'items-start'} max-w-[85%]`}>
+                      <div
+                        className={`rounded-2xl px-4 py-3 ${message.sender === 'user'
                           ? 'bg-blue-500 text-white rounded-br-sm'
                           : 'bg-white text-gray-800 border border-gray-200 rounded-bl-sm'
-                      }`}
-                    >
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
+                          }`}
+                      >
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
+                      </div>
+                      {message.buttons && message.buttons.length > 0 && (
+                        <div className="flex flex-col gap-2 w-full">
+                          {message.buttons.map((button, index) => (
+                            <Button
+                              key={index}
+                              variant="outline"
+                              className="w-full justify-start text-left hover:bg-blue-50 border-blue-200 text-blue-600 hover:text-blue-700"
+                              onClick={() => {
+                                if (button.type === 'web_url' && button.payload) {
+                                  window.open(button.payload, '_blank');
+                                }
+                              }}
+                            >
+                              {button.title}
+                            </Button>
+                          ))}
+                        </div>
+                      )}
                     </div>
                     {message.sender === 'user' && (
                       <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center flex-shrink-0 text-white font-semibold text-xs">
@@ -199,7 +222,7 @@ export default function AIChatButton({ isOpen, onToggle }: AIChatButtonProps) {
                     )}
                   </div>
                 ))}
-                
+
                 {isLoading && (
                   <div className="flex gap-2 justify-start items-start">
                     <div className="w-7 h-7 rounded-full bg-red-500 flex items-center justify-center flex-shrink-0">
@@ -214,7 +237,7 @@ export default function AIChatButton({ isOpen, onToggle }: AIChatButtonProps) {
                     </div>
                   </div>
                 )}
-                
+
                 {/* Invisible element for auto-scrolling */}
                 <div ref={messagesEndRef} />
               </div>
