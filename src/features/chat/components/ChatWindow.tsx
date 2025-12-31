@@ -302,11 +302,11 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
         </div>
         <div className="flex-1">
           <h2 className="font-semibold text-slate-900">{displayName}</h2>
-          <p className="text-xs text-slate-500">
-            {conversation.type === 'group'
-              ? `${conversation.participantIds.length} thành viên`
-              : '🟢 Đang hoạt động'}
-          </p>
+          {conversation.type === 'group' && (
+            <p className="text-xs text-slate-500">
+              {conversation.participantIds.length} thành viên
+            </p>
+          )}
         </div>
       </div>
 
