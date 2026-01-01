@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, TrendingUp, Users, ChevronDown, ChevronUp, Plus, Loader2, Flame, Star, Sparkles, LayoutGrid } from 'lucide-react';
+import { Home, TrendingUp, Users, ChevronDown, ChevronUp, Plus, Loader2, Flame, Star, Zap, LayoutGrid } from 'lucide-react';
 import { Button } from '../../../shared/components/ui/button';
 import { GroupService } from '../services/group.service';
 import CreateGroupDialog from './CreateGroupDialog';
@@ -8,7 +8,7 @@ import type { Group } from '../types/post.types';
 
 const feedOptions = [
   { id: 'home', name: 'Trang chủ', icon: Home },
-  { id: 'new', name: 'Mới', icon: Sparkles },
+  { id: 'new', name: 'Mới', icon: Zap },
   { id: 'popular', name: 'Phổ biến', icon: Flame },
   { id: 'all', name: 'Tất cả', icon: LayoutGrid },
 ];

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { UserPlus, Users, MessageCircle, ChevronRight, Loader2, UserCheck } from 'lucide-react';
 import { Button } from '../../../shared/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/ui/avatar';
@@ -14,6 +14,7 @@ interface FriendsSidebarProps {
 }
 
 export default function FriendsSidebar({ onStartChat }: FriendsSidebarProps) {
+  const navigate = useNavigate();
   const [friends, setFriends] = useState<FriendshipResponse[]>([]);
   const [receivedRequests, setReceivedRequests] = useState<FriendshipResponse[]>([]);
   // Sử dụng hook lấy gợi ý kết bạn với chức năng refresh
@@ -282,13 +283,19 @@ export default function FriendsSidebar({ onStartChat }: FriendsSidebarProps) {
               const isProcessing = processingIds.has(user.userId);
               return (
                 <div key={user.userId} className="flex items-center gap-3">
-                  <Avatar className="h-9 w-9 border-2 border-white/30">
+                  <Avatar 
+                    className="h-9 w-9 border-2 border-white/30 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => navigate(`/profile/${user.userId}`)}
+                  >
                     <AvatarImage src={user.avatarUrl} alt={user.username} />
                     <AvatarFallback className="bg-white/20 text-white text-xs">
                       {getInitials(user)}
                     </AvatarFallback>
                   </Avatar>
-                  <div className="flex-1 min-w-0">
+                  <div 
+                    className="flex-1 min-w-0 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => navigate(`/profile/${user.userId}`)}>
+                  
                     <p className="text-sm font-medium text-white truncate">
                       {getDisplayName(user)}
                     </p>

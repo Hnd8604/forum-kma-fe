@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import CreatePost from './CreatePost';
 import PostCard from './PostCard';
 import { Button } from '../../../shared/components/ui/button';
-import { Flame, Sparkles, Loader2, LayoutGrid } from 'lucide-react';
+import { Flame, Zap, Loader2, LayoutGrid } from 'lucide-react';
 import { PostService } from '../services/post.service';
 import type { ApiPost } from '../types/post.types';
 
@@ -133,7 +133,7 @@ export default function ForumFeed() {
   const sortOptions = [
     { id: 'all', label: 'Tất cả', icon: LayoutGrid },
     { id: 'popular', label: 'Phổ biến', icon: Flame },
-    { id: 'new', label: 'Mới', icon: Sparkles },
+    { id: 'new', label: 'Mới', icon: Zap },
   ];
 
   return (
