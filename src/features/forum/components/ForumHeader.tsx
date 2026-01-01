@@ -1,9 +1,11 @@
 import { Link } from 'react-router-dom';
+import { useState } from 'react';
 import { Button } from '../../../shared/components/ui/button';
 import { Input } from '../../../shared/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/ui/avatar';
-import { Search, User, LogOut, Settings, ChevronDown, UserPlus } from 'lucide-react';
+import { Search, User, LogOut, Settings, ChevronDown, UserPlus, Users } from 'lucide-react';
 import { ChatHeaderIcon } from '../../chat';
+import SearchDropdown from './SearchDropdown';
 import { useAuthStore } from '../../../store/useStore';
 import {
   DropdownMenu,
@@ -30,6 +32,7 @@ export default function ForumHeader({
   onOpenFriendsList,
 }: ForumHeaderProps) {
   const user = useAuthStore((s) => s.user);
+  const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   const displayName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || 'User' : 'User';
   const displayEmail = user?.email || 'student@university.edu';
@@ -66,14 +69,22 @@ export default function ForumHeader({
 
         {/* Search Bar - Centered */}
         <div className="flex-1 max-w-2xl mx-auto px-4">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#878A8C]" />
+          <div className="relative z-50">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#878A8C] z-10" />
             <Input
               type="text"
               placeholder="Tìm kiếm bài viết, chủ đề..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
+              onFocus={() => setIsSearchFocused(true)}
               className="w-full pl-10 pr-4 h-10 bg-slate-100 border-0 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:outline-none hover:bg-slate-50 transition-all text-sm shadow-inner"
+            />
+
+            {/* Search Dropdown */}
+            <SearchDropdown
+              searchQuery={searchQuery}
+              isOpen={isSearchFocused && searchQuery.trim().length > 0}
+              onClose={() => setIsSearchFocused(false)}
             />
           </div>
         </div>
@@ -82,7 +93,16 @@ export default function ForumHeader({
         <div className="flex items-center space-x-1">
           <ChatHeaderIcon onOpenMiniChat={onOpenMiniChat} />
 
-
+          {/* Friends Icon */}
+          <Link to="/friends">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="relative hover:bg-blue-50 rounded-xl transition-colors"
+            >
+              <Users className="w-5 h-5 text-gray-700" />
+            </Button>
+          </Link>
 
           {/* User Menu */}
           <DropdownMenu>
@@ -96,10 +116,6 @@ export default function ForumHeader({
                 </Avatar>
                 <div className="hidden lg:flex flex-col items-start">
                   <span className="font-semibold text-sm text-slate-900">{displayName}</span>
-                  <span className="text-xs text-slate-500 flex items-center gap-1">
-                    <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
-                    Online
-                  </span>
                 </div>
                 <ChevronDown className="w-4 h-4 text-slate-400 hidden lg:block" />
               </Button>
@@ -115,10 +131,6 @@ export default function ForumHeader({
                   </Avatar>
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold text-white truncate">{displayName}</p>
-                    <p className="text-xs text-blue-100 flex items-center gap-1">
-                      <span className="w-2 h-2 bg-green-400 rounded-full"></span>
-                      Online
-                    </p>
                   </div>
                 </div>
                 <p className="text-xs text-blue-100 truncate">{displayEmail}</p>

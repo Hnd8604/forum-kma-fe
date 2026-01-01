@@ -73,9 +73,11 @@ export default function ConversationList({
     };
 
     window.addEventListener('chat-message-received', handleChatMessage as EventListener);
+    window.addEventListener('chat-message-sent', handleChatMessage as EventListener);
 
     return () => {
       window.removeEventListener('chat-message-received', handleChatMessage as EventListener);
+      window.removeEventListener('chat-message-sent', handleChatMessage as EventListener);
     };
   }, [currentUser]);
 

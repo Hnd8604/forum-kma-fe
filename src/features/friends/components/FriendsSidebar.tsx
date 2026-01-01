@@ -226,20 +226,18 @@ export default function FriendsSidebar({ onStartChat }: FriendsSidebarProps) {
                 key={friend.id}
                 className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-all group"
               >
-                <Link to={`/profile/${friend.userId}`} className="relative">
+                <Link to={`/profile/${friend.userId}`}>
                   <Avatar className="h-9 w-9 hover:ring-2 hover:ring-blue-300 transition-all">
                     <AvatarImage src={friend.avatarUrl} alt={friend.username} />
                     <AvatarFallback className="bg-gradient-to-br from-green-400 to-emerald-500 text-white text-xs">
                       {getInitials(friend)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="absolute bottom-0 right-0 w-2.5 h-2.5 bg-slate-400 border-2 border-white rounded-full"></span>
                 </Link>
                 <Link to={`/profile/${friend.userId}`} className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-slate-900 truncate hover:text-blue-600 transition-colors">
                     {getDisplayName(friend)}
                   </p>
-                  <p className="text-xs text-slate-500">Offline</p>
                 </Link>
                 {onStartChat && (
                   <Button

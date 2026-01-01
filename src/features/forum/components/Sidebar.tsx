@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, TrendingUp, Users, ChevronDown, ChevronUp, Plus, Loader2, Flame, Star, Search } from 'lucide-react';
+import { Home, TrendingUp, Users, ChevronDown, ChevronUp, Plus, Loader2, Flame, Star } from 'lucide-react';
 import { Button } from '../../../shared/components/ui/button';
 import { GroupService } from '../services/group.service';
 import CreateGroupDialog from './CreateGroupDialog';
@@ -10,7 +10,6 @@ const feedOptions = [
   { id: 'home', name: 'Trang chủ', icon: Home },
   { id: 'popular', name: 'Phổ biến', icon: TrendingUp },
   { id: 'all', name: 'Tất cả', icon: Flame },
-  { id: 'groups', name: 'Tìm nhóm', icon: Search },
 ];
 
 // Generate colors for communities - professional palette
@@ -115,8 +114,6 @@ export default function Sidebar() {
                 onClick={() => {
                   if (item.id === 'home') {
                     navigate('/forum');
-                  } else if (item.id === 'groups') {
-                    navigate('/groups');
                   }
                 }}
                 className="w-full justify-start h-10 px-3 rounded hover:bg-[#EAEDEF] text-sm font-normal text-[#1C1C1C]"

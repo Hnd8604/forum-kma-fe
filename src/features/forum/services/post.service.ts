@@ -18,6 +18,7 @@ export interface GetFeedParams {
   page?: number;
   limit?: number;
   sort?: 'createdAt,DESC' | 'reactionCount,DESC';
+  search?: string;
 }
 
 export interface GetAuthorPostsParams extends GetPostsParams {
@@ -97,20 +98,25 @@ export class PostService {
    * Get feed (homepage posts)
    */
   static async getFeed(params: GetFeedParams = {}): Promise<PaginatedResponse<ApiPost>> {
-    const { page = 0, limit = 10, sort = 'createdAt,DESC' } = params;
+    const { page = 0, limit = 10, sort = 'createdAt,DESC', search = '' } = params;
     const queryParams = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
       sort,
     });
 
+    // Add search param if provided
+    if (search.trim()) {
+      queryParams.append('search', search.trim());
+    }
+
     const response = await ApiService.get<PaginatedResponse<ApiPost>>(`/posts/feed?${queryParams}`, true);
-    
+
     // Debug: Log raw response to check resourceUrls
     if (response.content && response.content.length > 0) {
       console.log('🔍 First post from API:', JSON.stringify(response.content[0], null, 2));
     }
-    
+
     // Map userReactionType from backend to myReaction for frontend
     const mappedContent = response.content.map((post: any) => {
       console.log(`Post ${post.postId}: type=${post.type}, resourceUrls=${JSON.stringify(post.resourceUrls)}, commentCount=${post.commentCount}, reactionCount=${post.reactionCount}`);
@@ -120,9 +126,9 @@ export class PostService {
         commentCount: typeof post.commentCount === 'number' ? post.commentCount : 0,
       };
     });
-    
+
     console.log('Mapped content:', mappedContent[0]);
-    
+
     return {
       ...response,
       content: mappedContent,

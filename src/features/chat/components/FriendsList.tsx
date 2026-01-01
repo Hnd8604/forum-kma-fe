@@ -13,7 +13,6 @@ interface Friend {
     firstName?: string;
     lastName?: string;
     avatarUrl?: string;
-    status?: 'online' | 'offline';
 }
 
 interface FriendsListProps {
@@ -50,7 +49,6 @@ export default function FriendsList({ onStartChat }: FriendsListProps) {
                             firstName: friendUser.firstName,
                             lastName: friendUser.lastName,
                             avatarUrl: friendUser.avatarUrl,
-                            status: 'offline' as const, // TODO: Implement online status
                         };
                     } catch (error) {
                         console.error('Failed to load friend:', friendId, error);
@@ -138,9 +136,6 @@ export default function FriendsList({ onStartChat }: FriendsListProps) {
                                             getFriendDisplayName(friend).charAt(0).toUpperCase()
                                         )}
                                     </div>
-                                    {/* Online status indicator */}
-                                    <div className={`absolute bottom-0 right-0 w-3 h-3 rounded-full border-2 border-white ${friend.status === 'online' ? 'bg-green-500' : 'bg-slate-300'
-                                        }`}></div>
                                 </div>
 
                                 {/* Info */}

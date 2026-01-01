@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import React, { useState, useEffect, useCallback } from 'react';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Button } from '../../../shared/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/ui/avatar';
 import {
@@ -66,6 +66,46 @@ export default function PostCard({ post, onReactionChange, onDelete }: PostCardP
   const [sendingComment, setSendingComment] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const location = useLocation();
+
+  // Handle opening modal with URL change
+  const openModal = useCallback(() => {
+    setShowModal(true);
+    // Update URL to post detail path
+    window.history.pushState({ postId: post.postId }, '', `/forum/post/${post.postId}`);
+  }, [post.postId]);
+
+  // Handle closing modal with URL change
+  const closeModal = useCallback(() => {
+    setShowModal(false);
+    // Restore URL to forum page
+    window.history.pushState({}, '', '/forum');
+  }, []);
+
+  // Listen for browser back/forward navigation
+  useEffect(() => {
+    const handlePopState = (event: PopStateEvent) => {
+      // If we're navigating away from this post's modal
+      if (!window.location.pathname.includes(`/forum/post/${post.postId}`)) {
+        setShowModal(false);
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, [post.postId]);
+
+  // Listen for open-post-modal event (from search)
+  useEffect(() => {
+    const handleOpenPostModal = (event: CustomEvent) => {
+      if (event.detail?.postId === post.postId) {
+        setShowModal(true);
+      }
+    };
+
+    window.addEventListener('open-post-modal', handleOpenPostModal as EventListener);
+    return () => window.removeEventListener('open-post-modal', handleOpenPostModal as EventListener);
+  }, [post.postId]);
 
   // Check ownership
   // Check ownership
@@ -285,7 +325,7 @@ export default function PostCard({ post, onReactionChange, onDelete }: PostCardP
         {/* Post Title */}
         <h3
           className="text-lg font-semibold text-slate-900 mb-2 cursor-pointer hover:text-blue-600 transition-colors leading-snug"
-          onClick={() => setShowModal(true)}
+          onClick={openModal}
         >
           {post.title}
         </h3>
@@ -293,7 +333,7 @@ export default function PostCard({ post, onReactionChange, onDelete }: PostCardP
         {/* Post Content */}
         <p
           className="text-sm text-slate-600 mb-3 whitespace-pre-line line-clamp-3 leading-relaxed cursor-pointer hover:text-slate-900 transition-colors"
-          onClick={() => setShowModal(true)}
+          onClick={openModal}
         >
           {post.content}
         </p>
@@ -446,7 +486,7 @@ export default function PostCard({ post, onReactionChange, onDelete }: PostCardP
           {commentCount > 0 && (
             <div
               className="hover:underline cursor-pointer"
-              onClick={() => setShowModal(true)}
+              onClick={openModal}
             >
               {commentCount} bình luận
             </div>
@@ -470,7 +510,7 @@ export default function PostCard({ post, onReactionChange, onDelete }: PostCardP
           <Button
             variant="ghost"
             className="flex-1 flex items-center justify-center gap-2 hover:bg-slate-50 rounded-lg text-slate-600 font-medium h-10 transition-colors"
-            onClick={() => setShowModal(true)}
+            onClick={openModal}
           >
             <MessageSquare className="w-5 h-5" />
             Bình luận
@@ -545,7 +585,7 @@ export default function PostCard({ post, onReactionChange, onDelete }: PostCardP
       <PostDetailModal
         post={post}
         isOpen={showModal}
-        onClose={() => setShowModal(false)}
+        onClose={closeModal}
         currentReaction={currentReaction}
         reactionCount={reactionCount}
         onReact={handleReaction}

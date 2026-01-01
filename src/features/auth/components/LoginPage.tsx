@@ -16,7 +16,7 @@ interface LoginPageProps {
 
 export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProps) {
   const { login: setAuthLogin } = useAuthStore();
-  
+
   const [step, setStep] = useState<'login' | 'otp'>('login');
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -45,7 +45,7 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
     e.preventDefault();
     setError(null);
     setLoading(true);
-    
+
     try {
       const response = await AuthService.login({
         username,
@@ -78,7 +78,7 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
 
       // Update auth store with user data
       setAuthLogin(user);
-      
+
       // Save credentials if remember me is checked
       if (rememberMe) {
         try {
@@ -94,12 +94,12 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
           console.error('Failed to clear username:', error);
         }
       }
-      
+
       // Call the onLogin callback
       onLogin();
     } catch (error: any) {
       const apiError = error as ApiError;
-      
+
       // Kiểm tra nếu lỗi là yêu cầu 2FA (code: AS_010)
       if (apiError.code === 'AS_010') {
         console.log('🔐 2FA required (from error), switching to OTP step');
@@ -109,7 +109,7 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
         setLoading(false);
         return;
       }
-      
+
       setError(apiError.message || 'Đăng nhập thất bại. Vui lòng kiểm tra lại thông tin.');
     } finally {
       setLoading(false);
@@ -138,7 +138,7 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
 
       // Update auth store with user data
       setAuthLogin(user);
-      
+
       // Save credentials if remember me is checked
       if (rememberMe) {
         try {
@@ -147,7 +147,7 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
           console.error('Failed to save username:', error);
         }
       }
-      
+
       // Call the onLogin callback
       onLogin();
     } catch (error: any) {
@@ -180,8 +180,8 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
           <div className="inline-flex items-center justify-center mb-4">
             <div className="w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/30 transform hover:scale-105 transition-transform">
               <svg viewBox="0 0 24 24" className="w-10 h-10 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                <path d="M6 12v5c3 3 9 3 12 0v-5"/>
+                <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                <path d="M6 12v5c3 3 9 3 12 0v-5" />
               </svg>
             </div>
           </div>
@@ -196,7 +196,7 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
               {step === 'login' ? 'Đăng nhập' : 'Xác thực 2 yếu tố'}
             </CardTitle>
             <CardDescription className="text-slate-500">
-              {step === 'login' 
+              {step === 'login'
                 ? 'Chào mừng bạn quay trở lại!'
                 : 'Nhập mã OTP đã được gửi đến email của bạn'
               }
@@ -207,125 +207,123 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
           {step === 'login' && (
             <form onSubmit={handleSubmit}>
               <CardContent className="space-y-5">
-              <div className="space-y-2">
-                <Label htmlFor="username" className="text-sm font-medium text-slate-700">Tên đăng nhập</Label>
-                <div className="relative group">
-                  <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                  <Input
-                    id="username"
-                    type="text"
-                    placeholder="Nhập tên đăng nhập"
-                    value={username}
-                    onChange={(e) => setUsername(e.target.value)}
-                    className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm transition-all"
-                    required
-                  />
+                <div className="space-y-2">
+                  <Label htmlFor="username" className="text-sm font-medium text-slate-700">Tên đăng nhập</Label>
+                  <div className="relative group">
+                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                    <Input
+                      id="username"
+                      type="text"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm transition-all"
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-medium text-slate-700">Mật khẩu</Label>
-                <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
-                  <Input
-                    id="password"
-                    type="password"
-                    placeholder="••••••••"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm transition-all"
-                    required
-                  />
+                <div className="space-y-2">
+                  <Label htmlFor="password" className="text-sm font-medium text-slate-700">Mật khẩu</Label>
+                  <div className="relative group">
+                    <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                    <Input
+                      id="password"
+                      type="password"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm transition-all"
+                      required
+                    />
+                  </div>
                 </div>
-              </div>
-              <div className="flex items-center justify-between">
-                <label className="flex items-center space-x-2 cursor-pointer">
-                  <input 
-                    type="checkbox" 
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500" 
-                  />
-                  <span className="text-sm text-slate-600">Ghi nhớ đăng nhập</span>
-                </label>
-                <button 
-                  type="button"
-                  onClick={() => setIsForgotPasswordOpen(true)}
-                  className="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium"
-                >
-                  Quên mật khẩu?
-                </button>
-              </div>
-              {error && (
-                <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm flex items-center gap-2">
-                  <span>⚠️</span>
-                  {error}
-                </div>
-              )}
-            </CardContent>
-            <CardFooter className="flex flex-col gap-4 pt-2 pb-6 px-6">
-              <Button 
-                type="submit" 
-                disabled={loading}
-                className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30"
-              >
-                {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
-              </Button>
-              {onSwitchToRegister && (
-                <div className="text-center text-sm text-slate-500">
-                  Chưa có tài khoản?{' '}
+                <div className="flex items-center justify-between">
+                  <label className="flex items-center space-x-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                    />
+                    <span className="text-sm text-slate-600">Ghi nhớ đăng nhập</span>
+                  </label>
                   <button
                     type="button"
-                    onClick={onSwitchToRegister}
-                    className="text-blue-600 hover:text-blue-700 hover:underline font-semibold"
+                    onClick={() => setIsForgotPasswordOpen(true)}
+                    className="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium"
                   >
-                    Đăng ký ngay
+                    Quên mật khẩu?
                   </button>
                 </div>
-              )}
-            </CardFooter>
-          </form>
+                {error && (
+                  <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm flex items-center gap-2">
+                    <span>⚠️</span>
+                    {error}
+                  </div>
+                )}
+              </CardContent>
+              <CardFooter className="flex flex-col gap-4 pt-2 pb-6 px-6">
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30"
+                >
+                  {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
+                </Button>
+                {onSwitchToRegister && (
+                  <div className="text-center text-sm text-slate-500">
+                    Chưa có tài khoản?{' '}
+                    <button
+                      type="button"
+                      onClick={onSwitchToRegister}
+                      className="text-blue-600 hover:text-blue-700 hover:underline font-semibold"
+                    >
+                      Đăng ký ngay
+                    </button>
+                  </div>
+                )}
+              </CardFooter>
+            </form>
           )}
 
           {/* Step 2: OTP Verification */}
           {step === 'otp' && (
             <form onSubmit={handleVerifyOtp}>
               <CardContent className="space-y-5">
-                    <div className="space-y-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="emailForOtp" className="text-sm font-medium text-slate-700">Email</Label>
-                        <Input
-                          id="emailForOtp"
-                          type="email"
-                          placeholder="your@email.com"
-                          value={emailForOtp}
-                          onChange={(e) => setEmailForOtp(e.target.value)}
-                          className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm transition-all"
-                          disabled={loading}
-                          required
-                        />
-                      </div>
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="emailForOtp" className="text-sm font-medium text-slate-700">Email</Label>
+                    <Input
+                      id="emailForOtp"
+                      type="email"
+                      placeholder="your@email.com"
+                      value={emailForOtp}
+                      onChange={(e) => setEmailForOtp(e.target.value)}
+                      className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm transition-all"
+                      disabled={loading}
+                      required
+                    />
+                  </div>
 
-                      <div className="space-y-2">
-                        <Label htmlFor="otp" className="text-sm font-medium text-slate-700">Mã OTP</Label>
-                        <Input
-                          id="otp"
-                          type="text"
-                          maxLength={6}
-                          value={otp}
-                          onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
-                          placeholder="000000"
-                          disabled={loading}
-                          autoFocus
-                          className="text-center text-2xl tracking-[0.5em] font-bold h-16 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
-                          onKeyDown={(e) => e.key === 'Enter' && handleVerifyOtp(e as any)}
-                        />
-                      </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="otp" className="text-sm font-medium text-slate-700">Mã OTP</Label>
+                    <Input
+                      id="otp"
+                      type="text"
+                      maxLength={6}
+                      value={otp}
+                      onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))}
+                      placeholder="000000"
+                      disabled={loading}
+                      autoFocus
+                      className="text-center text-2xl tracking-[0.5em] font-bold h-16 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                      onKeyDown={(e) => e.key === 'Enter' && handleVerifyOtp(e as any)}
+                    />
+                  </div>
 
-                      <div className="text-sm text-slate-500 text-center space-y-1 mt-4 p-4 bg-slate-50 rounded-xl">
-                        <p>📧 Kiểm tra email của bạn để lấy mã OTP</p>
-                        <p className="text-xs">Mã OTP có hiệu lực trong 5 phút</p>
-                      </div>
-                    </div>
+                  <div className="text-sm text-slate-500 text-center space-y-1 mt-4 p-4 bg-slate-50 rounded-xl">
+                    <p>📧 Kiểm tra email của bạn để lấy mã OTP</p>
+                    <p className="text-xs">Mã OTP có hiệu lực trong 5 phút</p>
+                  </div>
+                </div>
                 {error && (
                   <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm flex items-center gap-2">
                     <span>⚠️</span>
@@ -334,8 +332,8 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
                 )}
               </CardContent>
               <CardFooter className="flex flex-col gap-3 pt-2 pb-6 px-6">
-                <Button 
-                  type="submit" 
+                <Button
+                  type="submit"
                   disabled={loading || otp.length !== 6}
                   className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-blue-500/25"
                 >

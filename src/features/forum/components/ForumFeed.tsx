@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import CreatePost from './CreatePost';
 import PostCard from './PostCard';
 import { Button } from '../../../shared/components/ui/button';
-import { Flame, Sparkles, Loader2, ChevronDown, LayoutGrid, List, Layers } from 'lucide-react';
+import { Flame, Sparkles, Loader2, Layers } from 'lucide-react';
 import { PostService } from '../services/post.service';
 import type { ApiPost } from '../types/post.types';
 
@@ -31,7 +31,11 @@ export default function ForumFeed() {
       if (sortBy === 'popular') sortParam = 'reactionCount,DESC';
       // 'new' and 'all' use createdAt,DESC
 
-      const response = await PostService.getFeed({ page: pageNum, limit: 10, sort: sortParam });
+      const response = await PostService.getFeed({
+        page: pageNum,
+        limit: 10,
+        sort: sortParam
+      });
 
       // Sort posts on client side to ensure correct order
       let sortedPosts = [...response.content];

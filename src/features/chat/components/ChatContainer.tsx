@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { useChatConversations } from '../hooks/useChatConversations';
 import MiniChatWindow from './MiniChatWindow';
 import FriendsList from './FriendsList';
+import type { Conversation } from '../types/chat.types';
 
 interface ChatContainerProps {
     showFriendsList?: boolean;
@@ -9,7 +10,7 @@ interface ChatContainerProps {
 
 export default function ChatContainer({ showFriendsList = false }: ChatContainerProps) {
     console.log('🎨 ChatContainer rendered, showFriendsList:', showFriendsList);
-    const { openConversations, startChatWithUser, closeConversation, updateConversation } = useChatConversations();
+    const { openConversations, openConversation, startChatWithUser, closeConversation, updateConversation } = useChatConversations();
 
     // Listen for conversation creation events
     useEffect(() => {
@@ -38,7 +39,7 @@ export default function ChatContainer({ showFriendsList = false }: ChatContainer
         };
     }, [updateConversation]);
 
-    // Listen for chat requests from profile pages
+    // Listen for chat requests from profile pages (for private chats)
     useEffect(() => {
         const handleStartChat = (event: Event) => {
             const customEvent = event as CustomEvent;
@@ -55,6 +56,24 @@ export default function ChatContainer({ showFriendsList = false }: ChatContainer
             window.removeEventListener('start-chat', handleStartChat);
         };
     }, [startChatWithUser]);
+
+    // Listen for open-mini-chat events (for group chats from ChatDropdown)
+    useEffect(() => {
+        const handleOpenMiniChat = (event: Event) => {
+            const customEvent = event as CustomEvent;
+            const conversation = customEvent.detail as Conversation;
+            console.log('🎯 open-mini-chat event received:', conversation);
+            openConversation(conversation);
+        };
+
+        console.log('✅ ChatContainer mounted - listening for open-mini-chat events');
+        window.addEventListener('open-mini-chat', handleOpenMiniChat);
+
+        return () => {
+            console.log('❌ ChatContainer unmounted - removing open-mini-chat listener');
+            window.removeEventListener('open-mini-chat', handleOpenMiniChat);
+        };
+    }, [openConversation]);
 
     return (
         <>

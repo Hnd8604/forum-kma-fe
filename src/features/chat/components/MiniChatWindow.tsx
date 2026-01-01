@@ -21,6 +21,7 @@ export default function MiniChatWindow({
 }: MiniChatWindowProps) {
   const user = useAuthStore((s) => s.user);
   const [displayName, setDisplayName] = useState<string>('');
+  const [partnerAvatar, setPartnerAvatar] = useState<string>(''); // Avatar for private chat partner
   const [messages, setMessages] = useState<Message[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [sending, setSending] = useState(false);
@@ -74,39 +75,66 @@ export default function MiniChatWindow({
   useEffect(() => {
     const handleNewMessage = (event: CustomEvent) => {
       const data = event.detail;
-      // Log message from WebSocket
-      console.log('Received WS message:', data);
+      // Log message from WebSocket for debugging
+      console.log('🔔 MiniChatWindow received event:', data);
+      console.log('🔔 Current conversationId:', conversation.conversationId);
+      console.log('🔔 Message chatId:', data.chatId, 'conversationId:', data.conversationId);
 
-      // Đồng bộ: chấp nhận cả chatId hoặc conversationId
-      if ((data.chatId === conversation.conversationId || data.conversationId === conversation.conversationId)) {
+      const messageConversationId = data.chatId || data.conversationId;
+
+      // Check if this message belongs to current conversation
+      if (messageConversationId === conversation.conversationId) {
+        console.log('✅ Message matches current conversation!');
+
+        // Don't add our own messages again (already added via setMessages after sendMessage)
+        if (data.senderId === user?.userId) {
+          console.log('⏭️ Skipping own message (already added)');
+          return;
+        }
+
         // Add new message to the list
         const newMessage: Message = {
-          id: data.id || data.messageId || data.chatId + '-' + Date.now(),
-          conversationId: data.chatId || data.conversationId,
+          id: data.id || data.messageId || `ws-${Date.now()}-${Math.random()}`,
+          conversationId: messageConversationId,
           fromUserId: data.senderId || data.fromUserId,
           toUserId: data.receiverId,
           message: data.message,
           type: data.type || 'TEXT',
-          createdAt: data.sentAt || data.createdAt,
+          createdAt: data.sentAt || data.createdAt || new Date().toISOString(),
         };
+
+        console.log('📩 Adding new message:', newMessage);
+
         setMessages((prev) => {
-          // Tránh trùng tin nhắn
-          if (prev.some(m => m.id === newMessage.id)) return prev;
+          // Check for duplicates based on message content and time (not just ID)
+          const isDuplicate = prev.some(m =>
+            m.message === newMessage.message &&
+            m.fromUserId === newMessage.fromUserId &&
+            Math.abs(new Date(m.createdAt).getTime() - new Date(newMessage.createdAt).getTime()) < 5000
+          );
+
+          if (isDuplicate) {
+            console.log('⏭️ Skipping duplicate message');
+            return prev;
+          }
+
+          console.log('✅ Message added to list');
           return [...prev, newMessage];
         });
-        // Mark as read nếu cửa sổ đang mở
+
+        // Mark as read since window is open
         markAsRead();
+      } else {
+        console.log('❌ Message does not match current conversation');
       }
     };
 
     window.addEventListener('chat-message-received', handleNewMessage as EventListener);
-    window.addEventListener('chat-message-sent', handleNewMessage as EventListener);
 
     return () => {
       window.removeEventListener('chat-message-received', handleNewMessage as EventListener);
-      window.removeEventListener('chat-message-sent', handleNewMessage as EventListener);
     };
-  }, [conversation.conversationId]);
+  }, [conversation.conversationId, user?.userId]);
 
   const loadMessages = async () => {
     try {
@@ -120,6 +148,12 @@ export default function MiniChatWindow({
   const markAsRead = async () => {
     try {
       await ChatService.markAsRead(conversation.conversationId);
+      // Dispatch event to update unread counts in other components
+      if (user) {
+        window.dispatchEvent(new CustomEvent('conversation-marked-read', {
+          detail: { conversationId: conversation.conversationId, userId: user.userId }
+        }));
+      }
     } catch (error) {
       console.error('Failed to mark as read:', error);
     }
@@ -133,21 +167,29 @@ export default function MiniChatWindow({
           const u = await AuthService.getUserById(other);
           const name = `${u.firstName || u.username || ''} ${u.lastName || ''}`.trim() || u.username || other;
           setDisplayName(name);
+          setPartnerAvatar(u.avatarUrl || '');
+          // Also store in userNames/userAvatars for message display
+          setUserNames((prev) => ({ ...prev, [other]: name }));
+          setUserAvatars((prev) => ({ ...prev, [other]: u.avatarUrl || '' }));
         } catch (err) {
           console.error('Failed to resolve participant name', err);
           setDisplayName('Người dùng');
+          setPartnerAvatar('');
         }
       }
     } else if (conversation.type === 'group' && conversation.groupId) {
       try {
         const group = await ChatService.getGroupById(conversation.groupId);
         setDisplayName(group.name || 'Nhóm chat');
+        setPartnerAvatar(group.avatarUrl || '');
       } catch (err) {
         console.error('Failed to fetch group name', err);
         setDisplayName('Nhóm chat');
+        setPartnerAvatar('');
       }
     } else {
       setDisplayName('Chat');
+      setPartnerAvatar('');
     }
   };
 
@@ -157,11 +199,51 @@ export default function MiniChatWindow({
     setNewMessage('');
     setSending(true);
     try {
-      // Luôn gọi API gửi tin nhắn (tránh lỗi không gửi được)
-      const sentMessage = conversation.conversationId.startsWith('temp-') && conversation.partnerId
-        ? await ChatService.sendMessage({ receiverId: conversation.partnerId, message: messageText, type: 'TEXT' })
-        : await ChatService.sendMessage({ conversationId: conversation.conversationId, message: messageText, type: 'TEXT' });
+      // Build request giống như ChatWindow để backend broadcast qua WebSocket
+      let request: any = {
+        message: messageText,
+        type: 'TEXT',
+      };
+
+      if (conversation.conversationId.startsWith('temp-') && conversation.partnerId) {
+        // New conversation - use partnerId
+        request.receiverId = conversation.partnerId;
+        console.log('📤 MiniChat: Sending new private message to:', conversation.partnerId);
+      } else if (conversation.type === 'private') {
+        // Existing private conversation - find the other user's ID
+        const receiverId = conversation.participantIds.find(id => id !== user?.userId);
+        if (receiverId) {
+          request.receiverId = receiverId;
+          console.log('📤 MiniChat: Sending private message to:', receiverId);
+        } else {
+          // Fallback to conversationId if can't find receiverId
+          request.conversationId = conversation.conversationId;
+          console.log('📤 MiniChat: Fallback - Sending with conversationId:', conversation.conversationId);
+        }
+      } else if (conversation.type === 'group' && conversation.groupId) {
+        // Group conversation - use groupId
+        request.groupId = conversation.groupId;
+        console.log('📤 MiniChat: Sending group message to:', conversation.groupId);
+      } else {
+        // Fallback
+        request.conversationId = conversation.conversationId;
+        console.log('📤 MiniChat: Fallback - Sending with conversationId:', conversation.conversationId);
+      }
+
+      const sentMessage = await ChatService.sendMessage(request);
       setMessages((prev) => [...prev, sentMessage]);
+
+      // Dispatch event để các component khác biết và cập nhật (ChatDropdown, ConversationList)
+      window.dispatchEvent(new CustomEvent('chat-message-sent', {
+        detail: {
+          chatId: sentMessage.conversationId || conversation.conversationId,
+          conversationId: sentMessage.conversationId || conversation.conversationId,
+          senderId: user?.userId,
+          message: messageText,
+          sentAt: sentMessage.createdAt || new Date().toISOString(),
+        }
+      }));
+
       // Nếu là tạo mới, thông báo cho parent
       if (conversation.conversationId.startsWith('temp-') && sentMessage.conversationId) {
         window.dispatchEvent(new CustomEvent('conversation-created', {
@@ -199,8 +281,10 @@ export default function MiniChatWindow({
     >
       {/* Header */}
       <div className="p-4 border-b border-slate-200/60 flex items-center gap-3 bg-gradient-to-r from-blue-500 to-indigo-600">
-        <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 shadow-lg">
-          {conversation.type === 'group' ? (
+        <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 shadow-lg overflow-hidden">
+          {partnerAvatar ? (
+            <img src={partnerAvatar} alt={displayName} className="w-full h-full object-cover" />
+          ) : conversation.type === 'group' ? (
             <Users className="w-5 h-5 text-white" />
           ) : (
             <span className="text-white text-base font-bold">
@@ -246,26 +330,26 @@ export default function MiniChatWindow({
 
               return (
                 <div key={message.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'} gap-2`}>
-                  {!isMine && conversation.type === 'group' && (
+                  {!isMine && (
                     <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center flex-shrink-0 text-xs text-white font-semibold overflow-hidden shadow-sm">
                       {senderAvatar ? (
                         <img src={senderAvatar} alt={senderName} className="w-full h-full object-cover" />
                       ) : (
-                        senderName?.charAt(0).toUpperCase() || '?'
+                        senderName?.charAt(0).toUpperCase() || displayName?.charAt(0).toUpperCase() || '?'
                       )}
                     </div>
                   )}
-                  <div className={`flex flex-col max-w-[70%] ${isMine ? 'items-end' : 'items-start'}`}>
-                    {!isMine && conversation.type === 'group' && (
+                  <div className={`flex flex-col max-w-[70%] min-w-0 ${isMine ? 'items-end' : 'items-start'}`}>
+                    {!isMine && (
                       <p className="text-xs font-semibold mb-1 text-blue-600 px-1">
-                        {senderName || 'Người dùng'}
+                        {senderName || displayName || 'Người dùng'}
                       </p>
                     )}
-                    <div className={`rounded-2xl px-4 py-2 shadow-sm ${isMine
+                    <div className={`rounded-2xl px-4 py-2 shadow-sm max-w-full ${isMine
                       ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
                       : 'bg-white text-slate-900 border border-slate-200'
                       }`}>
-                      <p className="text-sm break-words">{message.message}</p>
+                      <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{message.message}</p>
                     </div>
                     <p className={`text-xs text-slate-400 mt-1 px-1`}>
                       {messageTime}

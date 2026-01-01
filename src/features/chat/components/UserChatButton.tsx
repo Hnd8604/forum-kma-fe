@@ -10,16 +10,15 @@ interface Contact {
   id: number;
   name: string;
   avatar: string;
-  online: boolean;
   lastMessage?: string;
   unread?: number;
 }
 
 const mockContacts: Contact[] = [
-  { id: 1, name: 'Nguyễn Văn An', avatar: 'NA', online: true, lastMessage: 'Oke bạn, mình hiểu rồi!', unread: 2 },
-  { id: 2, name: 'Trần Thị Bình', avatar: 'TB', online: true, lastMessage: 'Cảm ơn bạn nhiều nhé' },
-  { id: 3, name: 'Lê Minh Cường', avatar: 'LC', online: false, lastMessage: 'Hẹn gặp lại' },
-  { id: 4, name: 'Phạm Thu Hà', avatar: 'PH', online: true, lastMessage: 'Được rồi', unread: 1 },
+  { id: 1, name: 'Nguyễn Văn An', avatar: 'NA', lastMessage: 'Oke bạn, mình hiểu rồi!', unread: 2 },
+  { id: 2, name: 'Trần Thị Bình', avatar: 'TB', lastMessage: 'Cảm ơn bạn nhiều nhé' },
+  { id: 3, name: 'Lê Minh Cường', avatar: 'LC', lastMessage: 'Hẹn gặp lại' },
+  { id: 4, name: 'Phạm Thu Hà', avatar: 'PH', lastMessage: 'Được rồi', unread: 1 },
 ];
 
 const mockMessages = [
@@ -126,9 +125,6 @@ export default function UserChatButton({ isOpen, onToggle, unreadCount = 3 }: Us
                         <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold">
                           {contact.avatar}
                         </div>
-                        {contact.online && (
-                          <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
-                        )}
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="flex items-center justify-between">
@@ -164,13 +160,9 @@ export default function UserChatButton({ isOpen, onToggle, unreadCount = 3 }: Us
                   <div className="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center text-sm font-semibold">
                     {selectedChat.avatar}
                   </div>
-                  {selectedChat.online && (
-                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full" />
-                  )}
                 </div>
                 <div className="flex-1">
                   <p className="font-semibold text-sm">{selectedChat.name}</p>
-                  <p className="text-xs text-white/90">{selectedChat.online ? 'Đang hoạt động' : 'Không hoạt động'}</p>
                 </div>
               </div>
 
@@ -189,11 +181,10 @@ export default function UserChatButton({ isOpen, onToggle, unreadCount = 3 }: Us
                           </div>
                         )}
                         <div
-                          className={`max-w-[70%] rounded-2xl px-4 py-2 ${
-                            msg.sender === 'me'
+                          className={`max-w-[70%] rounded-2xl px-4 py-2 ${msg.sender === 'me'
                               ? 'bg-blue-500 text-white'
                               : 'bg-white text-gray-800'
-                          }`}
+                            }`}
                         >
                           <p className="text-sm">{msg.text}</p>
                         </div>

@@ -258,6 +258,17 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
         prev.map(msg => msg.id === tempId ? sentMessage : msg)
       );
 
+      // Dispatch event để các component khác biết và cập nhật (ChatDropdown, MiniChatWindow, ConversationList)
+      window.dispatchEvent(new CustomEvent('chat-message-sent', {
+        detail: {
+          chatId: sentMessage.conversationId || conversation.conversationId,
+          conversationId: sentMessage.conversationId || conversation.conversationId,
+          senderId: user?.userId,
+          message: messageText,
+          sentAt: sentMessage.createdAt || new Date().toISOString(),
+        }
+      }));
+
       // Backend will broadcast this message via WebSocket to all users
       // including the sender, so we'll receive it via onMessage callback
 

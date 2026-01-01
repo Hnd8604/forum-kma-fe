@@ -9,6 +9,7 @@ import {
 } from '../../../shared/components/ui/popover';
 import ChatDropdown from './ChatDropdown';
 import { ChatService } from '../services/chat.service';
+import { useAuthStore } from '../../../store/useStore';
 import type { Conversation } from '../types/chat.types';
 
 interface ChatIconButtonProps {
@@ -17,21 +18,49 @@ interface ChatIconButtonProps {
 }
 
 export default function ChatIconButton({ onOpenFullChat, onOpenMiniChat }: ChatIconButtonProps) {
+  const currentUser = useAuthStore((s) => s.user);
   const [isOpen, setIsOpen] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
     loadUnreadCount();
-    // Poll for updates every 30 seconds
+    // Poll for updates every 30 seconds as backup
     const interval = setInterval(loadUnreadCount, 30000);
     return () => clearInterval(interval);
+  }, []);
+
+  // Listen for WebSocket messages to update unread count in real-time
+  useEffect(() => {
+    const handleNewMessage = (event: CustomEvent) => {
+      const data = event.detail;
+      console.log('📬 ChatIconButton received new message:', data);
+      // Increment unread count when receiving message from others
+      setUnreadCount((prev) => prev + 1);
+    };
+
+    const handleMarkedRead = () => {
+      // Reload unread count when a conversation is marked as read
+      loadUnreadCount();
+    };
+
+    window.addEventListener('chat-message-received', handleNewMessage as EventListener);
+    window.addEventListener('conversation-marked-read', handleMarkedRead as EventListener);
+
+    return () => {
+      window.removeEventListener('chat-message-received', handleNewMessage as EventListener);
+      window.removeEventListener('conversation-marked-read', handleMarkedRead as EventListener);
+    };
   }, []);
 
   const loadUnreadCount = async () => {
     try {
       const conversations = await ChatService.getConversations();
-      const total = conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
-      setUnreadCount(total);
+      // Count number of conversations with unread messages
+      const userId = currentUser?.userId || '';
+      const unreadConversations = conversations.filter((conv) => {
+        return (conv.unreadCounts?.[userId] || 0) > 0;
+      });
+      setUnreadCount(unreadConversations.length);
     } catch (error) {
       console.error('Failed to load unread count:', error);
     }

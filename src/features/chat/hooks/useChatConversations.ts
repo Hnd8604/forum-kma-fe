@@ -6,6 +6,29 @@ export function useChatConversations() {
     const [openConversations, setOpenConversations] = useState<Conversation[]>([]);
 
     /**
+     * Open an existing conversation directly (used for group chats)
+     */
+    const openConversation = useCallback((conversation: Conversation) => {
+        // Check if already open
+        const existingOpen = openConversations.find(
+            (conv) => conv.conversationId === conversation.conversationId
+        );
+
+        if (existingOpen) {
+            console.log('Conversation already open:', conversation.conversationId);
+            return;
+        }
+
+        // Limit to 3 open conversations
+        setOpenConversations((prev) => {
+            if (prev.length >= 3) {
+                return [...prev.slice(1), conversation];
+            }
+            return [...prev, conversation];
+        });
+    }, [openConversations]);
+
+    /**
      * Start a chat with a user
      * - If conversation exists, open it
      * - If not, create a new empty conversation UI
@@ -82,6 +105,7 @@ export function useChatConversations() {
 
     return {
         openConversations,
+        openConversation,
         startChatWithUser,
         closeConversation,
         updateConversation,

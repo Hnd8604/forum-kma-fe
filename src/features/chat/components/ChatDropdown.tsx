@@ -27,8 +27,90 @@ export default function ChatDropdown({
   const [loading, setLoading] = useState(true);
   const currentUser = useAuthStore((s) => s.user);
 
+  // Load conversations on mount
   useEffect(() => {
     loadConversations();
+  }, []);
+
+  // Listen for WebSocket messages to update conversation list in real-time
+  useEffect(() => {
+    const handleNewMessage = (event: CustomEvent) => {
+      const data = event.detail;
+      console.log('📨 ChatDropdown received message:', data);
+
+      const messageConversationId = data.chatId || data.conversationId;
+
+      // Update the conversation in the list
+      setConversations((prev) => {
+        const existingIndex = prev.findIndex(
+          (c) => c.conversationId === messageConversationId
+        );
+
+        if (existingIndex >= 0) {
+          // Update existing conversation
+          const updated = [...prev];
+          const conv = { ...updated[existingIndex] };
+          conv.lastMessage = data.message;
+          conv.lastMessageAt = data.sentAt || data.createdAt || new Date().toISOString();
+
+          // Increment unread count if message is from someone else
+          if (currentUser && data.senderId !== currentUser.userId) {
+            conv.unreadCounts = {
+              ...conv.unreadCounts,
+              [currentUser.userId]: (conv.unreadCounts?.[currentUser.userId] || 0) + 1,
+            };
+          }
+
+          // Remove from current position
+          updated.splice(existingIndex, 1);
+          // Add to the beginning (most recent)
+          updated.unshift(conv);
+
+          return updated.slice(0, 5); // Keep only first 5 conversations
+        } else {
+          // New conversation - reload the list
+          loadConversations();
+          return prev;
+        }
+      });
+    };
+
+    window.addEventListener('chat-message-received', handleNewMessage as EventListener);
+    window.addEventListener('chat-message-sent', handleNewMessage as EventListener);
+
+    return () => {
+      window.removeEventListener('chat-message-received', handleNewMessage as EventListener);
+      window.removeEventListener('chat-message-sent', handleNewMessage as EventListener);
+    };
+  }, [currentUser]);
+
+  // Listen for conversation marked as read events
+  useEffect(() => {
+    const handleMarkedRead = (event: CustomEvent) => {
+      const { conversationId, userId } = event.detail;
+      console.log('📖 ChatDropdown: conversation marked as read:', conversationId);
+
+      setConversations((prev) => {
+        return prev.map((conv) => {
+          if (conv.conversationId === conversationId) {
+            return {
+              ...conv,
+              unreadCounts: {
+                ...conv.unreadCounts,
+                [userId]: 0,
+              },
+            };
+          }
+          return conv;
+        });
+      });
+    };
+
+    window.addEventListener('conversation-marked-read', handleMarkedRead as EventListener);
+
+    return () => {
+      window.removeEventListener('conversation-marked-read', handleMarkedRead as EventListener);
+    };
   }, []);
 
   const loadConversations = async () => {

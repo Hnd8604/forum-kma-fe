@@ -25,18 +25,48 @@ export default function ChatHeaderIcon({ onOpenMiniChat }: ChatHeaderIconProps) 
   const [unreadCount, setUnreadCount] = useState(0);
   const currentUser = useAuthStore((s) => s.user);
 
+  // Load unread count when component mounts or user changes
   useEffect(() => {
-    loadUnreadCount();
-    // Poll for updates every 30 seconds
-    const interval = setInterval(loadUnreadCount, 30000);
-    return () => clearInterval(interval);
+    if (currentUser?.userId) {
+      loadUnreadCount();
+      // Poll for updates every 30 seconds as backup
+      const interval = setInterval(loadUnreadCount, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [currentUser?.userId]);
+
+  // Listen for WebSocket messages to update unread count in real-time
+  useEffect(() => {
+    const handleNewMessage = (event: CustomEvent) => {
+      const data = event.detail;
+      console.log('📬 ChatHeaderIcon received new message:', data);
+      // Reload unread count to get accurate count
+      loadUnreadCount();
+    };
+
+    const handleMarkedRead = () => {
+      // Reload unread count when a conversation is marked as read
+      loadUnreadCount();
+    };
+
+    window.addEventListener('chat-message-received', handleNewMessage as EventListener);
+    window.addEventListener('conversation-marked-read', handleMarkedRead as EventListener);
+
+    return () => {
+      window.removeEventListener('chat-message-received', handleNewMessage as EventListener);
+      window.removeEventListener('conversation-marked-read', handleMarkedRead as EventListener);
+    };
   }, []);
 
   const loadUnreadCount = async () => {
     try {
       const conversations = await ChatService.getConversations();
-      const total = conversations.reduce((sum, conv) => sum + conv.unreadCount, 0);
-      setUnreadCount(total);
+      // Count number of conversations with unread messages
+      const userId = currentUser?.userId || '';
+      const unreadConversations = conversations.filter((conv) => {
+        return (conv.unreadCounts?.[userId] || 0) > 0;
+      });
+      setUnreadCount(unreadConversations.length);
     } catch (error) {
       console.error('Failed to load unread count:', error);
     }
@@ -73,9 +103,14 @@ export default function ChatHeaderIcon({ onOpenMiniChat }: ChatHeaderIconProps) 
         console.error('❌ No partnerId found for private chat');
         navigate('/chat');
       }
+    } else if (conversation.type === 'group') {
+      // For group chats, dispatch event to open mini chat window
+      console.log('👥 Opening group chat mini window:', conversation);
+      window.dispatchEvent(new CustomEvent('open-mini-chat', {
+        detail: conversation
+      }));
     } else {
-      console.log('👥 Group chat - navigating to /chat');
-      // For group chats, navigate to full chat page
+      // Fallback to full chat page
       navigate('/chat');
     }
   };
