@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback } from 'react';
 import CreatePost from './CreatePost';
 import PostCard from './PostCard';
 import { Button } from '../../../shared/components/ui/button';
-import { Flame, Sparkles, Loader2, Layers } from 'lucide-react';
+import { Flame, Sparkles, Loader2, LayoutGrid } from 'lucide-react';
 import { PostService } from '../services/post.service';
 import type { ApiPost } from '../types/post.types';
 
@@ -70,6 +70,18 @@ export default function ForumFeed() {
 
   useEffect(() => {
     loadPosts(0, false);
+
+    // Listen for sort filter changes from sidebar
+    const handleSortFilterChange = (event: CustomEvent) => {
+      const newSort = event.detail as 'all' | 'popular' | 'new';
+      setSortBy(newSort);
+    };
+
+    window.addEventListener('changeSortFilter', handleSortFilterChange as EventListener);
+
+    return () => {
+      window.removeEventListener('changeSortFilter', handleSortFilterChange as EventListener);
+    };
   }, [sortBy, loadPosts]);
 
   const handleLoadMore = () => {
@@ -119,7 +131,7 @@ export default function ForumFeed() {
   };
 
   const sortOptions = [
-    { id: 'all', label: 'Tất cả', icon: Layers },
+    { id: 'all', label: 'Tất cả', icon: LayoutGrid },
     { id: 'popular', label: 'Phổ biến', icon: Flame },
     { id: 'new', label: 'Mới', icon: Sparkles },
   ];

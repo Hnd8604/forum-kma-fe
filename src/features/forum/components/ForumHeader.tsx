@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Button } from '../../../shared/components/ui/button';
 import { Input } from '../../../shared/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/ui/avatar';
@@ -33,6 +33,7 @@ export default function ForumHeader({
 }: ForumHeaderProps) {
   const user = useAuthStore((s) => s.user);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const displayName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || 'User' : 'User';
   const displayEmail = user?.email || 'student@university.edu';
@@ -69,9 +70,10 @@ export default function ForumHeader({
 
         {/* Search Bar - Centered */}
         <div className="flex-1 max-w-2xl mx-auto px-4">
-          <div className="relative z-50">
+          <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#878A8C] z-10" />
             <Input
+              ref={searchInputRef}
               type="text"
               placeholder="Tìm kiếm bài viết, chủ đề..."
               value={searchQuery}
@@ -85,6 +87,7 @@ export default function ForumHeader({
               searchQuery={searchQuery}
               isOpen={isSearchFocused && searchQuery.trim().length > 0}
               onClose={() => setIsSearchFocused(false)}
+              inputRef={searchInputRef}
             />
           </div>
         </div>

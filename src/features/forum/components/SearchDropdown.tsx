@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
 import { Search, Loader2 } from 'lucide-react';
 import { PostService } from '../services/post.service';
@@ -11,14 +12,28 @@ interface SearchDropdownProps {
     searchQuery: string;
     onClose: () => void;
     isOpen: boolean;
+    inputRef?: React.RefObject<HTMLInputElement>;
 }
 
-export default function SearchDropdown({ searchQuery, onClose, isOpen }: SearchDropdownProps) {
+export default function SearchDropdown({ searchQuery, onClose, isOpen, inputRef }: SearchDropdownProps) {
     const navigate = useNavigate();
     const [posts, setPosts] = useState<ApiPost[]>([]);
     const [users, setUsers] = useState<User[]>([]);
     const [loading, setLoading] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
+    const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
+
+    // Update dropdown position based on input element
+    useEffect(() => {
+        if (isOpen && inputRef?.current) {
+            const rect = inputRef.current.getBoundingClientRect();
+            setDropdownPosition({
+                top: rect.bottom + window.scrollY + 8,
+                left: rect.left + window.scrollX,
+                width: rect.width
+            });
+        }
+    }, [isOpen, inputRef]);
 
     // Search posts and users when query changes
     useEffect(() => {
@@ -109,10 +124,16 @@ export default function SearchDropdown({ searchQuery, onClose, isOpen }: SearchD
 
     const hasResults = posts.length > 0 || users.length > 0;
 
-    return (
+    const dropdownContent = (
         <div
             ref={dropdownRef}
-            className="absolute top-full left-0 right-0 mt-2 bg-slate-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700/50 overflow-hidden z-[100]"
+            className="fixed bg-slate-900/95 backdrop-blur-md rounded-2xl shadow-2xl border border-slate-700/50 overflow-hidden z-[10000]"
+            style={{
+                top: `${dropdownPosition.top}px`,
+                left: `${dropdownPosition.left}px`,
+                width: `${dropdownPosition.width}px`,
+                maxWidth: '800px'
+            }}
         >
             {/* Loading State */}
             {loading && (
@@ -233,6 +254,8 @@ export default function SearchDropdown({ searchQuery, onClose, isOpen }: SearchD
             )}
         </div>
     );
+
+    return createPortal(dropdownContent, document.body);
 }
 
 // Helper function to highlight matching text

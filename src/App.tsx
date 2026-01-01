@@ -2,7 +2,6 @@ import { useState } from 'react';
 import LoginPage from './features/auth/components/LoginPage';
 import MainForum from './features/forum/components/MainForum';
 import Notifications from './features/notifications/Notifications';
-import { AIChatButton } from './features/chatbot';
 import { ChatContainer } from './features/chat';
 import WebSocketManager from './shared/components/websocket/WebSocketManager';
 import { Toaster } from './shared/components/ui/toaster';
@@ -10,7 +9,6 @@ import { Toaster } from './shared/components/ui/toaster';
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isNotificationsOpen, setIsNotificationsOpen] = useState(false);
-  const [isAIChatOpen, setIsAIChatOpen] = useState(false);
   const [showFriendsList, setShowFriendsList] = useState(false);
 
   const handleLogin = () => {
@@ -25,20 +23,8 @@ export default function App() {
     setIsNotificationsOpen((prev) => !prev);
   };
 
-  const handleAIChatToggle = () => {
-    setIsAIChatOpen(!isAIChatOpen);
-    if (!isAIChatOpen) {
-      // Đóng friends list khi mở AI chat
-      setShowFriendsList(false);
-    }
-  };
-
   const handleFriendsListToggle = () => {
     setShowFriendsList(!showFriendsList);
-    if (!showFriendsList) {
-      // Đóng AI chat khi mở friends list
-      setIsAIChatOpen(false);
-    }
   };
 
   if (!isLoggedIn) {
@@ -61,9 +47,6 @@ export default function App() {
         isOpen={isNotificationsOpen}
         onOpenChange={setIsNotificationsOpen}
       />
-
-      {/* AI Chat */}
-      <AIChatButton isOpen={isAIChatOpen} onToggle={handleAIChatToggle} />
 
       {/* Chat Container - Manages all chat windows and friends list */}
       <ChatContainer showFriendsList={showFriendsList} />

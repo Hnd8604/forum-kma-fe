@@ -343,11 +343,11 @@ export default function PostCard({ post, onReactionChange, onDelete }: PostCardP
           <div className="mb-3">
             {post.resourceUrls.length === 1 ? (
               // Single image - full width
-              <div className="overflow-hidden rounded-xl">
+              <div className="overflow-hidden rounded-xl border border-slate-200">
                 <img
                   src={post.resourceUrls[0]}
                   alt={post.title}
-                  className="w-full object-cover max-h-[500px] hover:scale-105 transition-transform duration-300 cursor-pointer"
+                  className="w-full object-cover max-h-[500px] cursor-pointer"
                   onClick={() => window.open(post.resourceUrls![0], '_blank')}
                 />
               </div>
@@ -355,11 +355,11 @@ export default function PostCard({ post, onReactionChange, onDelete }: PostCardP
               // Two images - side by side
               <div className="grid grid-cols-2 gap-2">
                 {post.resourceUrls.map((url, index) => (
-                  <div key={index} className="overflow-hidden rounded-xl aspect-square">
+                  <div key={index} className="overflow-hidden rounded-xl aspect-square border border-slate-200">
                     <img
                       src={url}
                       alt={`${post.title} - ${index + 1}`}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
+                      className="w-full h-full object-cover cursor-pointer"
                       onClick={() => window.open(url, '_blank')}
                     />
                   </div>
@@ -368,20 +368,20 @@ export default function PostCard({ post, onReactionChange, onDelete }: PostCardP
             ) : post.resourceUrls.length === 3 ? (
               // Three images - first large, two small
               <div className="grid grid-cols-2 gap-2">
-                <div className="row-span-2 overflow-hidden rounded-xl">
+                <div className="row-span-2 overflow-hidden rounded-xl border border-slate-200">
                   <img
                     src={post.resourceUrls[0]}
                     alt={`${post.title} - 1`}
-                    className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
+                    className="w-full h-full object-cover cursor-pointer"
                     onClick={() => window.open(post.resourceUrls![0], '_blank')}
                   />
                 </div>
                 {post.resourceUrls.slice(1).map((url, index) => (
-                  <div key={index + 1} className="overflow-hidden rounded-xl aspect-square">
+                  <div key={index + 1} className="overflow-hidden rounded-xl aspect-square border border-slate-200">
                     <img
                       src={url}
                       alt={`${post.title} - ${index + 2}`}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
+                      className="w-full h-full object-cover cursor-pointer"
                       onClick={() => window.open(url, '_blank')}
                     />
                   </div>
@@ -391,11 +391,11 @@ export default function PostCard({ post, onReactionChange, onDelete }: PostCardP
               // Four or more images - 2x2 grid, show +N overlay on 4th if more
               <div className="grid grid-cols-2 gap-2">
                 {post.resourceUrls.slice(0, 4).map((url, index) => (
-                  <div key={index} className="overflow-hidden rounded-xl aspect-square relative">
+                  <div key={index} className="overflow-hidden rounded-xl aspect-square relative border border-slate-200">
                     <img
                       src={url}
                       alt={`${post.title} - ${index + 1}`}
-                      className="w-full h-full object-cover hover:scale-105 transition-transform duration-300 cursor-pointer"
+                      className="w-full h-full object-cover cursor-pointer"
                       onClick={() => window.open(url, '_blank')}
                     />
                     {index === 3 && post.resourceUrls!.length > 4 && (

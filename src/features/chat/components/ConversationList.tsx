@@ -6,8 +6,12 @@ import { Card } from '../../../shared/components/ui/card';
 import { Button } from '../../../shared/components/ui/button';
 import { ScrollArea } from '../../../shared/components/ui/scroll-area';
 import { Badge } from '../../../shared/components/ui/badge';
-import { MessageCircle, Users, Plus, PenSquare } from 'lucide-react';
+import { MessageCircle, Users, Plus, PenSquare, Sparkles } from 'lucide-react';
 import { useAuthStore } from '../../../store/useStore';
+import AIAvatar from './AIAvatar';
+
+// Special constant for AI conversation
+export const AI_CONVERSATION_ID = 'ai-assistant';
 
 interface ConversationListProps {
   onSelectConversation: (conversation: Conversation) => void;
@@ -261,31 +265,74 @@ export default function ConversationList({
       </div>
 
       <ScrollArea className="flex-1">
-        {conversations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-full p-8 text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mb-4">
-              <MessageCircle className="w-8 h-8 text-blue-500" />
+        <div className="p-3">
+          {/* AI Assistant - Always at the top */}
+          <div
+            onClick={() => onSelectConversation({ 
+              conversationId: AI_CONVERSATION_ID, 
+              type: 'private', 
+              participantIds: [], 
+              unreadCounts: {} 
+            })}
+            className={`p-3 cursor-pointer rounded-2xl mb-3 transition-all border ${selectedConversationId === AI_CONVERSATION_ID
+              ? 'bg-gradient-to-r from-violet-50 to-purple-50 border-purple-300 shadow-md shadow-purple-500/10'
+              : 'hover:bg-gradient-to-r hover:from-violet-50/50 hover:to-purple-50/50 border-transparent hover:shadow-md hover:border-purple-200'
+              }`}
+          >
+            <div className="flex items-start gap-3">
+              <AIAvatar size="lg" />
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center justify-between mb-1">
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-semibold text-base text-slate-900">Trợ lý AI KMA</h3>
+                    <span className="px-1.5 py-0.5 text-[10px] font-bold bg-gradient-to-r from-violet-500 to-purple-500 text-white rounded-full flex items-center gap-0.5">
+                      <Sparkles className="w-2.5 h-2.5" />
+                      AI
+                    </span>
+                  </div>
+                </div>
+                <p className="text-sm text-slate-500 truncate">
+                  Hỏi đáp về học tập, lịch thi, điểm số...
+                </p>
+              </div>
             </div>
-            <p className="text-slate-500">Chưa có cuộc hội thoại nào</p>
           </div>
-        ) : (
-          <div className="p-3">
-            {conversations.map((conversation) => {
-              const unreadCount = currentUser && conversation.unreadCounts?.[currentUser.userId] || 0;
-              const partnerId = conversation.participantIds?.find((p) => p !== currentUser?.userId) || '';
 
-              return (
-                <div
-                  key={conversation.conversationId}
-                  onClick={() => onSelectConversation(conversation)}
-                  className={`p-3 cursor-pointer rounded-2xl mb-2 transition-all border ${selectedConversationId === conversation.conversationId
-                    ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-300 shadow-md shadow-blue-500/10'
-                    : 'hover:bg-white border-transparent hover:shadow-md hover:border-slate-200'
-                    }`}
-                >
-                  <div className="flex items-start gap-3">
+          {/* Divider */}
+          {conversations.length > 0 && (
+            <div className="flex items-center gap-2 mb-3 px-2">
+              <div className="flex-1 h-px bg-slate-200" />
+              <span className="text-xs text-slate-400">Tin nhắn</span>
+              <div className="flex-1 h-px bg-slate-200" />
+            </div>
+          )}
+
+          {/* Regular conversations */}
+          {conversations.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center">
+              <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mb-4">
+                <MessageCircle className="w-8 h-8 text-blue-500" />
+              </div>
+              <p className="text-slate-500">Chưa có cuộc hội thoại nào</p>
+            </div>
+          ) : (
+            <>
+              {conversations.map((conversation) => {
+                const unreadCount = currentUser && conversation.unreadCounts?.[currentUser.userId] || 0;
+                const partnerId = conversation.participantIds?.find((p) => p !== currentUser?.userId) || '';
+
+                return (
+                  <div
+                    key={conversation.conversationId}
+                    onClick={() => onSelectConversation(conversation)}
+                    className={`p-3 cursor-pointer rounded-2xl mb-2 transition-all border ${selectedConversationId === conversation.conversationId
+                      ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-300 shadow-md shadow-blue-500/10'
+                      : 'hover:bg-white border-transparent hover:shadow-md hover:border-slate-200'
+                      }`}
+                  >
+                    <div className="flex items-start gap-3">
                     <div className="relative">
-                      <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/25 overflow-hidden">
+                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/25 overflow-hidden">
                         {conversation.type === 'group' ? (
                           conversation.groupId && groupAvatars[conversation.groupId] ? (
                             <img src={groupAvatars[conversation.groupId]} alt="Group" className="w-full h-full object-cover" />
@@ -329,10 +376,11 @@ export default function ConversationList({
                     </div>
                   </div>
                 </div>
-              );
-            })}
+                  );
+                })}
+              </>
+            )}
           </div>
-        )}
       </ScrollArea>
     </Card>
   );

@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, TrendingUp, Users, ChevronDown, ChevronUp, Plus, Loader2, Flame, Star } from 'lucide-react';
+import { Home, TrendingUp, Users, ChevronDown, ChevronUp, Plus, Loader2, Flame, Star, Sparkles, LayoutGrid } from 'lucide-react';
 import { Button } from '../../../shared/components/ui/button';
 import { GroupService } from '../services/group.service';
 import CreateGroupDialog from './CreateGroupDialog';
@@ -8,8 +8,9 @@ import type { Group } from '../types/post.types';
 
 const feedOptions = [
   { id: 'home', name: 'Trang chủ', icon: Home },
-  { id: 'popular', name: 'Phổ biến', icon: TrendingUp },
-  { id: 'all', name: 'Tất cả', icon: Flame },
+  { id: 'new', name: 'Mới', icon: Sparkles },
+  { id: 'popular', name: 'Phổ biến', icon: Flame },
+  { id: 'all', name: 'Tất cả', icon: LayoutGrid },
 ];
 
 // Generate colors for communities - professional palette
@@ -107,21 +108,32 @@ export default function Sidebar() {
         <div className="pr-2 max-h-[calc(100vh-2rem)]">
           {/* Feed Options */}
           <div className="mb-4">
-            {feedOptions.map((item) => (
-              <Button
-                key={item.id}
-                variant="ghost"
-                onClick={() => {
-                  if (item.id === 'home') {
+            {feedOptions.map((item) => {
+              const isActive = item.id === 'home'; // You can track active state if needed
+              return (
+                <Button
+                  key={item.id}
+                  variant="ghost"
+                  onClick={() => {
                     navigate('/forum');
-                  }
-                }}
-                className="w-full justify-start h-10 px-3 rounded hover:bg-[#EAEDEF] text-sm font-normal text-[#1C1C1C]"
-              >
-                <item.icon className="w-5 h-5 mr-3 text-[#878A8C]" />
-                {item.name}
-              </Button>
-            ))}
+                    // Dispatch event to change sort filter in ForumFeed
+                    if (item.id === 'all') {
+                      window.dispatchEvent(new CustomEvent('changeSortFilter', { detail: 'all' }));
+                    } else if (item.id === 'popular') {
+                      window.dispatchEvent(new CustomEvent('changeSortFilter', { detail: 'popular' }));
+                    } else if (item.id === 'new') {
+                      window.dispatchEvent(new CustomEvent('changeSortFilter', { detail: 'new' }));
+                    } else if (item.id === 'home') {
+                      window.dispatchEvent(new CustomEvent('changeSortFilter', { detail: 'all' }));
+                    }
+                  }}
+                  className="w-full justify-start h-10 px-3 rounded hover:bg-[#EAEDEF] text-sm font-normal text-[#1C1C1C]"
+                >
+                  <item.icon className="w-5 h-5 mr-3 text-[#878A8C]" />
+                  {item.name}
+                </Button>
+              );
+            })}
           </div>
 
           <div className="border-t border-[#EDEFF1] my-3"></div>

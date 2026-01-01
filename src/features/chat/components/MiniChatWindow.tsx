@@ -281,7 +281,7 @@ export default function MiniChatWindow({
     >
       {/* Header */}
       <div className="p-4 border-b border-slate-200/60 flex items-center gap-3 bg-gradient-to-r from-blue-500 to-indigo-600">
-        <div className="w-10 h-10 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 shadow-lg overflow-hidden">
+        <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 shadow-lg overflow-hidden">
           {partnerAvatar ? (
             <img src={partnerAvatar} alt={displayName} className="w-full h-full object-cover" />
           ) : conversation.type === 'group' ? (

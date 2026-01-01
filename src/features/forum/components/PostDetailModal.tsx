@@ -156,25 +156,39 @@ export default function PostDetailModal({
 
           {/* Content - Scrollable */}
           <div className="flex-1 overflow-y-auto custom-scrollbar">
+            {/* Post Info */}
+            <div className="px-6 py-5">
+              {/* Title if exists */}
+              {post.title && (
+                <h3 className="text-2xl font-bold text-slate-900 mb-4 leading-tight">
+                  {post.title}
+                </h3>
+              )}
+
+              {/* Content */}
+              <p className="text-slate-700 text-base leading-relaxed mb-5 whitespace-pre-line">
+                {post.content}
+              </p>
+            </div>
+
             {/* Images if available */}
             {post.type === 'IMAGE' && post.resourceUrls && post.resourceUrls.length > 0 && (
               <div className="bg-gradient-to-br from-slate-900 to-slate-800 relative">
                 {post.resourceUrls.length === 1 ? (
-                  <div className="relative group">
+                  <div className="relative border-t border-b border-slate-700">
                     <img
                       src={post.resourceUrls[0]}
                       alt={post.title}
-                      className="w-full max-h-[600px] object-contain cursor-pointer transition-transform duration-300 group-hover:scale-105"
+                      className="w-full max-h-[600px] object-contain cursor-pointer"
                       onClick={() => handleImageClick(0)}
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </div>
                 ) : (
                   <div className={`grid ${post.resourceUrls.length === 2 ? 'grid-cols-2' : 'grid-cols-2'} gap-1 p-1`}>
                     {post.resourceUrls.slice(0, 4).map((url, index) => (
                       <div
                         key={index}
-                        className={`relative group overflow-hidden rounded-lg ${post.resourceUrls!.length === 3 && index === 0 ? 'col-span-2' : ''
+                        className={`relative overflow-hidden rounded-lg border border-slate-700 ${post.resourceUrls!.length === 3 && index === 0 ? 'col-span-2' : ''
                           }`}
                         style={{
                           aspectRatio: post.resourceUrls!.length === 3 && index === 0 ? '16/9' : '1/1'
@@ -183,10 +197,9 @@ export default function PostDetailModal({
                         <img
                           src={url}
                           alt={`${post.title} - ${index + 1}`}
-                          className="w-full h-full object-cover cursor-pointer transition-all duration-300 group-hover:scale-110"
+                          className="w-full h-full object-cover cursor-pointer"
                           onClick={() => handleImageClick(index)}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                         {index === 3 && post.resourceUrls!.length > 4 && (
                           <div
                             className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center cursor-pointer hover:bg-black/80 transition-all duration-300"
@@ -204,19 +217,7 @@ export default function PostDetailModal({
               </div>
             )}
 
-            {/* Post Info */}
             <div className="px-6 py-5">
-              {/* Title if exists */}
-              {post.title && (
-                <h3 className="text-2xl font-bold text-slate-900 mb-4 leading-tight">
-                  {post.title}
-                </h3>
-              )}
-
-              {/* Content */}
-              <p className="text-slate-700 text-base leading-relaxed mb-5 whitespace-pre-line">
-                {post.content}
-              </p>
 
               {/* Post Document Links */}
               {post.type === 'DOC' && post.resourceUrls && post.resourceUrls.length > 0 && (

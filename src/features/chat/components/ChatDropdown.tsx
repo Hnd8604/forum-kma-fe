@@ -7,6 +7,8 @@ import { Button } from '../../../shared/components/ui/button';
 import { ScrollArea } from '../../../shared/components/ui/scroll-area';
 import { Badge } from '../../../shared/components/ui/badge';
 import { MessageCircle, Users, ArrowRight } from 'lucide-react';
+import AIAvatar from './AIAvatar';
+import { AI_CONVERSATION_ID } from './ConversationList';
 
 interface ChatDropdownProps {
   onOpenFullChat: () => void;
@@ -226,80 +228,113 @@ export default function ChatDropdown({
               <MessageCircle className="w-6 h-6 text-white" />
             </div>
           </div>
-        ) : conversations.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-12 px-4 text-center">
-            <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center mb-4">
-              <MessageCircle className="w-8 h-8 text-blue-500" />
-            </div>
-            <p className="text-slate-500 text-sm font-medium">Chưa có tin nhắn nào</p>
-            <p className="text-xs text-slate-400 mt-1">Hãy bắt đầu trò chuyện!</p>
-          </div>
         ) : (
           <div className="p-2">
-            {conversations.map((conversation) => {
-              const unreadCount = currentUser && conversation.unreadCounts?.[currentUser.userId] || 0;
-              const partnerId = conversation.participantIds?.find((p) => p !== currentUser?.userId) || '';
+            {/* AI Assistant - Always First */}
+            <div
+              onClick={(e) => {
+                e.stopPropagation();
+                onSelectConversation({ 
+                  conversationId: AI_CONVERSATION_ID, 
+                  type: 'private', 
+                  participantIds: [], 
+                  unreadCounts: {} 
+                });
+              }}
+              className="p-3 hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 cursor-pointer transition-all rounded-xl mb-1 border border-transparent hover:border-purple-200 hover:shadow-sm"
+            >
+              <div className="flex items-start gap-3">
+                <AIAvatar size="md" />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center justify-between mb-1">
+                    <h4 className="font-semibold text-sm text-slate-900">Trợ lý AI</h4>
+                    <span className="flex items-center gap-1 text-xs text-green-500 font-medium">
+                      <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" />
+                      Online
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 truncate">
+                    Hỏi tôi bất cứ điều gì để được hỗ trợ tức thì
+                  </p>
+                </div>
+              </div>
+            </div>
 
-              return (
-                <div
-                  key={conversation.conversationId}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    console.log('🖱️ Conversation clicked in dropdown:', conversation);
-                    onSelectConversation(conversation);
-                  }}
-                  className="p-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 cursor-pointer transition-all rounded-xl mb-1 border border-transparent hover:border-blue-200 hover:shadow-sm"
-                >
-                  <div className="flex items-start gap-3">
-                    {/* Avatar */}
-                    <div className="relative">
-                      <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/20 overflow-hidden">
-                        {conversation.type === 'group' ? (
-                          conversation.groupId && groupAvatars[conversation.groupId] ? (
-                            <img src={groupAvatars[conversation.groupId]} alt="Group" className="w-full h-full object-cover" />
+            {/* Regular Conversations */}
+            {conversations.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
+                <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center mb-3">
+                  <MessageCircle className="w-7 h-7 text-blue-500" />
+                </div>
+                <p className="text-slate-500 text-sm font-medium">Chưa có tin nhắn nào</p>
+                <p className="text-xs text-slate-400 mt-1">Hãy bắt đầu trò chuyện!</p>
+              </div>
+            ) : (
+              conversations.map((conversation) => {
+                const unreadCount = currentUser && conversation.unreadCounts?.[currentUser.userId] || 0;
+                const partnerId = conversation.participantIds?.find((p) => p !== currentUser?.userId) || '';
+
+                return (
+                  <div
+                    key={conversation.conversationId}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      console.log('🖱️ Conversation clicked in dropdown:', conversation);
+                      onSelectConversation(conversation);
+                    }}
+                    className="p-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 cursor-pointer transition-all rounded-xl mb-1 border border-transparent hover:border-blue-200 hover:shadow-sm"
+                  >
+                    <div className="flex items-start gap-3">
+                      {/* Avatar */}
+                      <div className="relative">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/20 overflow-hidden">
+                          {conversation.type === 'group' ? (
+                            conversation.groupId && groupAvatars[conversation.groupId] ? (
+                              <img src={groupAvatars[conversation.groupId]} alt="Group" className="w-full h-full object-cover" />
+                            ) : (
+                              <Users className="w-6 h-6 text-white" />
+                            )
                           ) : (
-                            <Users className="w-6 h-6 text-white" />
-                          )
-                        ) : (
-                          userAvatars[partnerId] ? (
-                            <img src={userAvatars[partnerId]} alt="User" className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="text-white font-bold">
-                              {(userNames[partnerId] || '?').charAt(0).toUpperCase()}
-                            </span>
-                          )
-                        )}
-                      </div>
-                      {unreadCount > 0 && (
-                        <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-red-500 to-rose-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-red-500/40">
-                          {unreadCount > 9 ? '9+' : unreadCount}
+                            userAvatars[partnerId] ? (
+                              <img src={userAvatars[partnerId]} alt="User" className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-white font-bold">
+                                {(userNames[partnerId] || '?').charAt(0).toUpperCase()}
+                              </span>
+                            )
+                          )}
                         </div>
-                      )}
-                    </div>
-
-                    {/* Content */}
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <h4 className="font-semibold text-sm truncate text-slate-900">
-                          {conversation.type === 'private'
-                            ? userNames[partnerId] || 'Người dùng'
-                            : conversation.groupId ? (groupNames[conversation.groupId] || 'Nhóm chat') : 'Nhóm chat'}
-                        </h4>
-                        {conversation.lastMessageAt && (
-                          <span className="text-xs text-slate-400 ml-2 flex-shrink-0">
-                            {new Date(conversation.lastMessageAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                          </span>
+                        {unreadCount > 0 && (
+                          <div className="absolute -top-1 -right-1 w-5 h-5 bg-gradient-to-r from-red-500 to-rose-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-red-500/40">
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                          </div>
                         )}
                       </div>
-                      <p className={`text-xs truncate ${unreadCount > 0 ? 'text-slate-900 font-medium' : 'text-slate-500'
-                        }`}>
-                        {conversation.lastMessage || 'Chưa có tin nhắn'}
-                      </p>
+
+                      {/* Content */}
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <h4 className="font-semibold text-sm truncate text-slate-900">
+                            {conversation.type === 'private'
+                              ? userNames[partnerId] || 'Người dùng'
+                              : conversation.groupId ? (groupNames[conversation.groupId] || 'Nhóm chat') : 'Nhóm chat'}
+                          </h4>
+                          {conversation.lastMessageAt && (
+                            <span className="text-xs text-slate-400 ml-2 flex-shrink-0">
+                              {new Date(conversation.lastMessageAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                            </span>
+                          )}
+                        </div>
+                        <p className={`text-xs truncate ${unreadCount > 0 ? 'text-slate-900 font-medium' : 'text-slate-500'
+                          }`}>
+                          {conversation.lastMessage || 'Chưa có tin nhắn'}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
         )}
       </ScrollArea>

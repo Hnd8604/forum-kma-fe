@@ -1,12 +1,14 @@
 import { useState, useCallback, useEffect } from 'react';
-import ConversationList from './ConversationList';
+import ConversationList, { AI_CONVERSATION_ID } from './ConversationList';
 import ChatWindow from './ChatWindow';
+import AIChatWindow from './AIChatWindow';
 import CreateGroupDialog from './CreateGroupDialog';
 import NewMessageDialog from './NewMessageDialog';
 import type { Conversation } from '../types/chat.types';
 
 export default function ChatPage() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
+  const [showAIChat, setShowAIChat] = useState(false);
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
   const [isNewMessageOpen, setIsNewMessageOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
@@ -30,7 +32,13 @@ export default function ChatPage() {
   }, []);
 
   const handleSelectConversation = useCallback((conversation: Conversation) => {
-    setSelectedConversation(conversation);
+    if (conversation.conversationId === AI_CONVERSATION_ID) {
+      setShowAIChat(true);
+      setSelectedConversation(null);
+    } else {
+      setShowAIChat(false);
+      setSelectedConversation(conversation);
+    }
   }, []);
 
   // Listen for conversation updates from ConversationList
@@ -61,25 +69,27 @@ export default function ChatPage() {
 
   return (
     <div className="h-full flex bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
-      <div className={`w-full md:w-[400px] border-r border-white/60 bg-white/95 backdrop-blur-md shadow-xl ${selectedConversation ? 'hidden md:block' : 'block'}`}>
+      <div className="w-[400px] border-r border-white/60 bg-white/95 backdrop-blur-md shadow-xl flex-shrink-0">
         <ConversationList
           key={refreshKey}
           onSelectConversation={handleSelectConversation}
-          selectedConversationId={selectedConversation?.conversationId}
+          selectedConversationId={showAIChat ? AI_CONVERSATION_ID : selectedConversation?.conversationId}
           onCreateGroup={() => setIsCreateGroupOpen(true)}
           onNewMessage={() => setIsNewMessageOpen(true)}
         />
       </div>
 
-      <div className={`flex-1 ${selectedConversation ? 'block' : 'hidden md:block'}`}>
-        {selectedConversation ? (
+      <div className="flex-1">
+        {showAIChat ? (
+          <AIChatWindow onBack={() => setShowAIChat(false)} />
+        ) : selectedConversation ? (
           <ChatWindow
             conversation={selectedConversation}
             onBack={() => setSelectedConversation(null)}
             onConversationRead={handleConversationRead}
           />
         ) : (
-          <div className="h-full hidden md:flex items-center justify-center">
+          <div className="h-full flex items-center justify-center">
             <div className="text-center">
               <div className="w-28 h-28 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-blue-500/30 transform hover:scale-105 transition-transform">
                 <span className="text-5xl">💬</span>
