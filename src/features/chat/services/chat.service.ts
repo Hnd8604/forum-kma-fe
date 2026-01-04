@@ -30,7 +30,7 @@ export class ChatService {
       `${CHAT_SERVICE_BASE}/conversations`,
       true
     );
-    
+
     // Transform response to ensure correct field mapping
     return (response || []).map((conv: any) => ({
       conversationId: conv.conversationId || conv.id,
@@ -75,7 +75,7 @@ export class ChatService {
       request,
       true
     );
-    
+
     // Convert CreateGroupResponse to Conversation format
     return {
       conversationId: response.conversationId,
@@ -113,10 +113,10 @@ export class ChatService {
   /**
    * Thêm thành viên vào nhóm
    */
-  static async addGroupMembers(groupId: string, memberIds: string[]): Promise<any> {
+  static async addGroupMembers(groupId: string, userIds: string[]): Promise<any> {
     const response = await ApiService.post<any>(
       `${CHAT_SERVICE_BASE}/groups/members/add`,
-      { groupId, memberIds },
+      { groupId, userIds },
       true
     );
     return response;

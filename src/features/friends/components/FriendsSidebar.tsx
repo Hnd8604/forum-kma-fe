@@ -240,16 +240,22 @@ export default function FriendsSidebar({ onStartChat }: FriendsSidebarProps) {
                     {getDisplayName(friend)}
                   </p>
                 </Link>
-                {onStartChat && (
-                  <Button
-                    size="sm"
-                    variant="ghost"
-                    className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
-                    onClick={() => onStartChat(friend.userId, friend.username)}
-                  >
-                    <MessageCircle className="w-4 h-4 text-slate-500" />
-                  </Button>
-                )}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="h-8 w-8 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => {
+                    window.dispatchEvent(new CustomEvent('start-chat', {
+                      detail: {
+                        userId: friend.userId,
+                        userName: getDisplayName(friend),
+                        userAvatar: friend.avatarUrl
+                      }
+                    }));
+                  }}
+                >
+                  <MessageCircle className="w-4 h-4 text-slate-500" />
+                </Button>
               </div>
             ))}
           </div>

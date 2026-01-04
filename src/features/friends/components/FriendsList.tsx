@@ -172,22 +172,20 @@ export default function FriendsList({ onStartChat }: FriendsListProps) {
               key={friend.id}
               className="group bg-white rounded-2xl border border-slate-100 p-5 hover:shadow-xl hover:shadow-blue-500/10 hover:border-blue-100 transition-all duration-300"
             >
-              <div className="flex items-start gap-4">
-                <Link to={`/profile/${friend.userId}`} className="relative">
+              <div className="flex items-center gap-4">
+                <Link to={`/profile/${friend.userId}`}>
                   <Avatar className="h-14 w-14 ring-4 ring-slate-100 group-hover:ring-blue-100 transition-all">
                     <AvatarImage src={friend.avatarUrl} alt={friend.username} />
                     <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-semibold">
                       {getInitials(friend)}
                     </AvatarFallback>
                   </Avatar>
-                  <span className="absolute bottom-0 right-0 w-3.5 h-3.5 bg-slate-400 border-2 border-white rounded-full"></span>
                 </Link>
                 <div className="flex-1 min-w-0">
                   <Link to={`/profile/${friend.userId}`} className="hover:text-blue-600 transition-colors">
                     <h3 className="font-semibold text-slate-900 truncate">{getDisplayName(friend)}</h3>
                     <p className="text-sm text-slate-500 truncate">@{friend.username}</p>
                   </Link>
-                  <p className="text-xs text-slate-400 mt-1">Offline</p>
                 </div>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
@@ -222,7 +220,7 @@ export default function FriendsList({ onStartChat }: FriendsListProps) {
                 </DropdownMenu>
               </div>
 
-              <div className="flex items-center gap-2 mt-4 pt-4 border-t border-slate-100">
+              <div className="flex items-center gap-2 mt-3 pt-3 border-t border-slate-100">
                 <StartChatButton
                   userId={friend.userId}
                   userName={getDisplayName(friend)}

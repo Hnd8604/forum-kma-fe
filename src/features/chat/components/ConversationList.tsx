@@ -9,6 +9,7 @@ import { Badge } from '../../../shared/components/ui/badge';
 import { MessageCircle, Users, Plus, PenSquare, Sparkles } from 'lucide-react';
 import { useAuthStore } from '../../../store/useStore';
 import AIAvatar from './AIAvatar';
+import { formatConversationTime } from '../utils/timeFormat';
 
 // Special constant for AI conversation
 export const AI_CONVERSATION_ID = 'ai-assistant';
@@ -268,11 +269,11 @@ export default function ConversationList({
         <div className="p-3">
           {/* AI Assistant - Always at the top */}
           <div
-            onClick={() => onSelectConversation({ 
-              conversationId: AI_CONVERSATION_ID, 
-              type: 'private', 
-              participantIds: [], 
-              unreadCounts: {} 
+            onClick={() => onSelectConversation({
+              conversationId: AI_CONVERSATION_ID,
+              type: 'private',
+              participantIds: [],
+              unreadCounts: {}
             })}
             className={`p-3 cursor-pointer rounded-2xl mb-3 transition-all border ${selectedConversationId === AI_CONVERSATION_ID
               ? 'bg-gradient-to-r from-violet-50 to-purple-50 border-purple-300 shadow-md shadow-purple-500/10'
@@ -331,56 +332,56 @@ export default function ConversationList({
                       }`}
                   >
                     <div className="flex items-start gap-3">
-                    <div className="relative">
-                      <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/25 overflow-hidden">
-                        {conversation.type === 'group' ? (
-                          conversation.groupId && groupAvatars[conversation.groupId] ? (
-                            <img src={groupAvatars[conversation.groupId]} alt="Group" className="w-full h-full object-cover" />
+                      <div className="relative">
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/25 overflow-hidden">
+                          {conversation.type === 'group' ? (
+                            conversation.groupId && groupAvatars[conversation.groupId] ? (
+                              <img src={groupAvatars[conversation.groupId]} alt="Group" className="w-full h-full object-cover" />
+                            ) : (
+                              <Users className="w-7 h-7 text-white" />
+                            )
                           ) : (
-                            <Users className="w-7 h-7 text-white" />
-                          )
-                        ) : (
-                          userAvatars[partnerId] ? (
-                            <img src={userAvatars[partnerId]} alt="User" className="w-full h-full object-cover" />
-                          ) : (
-                            <span className="text-white text-xl font-bold">
-                              {(userNames[partnerId] || '?').charAt(0).toUpperCase()}
-                            </span>
-                          )
-                        )}
-                      </div>
-                      {unreadCount > 0 && (
-                        <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-red-500 to-rose-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-red-500/40">
-                          {unreadCount > 9 ? '9+' : unreadCount}
+                            userAvatars[partnerId] ? (
+                              <img src={userAvatars[partnerId]} alt="User" className="w-full h-full object-cover" />
+                            ) : (
+                              <span className="text-white text-xl font-bold">
+                                {(userNames[partnerId] || '?').charAt(0).toUpperCase()}
+                              </span>
+                            )
+                          )}
                         </div>
-                      )}
-                    </div>
-
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center justify-between mb-1">
-                        <h3 className="font-semibold text-base truncate text-slate-900">
-                          {conversation.type === 'private'
-                            ? userNames[partnerId] || 'Người dùng'
-                            : conversation.groupId ? (groupNames[conversation.groupId] || 'Nhóm chat') : 'Nhóm chat'}
-                        </h3>
-                        {conversation.lastMessageAt && (
-                          <span className="text-xs text-slate-400 ml-2 flex-shrink-0">
-                            {new Date(conversation.lastMessageAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                          </span>
+                        {unreadCount > 0 && (
+                          <div className="absolute -top-1 -right-1 w-6 h-6 bg-gradient-to-r from-red-500 to-rose-500 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-lg shadow-red-500/40">
+                            {unreadCount > 9 ? '9+' : unreadCount}
+                          </div>
                         )}
                       </div>
-                      <p className={`text-sm truncate ${unreadCount > 0 ? 'text-slate-900 font-medium' : 'text-slate-500'
-                        }`}>
-                        {conversation.lastMessage || 'Chưa có tin nhắn'}
-                      </p>
+
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="font-semibold text-base truncate text-slate-900">
+                            {conversation.type === 'private'
+                              ? userNames[partnerId] || 'Người dùng'
+                              : conversation.groupId ? (groupNames[conversation.groupId] || 'Nhóm chat') : 'Nhóm chat'}
+                          </h3>
+                          {conversation.lastMessageAt && (
+                            <span className="text-xs text-slate-400 ml-2 flex-shrink-0">
+                              {formatConversationTime(conversation.lastMessageAt)}
+                            </span>
+                          )}
+                        </div>
+                        <p className={`text-sm truncate ${unreadCount > 0 ? 'text-slate-900 font-medium' : 'text-slate-500'
+                          }`}>
+                          {conversation.lastMessage || 'Chưa có tin nhắn'}
+                        </p>
+                      </div>
                     </div>
                   </div>
-                </div>
-                  );
-                })}
-              </>
-            )}
-          </div>
+                );
+              })}
+            </>
+          )}
+        </div>
       </ScrollArea>
     </Card>
   );

@@ -7,6 +7,19 @@ import { Button } from '../../../shared/components/ui/button';
 import { Input } from '../../../shared/components/ui/input';
 import { X, Send, Users } from 'lucide-react';
 import { useAuthStore } from '../../../store/useStore';
+import { formatMessageTime } from '../utils/timeFormat';
+
+// Check if should show time between messages (5+ minutes gap or different sender)
+const shouldShowTime = (currentMsg: Message, prevMsg: Message | null): boolean => {
+  if (!prevMsg) return true;
+
+  const currentTime = new Date(currentMsg.createdAt).getTime();
+  const prevTime = new Date(prevMsg.createdAt).getTime();
+  const timeDiff = currentTime - prevTime;
+  const fiveMinutes = 5 * 60 * 1000;
+
+  return currentMsg.fromUserId !== prevMsg.fromUserId || timeDiff > fiveMinutes;
+};
 
 interface MiniChatWindowProps {
   conversation: Conversation;
@@ -294,7 +307,6 @@ export default function MiniChatWindow({
         </div>
         <div className="flex-1 min-w-0">
           <h3 className="font-semibold text-base truncate text-white">{displayName}</h3>
-          <p className="text-xs text-blue-100">Đang hoạt động</p>
         </div>
         <Button
           variant="ghost"
@@ -307,7 +319,7 @@ export default function MiniChatWindow({
       </div>
 
       {/* Messages */}
-      <div className="flex-1 p-4 bg-gradient-to-b from-slate-50 to-white overflow-y-auto" ref={scrollRef}>
+      <div className="flex-1 min-h-0 p-4 bg-slate-50 overflow-y-auto overflow-x-hidden" ref={scrollRef}>
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
@@ -318,42 +330,55 @@ export default function MiniChatWindow({
             </div>
           </div>
         ) : (
-          <div className="space-y-3">
-            {messages.map((message) => {
+          <div className="space-y-0.5">
+            {messages.map((message, index) => {
               const isMine = isMyMessage(message);
               const senderAvatar = userAvatars[message.fromUserId];
               const senderName = userNames[message.fromUserId];
-              const messageTime = new Date(message.createdAt).toLocaleTimeString('vi-VN', {
-                hour: '2-digit',
-                minute: '2-digit',
-              });
+              const prevMessage = index > 0 ? messages[index - 1] : null;
+              const nextMessage = index < messages.length - 1 ? messages[index + 1] : null;
+
+              const showTime = shouldShowTime(message, prevMessage);
+              const isLastInGroup = !nextMessage || shouldShowTime(nextMessage, message);
 
               return (
-                <div key={message.id} className={`flex ${isMine ? 'justify-end' : 'justify-start'} gap-2`}>
-                  {!isMine && (
-                    <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center flex-shrink-0 text-xs text-white font-semibold overflow-hidden shadow-sm">
-                      {senderAvatar ? (
-                        <img src={senderAvatar} alt={senderName} className="w-full h-full object-cover" />
-                      ) : (
-                        senderName?.charAt(0).toUpperCase() || displayName?.charAt(0).toUpperCase() || '?'
-                      )}
+                <div key={message.id}>
+                  {/* Time separator */}
+                  {showTime && prevMessage && (
+                    <div className="flex items-center justify-center my-2">
+                      <span className="text-[10px] text-slate-400">
+                        {formatMessageTime(message.createdAt)}
+                      </span>
                     </div>
                   )}
-                  <div className={`flex flex-col max-w-[70%] min-w-0 ${isMine ? 'items-end' : 'items-start'}`}>
+
+                  <div className={`flex ${isMine ? 'justify-end' : 'justify-start'} gap-2 ${isLastInGroup ? 'mb-1' : ''}`}>
                     {!isMine && (
-                      <p className="text-xs font-semibold mb-1 text-blue-600 px-1">
-                        {senderName || displayName || 'Người dùng'}
-                      </p>
+                      <div className={`w-7 h-7 flex-shrink-0 ${isLastInGroup ? '' : 'opacity-0'}`}>
+                        {isLastInGroup && (
+                          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-xs text-white font-semibold overflow-hidden shadow-sm">
+                            {senderAvatar ? (
+                              <img src={senderAvatar} alt={senderName} className="w-full h-full object-cover" />
+                            ) : (
+                              senderName?.charAt(0).toUpperCase() || displayName?.charAt(0).toUpperCase() || '?'
+                            )}
+                          </div>
+                        )}
+                      </div>
                     )}
-                    <div className={`rounded-2xl px-4 py-2 shadow-sm max-w-full ${isMine
-                      ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
-                      : 'bg-white text-slate-900 border border-slate-200'
-                      }`}>
-                      <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{message.message}</p>
+                    <div className={`flex flex-col max-w-[70%] min-w-0 ${isMine ? 'items-end' : 'items-start'}`}>
+                      {!isMine && showTime && (
+                        <p className="text-xs font-semibold mb-1 text-blue-600 px-1">
+                          {senderName || displayName || 'Người dùng'}
+                        </p>
+                      )}
+                      <div className={`rounded-2xl px-3 py-1.5 shadow-sm max-w-full ${isMine
+                        ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
+                        : 'bg-white text-slate-900 border border-slate-200'
+                        }`}>
+                        <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{message.message}</p>
+                      </div>
                     </div>
-                    <p className={`text-xs text-slate-400 mt-1 px-1`}>
-                      {messageTime}
-                    </p>
                   </div>
                 </div>
               );

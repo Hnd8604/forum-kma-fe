@@ -35,7 +35,14 @@ export default function BlockedUsers() {
     try {
       setLoading(true);
       const data = await FriendshipService.getBlockedUsers();
-      setBlockedUsers(data || []);
+      // Deduplicate by userId to avoid showing same user multiple times
+      const uniqueUsers = data?.reduce((acc: FriendshipResponse[], user) => {
+        if (!acc.find(u => u.userId === user.userId)) {
+          acc.push(user);
+        }
+        return acc;
+      }, []) || [];
+      setBlockedUsers(uniqueUsers);
     } catch (error: any) {
       toast.error(error.message || 'Không thể tải danh sách người dùng bị chặn');
     } finally {
@@ -47,12 +54,14 @@ export default function BlockedUsers() {
     if (!unblockDialog.user) return;
 
     try {
+      console.log('Attempting to unblock user:', unblockDialog.user.userId, unblockDialog.user.username);
       await FriendshipService.unblockUser(unblockDialog.user.userId);
       toast.success(`Đã bỏ chặn ${unblockDialog.user.username}`);
       setBlockedUsers((prev) =>
         prev.filter((u) => u.userId !== unblockDialog.user?.userId)
       );
     } catch (error: any) {
+      console.error('Unblock error:', error);
       toast.error(error.message || 'Không thể bỏ chặn người dùng');
     } finally {
       setUnblockDialog({ isOpen: false, user: null });
@@ -136,7 +145,7 @@ export default function BlockedUsers() {
           !open && setUnblockDialog({ isOpen: false, user: null })
         }
       >
-        <AlertDialogContent>
+        <AlertDialogContent className="rounded-2xl bg-white shadow-2xl border-slate-100 p-6 sm:max-w-[400px]">
           <AlertDialogHeader>
             <AlertDialogTitle>Bỏ chặn người dùng</AlertDialogTitle>
             <AlertDialogDescription>
@@ -145,8 +154,13 @@ export default function BlockedUsers() {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Hủy</AlertDialogCancel>
-            <AlertDialogAction onClick={handleUnblock}>Bỏ chặn</AlertDialogAction>
+            <AlertDialogCancel className="rounded-xl">Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleUnblock}
+              className="rounded-xl bg-blue-600 hover:bg-blue-700"
+            >
+              Bỏ chặn
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

@@ -273,12 +273,18 @@ export default function FriendButton({ userId, onStatusChange, size = 'default' 
             Bạn bè
           </Button>
         </DropdownMenuTrigger>
-        <DropdownMenuContent align="end">
-          <DropdownMenuItem onClick={handleUnfriend} className="text-orange-600">
+        <DropdownMenuContent align="end" className="w-48 bg-white shadow-lg border-slate-200">
+          <DropdownMenuItem
+            onClick={handleUnfriend}
+            className="text-orange-600 focus:text-orange-600 focus:bg-orange-50 cursor-pointer"
+          >
             <UserMinus className="h-4 w-4 mr-2" />
             Hủy kết bạn
           </DropdownMenuItem>
-          <DropdownMenuItem onClick={handleBlock} className="text-red-600">
+          <DropdownMenuItem
+            onClick={handleBlock}
+            className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
+          >
             <Ban className="h-4 w-4 mr-2" />
             Chặn
           </DropdownMenuItem>

@@ -9,6 +9,7 @@ import { Badge } from '../../../shared/components/ui/badge';
 import { MessageCircle, Users, ArrowRight } from 'lucide-react';
 import AIAvatar from './AIAvatar';
 import { AI_CONVERSATION_ID } from './ConversationList';
+import { formatConversationTime } from '../utils/timeFormat';
 
 interface ChatDropdownProps {
   onOpenFullChat: () => void;
@@ -234,11 +235,11 @@ export default function ChatDropdown({
             <div
               onClick={(e) => {
                 e.stopPropagation();
-                onSelectConversation({ 
-                  conversationId: AI_CONVERSATION_ID, 
-                  type: 'private', 
-                  participantIds: [], 
-                  unreadCounts: {} 
+                onSelectConversation({
+                  conversationId: AI_CONVERSATION_ID,
+                  type: 'private',
+                  participantIds: [],
+                  unreadCounts: {}
                 });
               }}
               className="p-3 hover:bg-gradient-to-r hover:from-violet-50 hover:to-purple-50 cursor-pointer transition-all rounded-xl mb-1 border border-transparent hover:border-purple-200 hover:shadow-sm"
@@ -321,7 +322,7 @@ export default function ChatDropdown({
                           </h4>
                           {conversation.lastMessageAt && (
                             <span className="text-xs text-slate-400 ml-2 flex-shrink-0">
-                              {new Date(conversation.lastMessageAt).toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                              {formatConversationTime(conversation.lastMessageAt)}
                             </span>
                           )}
                         </div>

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Check, X, Clock, UserPlus, Inbox, Send, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
+import { Check, X, UserPlus, Inbox, Send, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Button } from '../../../shared/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/ui/avatar';
@@ -149,13 +149,13 @@ export default function FriendRequests({ onRequestHandled }: FriendRequestsProps
         <button
           onClick={() => setActiveSection('received')}
           className={`flex-1 flex items-center justify-center gap-3 p-4 rounded-2xl border-2 transition-all duration-300 ${activeSection === 'received'
-              ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg shadow-blue-500/10'
-              : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+            ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg shadow-blue-500/10'
+            : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
             }`}
         >
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${activeSection === 'received'
-              ? 'bg-gradient-to-br from-blue-500 to-indigo-600'
-              : 'bg-slate-100'
+            ? 'bg-gradient-to-br from-blue-500 to-indigo-600'
+            : 'bg-slate-100'
             }`}>
             <ArrowDownLeft className={`h-5 w-5 ${activeSection === 'received' ? 'text-white' : 'text-slate-500'}`} />
           </div>
@@ -172,13 +172,13 @@ export default function FriendRequests({ onRequestHandled }: FriendRequestsProps
         <button
           onClick={() => setActiveSection('sent')}
           className={`flex-1 flex items-center justify-center gap-3 p-4 rounded-2xl border-2 transition-all duration-300 ${activeSection === 'sent'
-              ? 'border-orange-500 bg-gradient-to-br from-orange-50 to-amber-50 shadow-lg shadow-orange-500/10'
-              : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
+            ? 'border-orange-500 bg-gradient-to-br from-orange-50 to-amber-50 shadow-lg shadow-orange-500/10'
+            : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
             }`}
         >
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${activeSection === 'sent'
-              ? 'bg-gradient-to-br from-orange-500 to-red-500'
-              : 'bg-slate-100'
+            ? 'bg-gradient-to-br from-orange-500 to-red-500'
+            : 'bg-slate-100'
             }`}>
             <ArrowUpRight className={`h-5 w-5 ${activeSection === 'sent' ? 'text-white' : 'text-slate-500'}`} />
           </div>
@@ -218,13 +218,13 @@ export default function FriendRequests({ onRequestHandled }: FriendRequestsProps
                 key={request.id}
                 className="bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-100 p-5 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300"
               >
-                <div className="flex items-start gap-4">
+                <div className="flex items-center gap-4">
                   <Link to={`/profile/${request.userId}`}>
                     <Avatar className="h-14 w-14 ring-4 ring-white shadow-md hover:ring-blue-200 transition-all">
                       <AvatarImage src={request.avatarUrl} alt={request.username} />
                       <AvatarFallback className={`text-white font-semibold ${activeSection === 'received'
-                          ? 'bg-gradient-to-br from-blue-500 to-indigo-600'
-                          : 'bg-gradient-to-br from-orange-500 to-red-500'
+                        ? 'bg-gradient-to-br from-blue-500 to-indigo-600'
+                        : 'bg-gradient-to-br from-orange-500 to-red-500'
                         }`}>
                         {getInitials(request)}
                       </AvatarFallback>
@@ -235,14 +235,10 @@ export default function FriendRequests({ onRequestHandled }: FriendRequestsProps
                       <h3 className="font-semibold text-slate-900 truncate">{getDisplayName(request)}</h3>
                       <p className="text-sm text-slate-500 truncate">@{request.username}</p>
                     </Link>
-                    <div className="flex items-center gap-1 mt-1 text-xs text-slate-400">
-                      <Clock className="h-3 w-3" />
-                      <span>{formatDate(request.createdAt)}</span>
-                    </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-2 mt-4">
+                <div className="flex items-center gap-2 mt-3">
                   {activeSection === 'received' ? (
                     <>
                       <Button

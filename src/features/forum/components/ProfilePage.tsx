@@ -16,8 +16,7 @@ import type { FriendshipResponse } from '../../friends/types/friendship.types';
 import {
   Info,
   FileText,
-  Users,
-  MoreHorizontal
+  Users
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -184,9 +183,6 @@ export default function ProfilePage() {
                         userId={targetUserId!}
                         userName={getDisplayName()}
                       />
-                      <Button variant="outline" size="icon" className="h-9 w-9">
-                        <MoreHorizontal className="h-4 w-4" />
-                      </Button>
                     </>
                   )}
                 </div>
