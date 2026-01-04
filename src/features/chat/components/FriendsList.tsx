@@ -1,7 +1,5 @@
 import { useState, useEffect } from 'react';
 import { FriendshipService } from '../../friends/services/friendship.service';
-import { AuthService } from '../../auth/services/auth.service';
-import { useAuthStore } from '../../../store/useStore';
 import { Card } from '../../../shared/components/ui/card';
 import { Input } from '../../../shared/components/ui/input';
 import { ScrollArea } from '../../../shared/components/ui/scroll-area';
@@ -20,7 +18,6 @@ interface FriendsListProps {
 }
 
 export default function FriendsList({ onStartChat }: FriendsListProps) {
-    const user = useAuthStore((s) => s.user);
     const [friends, setFriends] = useState<Friend[]>([]);
     const [loading, setLoading] = useState(true);
     const [searchQuery, setSearchQuery] = useState('');
@@ -34,30 +31,16 @@ export default function FriendsList({ onStartChat }: FriendsListProps) {
             setLoading(true);
             const friendships = await FriendshipService.getFriends();
 
-            // Get friend details
-            const friendsData = await Promise.all(
-                friendships.map(async (friendship) => {
-                    const friendId = friendship.userId === user?.userId
-                        ? friendship.friendId
-                        : friendship.userId;
+            // FriendshipResponse already contains user info, just map it
+            const friendsData: Friend[] = friendships.map((friendship) => ({
+                userId: friendship.userId,
+                username: friendship.username,
+                firstName: friendship.firstName,
+                lastName: friendship.lastName,
+                avatarUrl: friendship.avatarUrl,
+            }));
 
-                    try {
-                        const friendUser = await AuthService.getUserById(friendId);
-                        return {
-                            userId: friendId,
-                            username: friendUser.username,
-                            firstName: friendUser.firstName,
-                            lastName: friendUser.lastName,
-                            avatarUrl: friendUser.avatarUrl,
-                        };
-                    } catch (error) {
-                        console.error('Failed to load friend:', friendId, error);
-                        return null;
-                    }
-                })
-            );
-
-            setFriends(friendsData.filter((f): f is Friend => f !== null));
+            setFriends(friendsData);
         } catch (error) {
             console.error('Failed to load friends:', error);
         } finally {
