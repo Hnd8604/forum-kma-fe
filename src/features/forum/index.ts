@@ -17,6 +17,9 @@ export { CommentService } from './services/comment.service';
 export { InteractionService } from './services/interaction.service';
 export { GroupService } from './services/group.service';
 
+// Hooks
+export { useAuthorInfo, useGroupInfo, useReaction } from './hooks';
+
 // Types
 export type {
   ApiPost,

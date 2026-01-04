@@ -37,9 +37,7 @@ export default function ChatHeaderIcon({ onOpenMiniChat }: ChatHeaderIconProps) 
 
   // Listen for WebSocket messages to update unread count in real-time
   useEffect(() => {
-    const handleNewMessage = (event: CustomEvent) => {
-      const data = event.detail;
-      console.log('📬 ChatHeaderIcon received new message:', data);
+    const handleNewMessage = () => {
       // Reload unread count to get accurate count
       loadUnreadCount();
     };
@@ -67,8 +65,8 @@ export default function ChatHeaderIcon({ onOpenMiniChat }: ChatHeaderIconProps) 
         return (conv.unreadCounts?.[userId] || 0) > 0;
       });
       setUnreadCount(unreadConversations.length);
-    } catch (error) {
-      console.error('Failed to load unread count:', error);
+    } catch {
+      // Failed to load unread count - ignore
     }
   };
 
@@ -78,7 +76,6 @@ export default function ChatHeaderIcon({ onOpenMiniChat }: ChatHeaderIconProps) 
   };
 
   const handleSelectConversation = async (conversation: Conversation) => {
-    console.log('🔵 Conversation selected:', conversation);
     setIsOpen(false);
 
     // Get partner user ID for private chats
@@ -88,24 +85,19 @@ export default function ChatHeaderIcon({ onOpenMiniChat }: ChatHeaderIconProps) 
         conversation.participantIds?.find(id => id !== currentUser?.userId);
 
       if (partnerId) {
-        console.log('📞 Opening private chat with:', partnerId);
         try {
           const user = await AuthService.getUserById(partnerId);
           const displayName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username;
-          console.log('👤 User info:', { displayName, avatar: user.avatarUrl });
           startChatWithUser(partnerId, displayName, user.avatarUrl);
-        } catch (error) {
-          console.error('Failed to get user info:', error);
+        } catch {
           // Fallback to just opening with ID
           startChatWithUser(partnerId, 'Người dùng');
         }
       } else {
-        console.error('❌ No partnerId found for private chat');
         navigate('/chat');
       }
     } else if (conversation.type === 'group') {
       // For group chats, dispatch event to open mini chat window
-      console.log('👥 Opening group chat mini window:', conversation);
       window.dispatchEvent(new CustomEvent('open-mini-chat', {
         detail: conversation
       }));

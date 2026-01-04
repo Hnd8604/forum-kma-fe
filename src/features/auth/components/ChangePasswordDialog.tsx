@@ -89,11 +89,9 @@ export default function ChangePasswordDialog({
         true
       );
 
-      console.log('🔑 Change password response:', response);
-
       // Response có thể là full object hoặc chỉ là result, kiểm tra cả 2 trường hợp
       const isSuccess = response === 'ok' || response?.code === '200' || response?.code === 200;
-      
+
       if (isSuccess) {
         if (is2FAEnabled) {
           setSuccess(response?.message || 'OTP đã được gửi đến email của bạn');
@@ -135,11 +133,9 @@ export default function ChangePasswordDialog({
         true
       );
 
-      console.log('🔑 Verify OTP response:', response);
-
       // Response có thể là full object hoặc chỉ là result
       const isSuccess = response === 'ok' || response?.code === '200' || response?.code === 200;
-      
+
       if (isSuccess) {
         setSuccess(response?.message || 'Đổi mật khẩu thành công!');
         setTimeout(() => {
@@ -189,7 +185,7 @@ export default function ChangePasswordDialog({
         <DialogHeader>
           <DialogTitle className="text-2xl">Đổi mật khẩu</DialogTitle>
           <DialogDescription className="text-base">
-            {step === 'password' 
+            {step === 'password'
               ? 'Nhập mật khẩu cũ và mật khẩu mới của bạn'
               : 'Nhập mã OTP đã được gửi đến email của bạn'}
           </DialogDescription>
@@ -197,29 +193,26 @@ export default function ChangePasswordDialog({
 
         {/* Progress Indicator - Only show when 2FA is enabled */}
         {is2FAEnabled && (
-        <div className="flex items-center justify-between mb-4 px-4">
-          <div className="flex flex-col items-center flex-1">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-              step === 'password' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
-            }`}>
-              {step === 'password' ? <KeyRound size={24} /> : <CheckCircle2 size={24} />}
+          <div className="flex items-center justify-between mb-4 px-4">
+            <div className="flex flex-col items-center flex-1">
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${step === 'password' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
+                }`}>
+                {step === 'password' ? <KeyRound size={24} /> : <CheckCircle2 size={24} />}
+              </div>
+              <span className="text-xs mt-2 font-medium">Mật khẩu</span>
             </div>
-            <span className="text-xs mt-2 font-medium">Mật khẩu</span>
-          </div>
-          
-          <div className={`flex-1 h-1 mx-2 ${
-            step === 'otp' ? 'bg-green-600' : 'bg-gray-300'
-          }`} />
-          
-          <div className="flex flex-col items-center flex-1">
-            <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-              step === 'otp' ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
-            }`}>
-              <span className="text-sm font-semibold">OTP</span>
+
+            <div className={`flex-1 h-1 mx-2 ${step === 'otp' ? 'bg-green-600' : 'bg-gray-300'
+              }`} />
+
+            <div className="flex flex-col items-center flex-1">
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${step === 'otp' ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
+                }`}>
+                <span className="text-sm font-semibold">OTP</span>
+              </div>
+              <span className="text-xs mt-2 font-medium">Xác thực</span>
             </div>
-            <span className="text-xs mt-2 font-medium">Xác thực</span>
           </div>
-        </div>
         )}
 
         <div className="space-y-4 py-4">
@@ -308,10 +301,10 @@ export default function ChangePasswordDialog({
                   <p className="text-xs">Mã OTP có hiệu lực trong 10 phút</p>
                 </div>
               </div>
-              
+
               <div className="flex justify-center pt-2">
-                <Button 
-                  variant="link" 
+                <Button
+                  variant="link"
                   onClick={handleRequestChange}
                   disabled={loading}
                   className="text-sm"
@@ -326,15 +319,15 @@ export default function ChangePasswordDialog({
         <DialogFooter className="gap-2">
           {step === 'password' ? (
             <>
-              <Button 
-                variant="outline" 
-                onClick={handleClose} 
+              <Button
+                variant="outline"
+                onClick={handleClose}
                 disabled={loading}
               >
                 Hủy
               </Button>
-              <Button 
-                onClick={handleRequestChange} 
+              <Button
+                onClick={handleRequestChange}
                 disabled={loading}
                 className="min-w-[120px]"
               >
@@ -343,15 +336,15 @@ export default function ChangePasswordDialog({
             </>
           ) : (
             <>
-              <Button 
-                variant="outline" 
-                onClick={handleBack} 
+              <Button
+                variant="outline"
+                onClick={handleBack}
                 disabled={loading}
               >
                 Quay lại
               </Button>
-              <Button 
-                onClick={handleVerifyOtp} 
+              <Button
+                onClick={handleVerifyOtp}
                 disabled={loading}
                 className="min-w-[120px]"
               >

@@ -65,12 +65,8 @@ export class CommentService {
         true
       );
 
-      // Debug: Log the raw API response
-      console.log('📝 Comments API Response:', apiResponse);
-
       // Handle case where apiResponse is null or undefined
       if (!apiResponse) {
-        console.warn('⚠️ Comments API returned null/undefined');
         return [];
       }
 
@@ -82,9 +78,7 @@ export class CommentService {
       } else if (apiResponse && typeof apiResponse === 'object' && 'content' in apiResponse) {
         // Paginated response - extract content array
         commentsArray = apiResponse.content || [];
-        console.log('📦 Extracted comments from paginated response:', commentsArray.length, 'items');
       } else {
-        console.warn('⚠️ Comments API returned unexpected format:', typeof apiResponse, apiResponse);
         return [];
       }
 
@@ -92,11 +86,9 @@ export class CommentService {
     } catch (error: any) {
       // Handle PS_003 (COMMENT_NOT_FOUND) as empty array, not an error
       if (error?.code === 'PS_003') {
-        console.log('📝 No comments found for this post (PS_003)');
         return [];
       }
       // Re-throw other errors
-      console.error('❌ Failed to fetch comments:', error);
       throw error;
     }
   }

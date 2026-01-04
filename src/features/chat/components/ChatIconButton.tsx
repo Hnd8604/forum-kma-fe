@@ -31,9 +31,7 @@ export default function ChatIconButton({ onOpenFullChat, onOpenMiniChat }: ChatI
 
   // Listen for WebSocket messages to update unread count in real-time
   useEffect(() => {
-    const handleNewMessage = (event: CustomEvent) => {
-      const data = event.detail;
-      console.log('📬 ChatIconButton received new message:', data);
+    const handleNewMessage = () => {
       // Increment unread count when receiving message from others
       setUnreadCount((prev) => prev + 1);
     };
@@ -61,8 +59,8 @@ export default function ChatIconButton({ onOpenFullChat, onOpenMiniChat }: ChatI
         return (conv.unreadCounts?.[userId] || 0) > 0;
       });
       setUnreadCount(unreadConversations.length);
-    } catch (error) {
-      console.error('Failed to load unread count:', error);
+    } catch {
+      // Failed to load unread count - ignore
     }
   };
 

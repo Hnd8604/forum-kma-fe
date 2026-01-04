@@ -88,25 +88,17 @@ export default function MiniChatWindow({
   useEffect(() => {
     const handleNewMessage = (event: CustomEvent) => {
       const data = event.detail;
-      // Log message from WebSocket for debugging
-      console.log('🔔 MiniChatWindow received event:', data);
-      console.log('🔔 Current conversationId:', conversation.conversationId);
-      console.log('🔔 Message chatId:', data.chatId, 'conversationId:', data.conversationId);
-
       const messageConversationId = data.chatId || data.conversationId;
 
       // Check if this message belongs to current conversation
       if (messageConversationId === conversation.conversationId) {
-        console.log('✅ Message matches current conversation!');
-
         // Don't add our own messages again (already added via setMessages after sendMessage)
         if (data.senderId === user?.userId) {
-          console.log('⏭️ Skipping own message (already added)');
           return;
         }
 
         // Add new message to the list
-        const newMessage: Message = {
+        const newMsg: Message = {
           id: data.id || data.messageId || `ws-${Date.now()}-${Math.random()}`,
           conversationId: messageConversationId,
           fromUserId: data.senderId || data.fromUserId,
@@ -116,29 +108,23 @@ export default function MiniChatWindow({
           createdAt: data.sentAt || data.createdAt || new Date().toISOString(),
         };
 
-        console.log('📩 Adding new message:', newMessage);
-
         setMessages((prev) => {
           // Check for duplicates based on message content and time (not just ID)
           const isDuplicate = prev.some(m =>
-            m.message === newMessage.message &&
-            m.fromUserId === newMessage.fromUserId &&
-            Math.abs(new Date(m.createdAt).getTime() - new Date(newMessage.createdAt).getTime()) < 5000
+            m.message === newMsg.message &&
+            m.fromUserId === newMsg.fromUserId &&
+            Math.abs(new Date(m.createdAt).getTime() - new Date(newMsg.createdAt).getTime()) < 5000
           );
 
           if (isDuplicate) {
-            console.log('⏭️ Skipping duplicate message');
             return prev;
           }
 
-          console.log('✅ Message added to list');
-          return [...prev, newMessage];
+          return [...prev, newMsg];
         });
 
         // Mark as read since window is open
         markAsRead();
-      } else {
-        console.log('❌ Message does not match current conversation');
       }
     };
 
@@ -221,26 +207,21 @@ export default function MiniChatWindow({
       if (conversation.conversationId.startsWith('temp-') && conversation.partnerId) {
         // New conversation - use partnerId
         request.receiverId = conversation.partnerId;
-        console.log('📤 MiniChat: Sending new private message to:', conversation.partnerId);
       } else if (conversation.type === 'private') {
         // Existing private conversation - find the other user's ID
         const receiverId = conversation.participantIds.find(id => id !== user?.userId);
         if (receiverId) {
           request.receiverId = receiverId;
-          console.log('📤 MiniChat: Sending private message to:', receiverId);
         } else {
           // Fallback to conversationId if can't find receiverId
           request.conversationId = conversation.conversationId;
-          console.log('📤 MiniChat: Fallback - Sending with conversationId:', conversation.conversationId);
         }
       } else if (conversation.type === 'group' && conversation.groupId) {
         // Group conversation - use groupId
         request.groupId = conversation.groupId;
-        console.log('📤 MiniChat: Sending group message to:', conversation.groupId);
       } else {
         // Fallback
         request.conversationId = conversation.conversationId;
-        console.log('📤 MiniChat: Fallback - Sending with conversationId:', conversation.conversationId);
       }
 
       const sentMessage = await ChatService.sendMessage(request);

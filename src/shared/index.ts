@@ -14,3 +14,10 @@ export * from './components/ui/separator';
 export * from './components/FileUpload';
 export * from './services/file-upload.service';
 export * from './types/file.types';
+
+// Export utilities
+export { logger } from './utils/logger';
+export { formatTimeAgo, parseLocalDateTime } from './utils/date.utils';
+
+// Export constants
+export * from './constants';

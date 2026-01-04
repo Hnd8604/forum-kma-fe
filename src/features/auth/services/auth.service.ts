@@ -8,14 +8,11 @@ export class AuthService {
   static async login(credentials: LoginRequest): Promise<AuthData | any> {
     const response = await ApiService.post<any>('/auth/login', credentials);
 
-    console.log('🔐 Login response:', response);
-
     // Chỉ store tokens khi có accessToken (không cần 2FA hoặc đã verify OTP)
     if (response.accessToken) {
       try {
         localStorage.setItem('accessToken', response.accessToken);
         localStorage.setItem('refreshToken', response.refreshToken);
-        console.log('✅ Token saved to localStorage:', response.accessToken.substring(0, 20) + '...');
 
         // Store user data
         const user: User = {
@@ -27,10 +24,8 @@ export class AuthService {
         };
         localStorage.setItem('user', JSON.stringify(user));
       } catch (error) {
-        console.error('❌ Failed to store auth data:', error);
+        // Silently fail - non-critical error
       }
-    } else {
-      console.warn('⚠️ No accessToken in response - might require 2FA');
     }
 
     return response;
@@ -42,14 +37,11 @@ export class AuthService {
   static async verifyLoginOtp(data: { email: string; otp: string }): Promise<AuthData> {
     const response = await ApiService.post<AuthData>('/auth/login/verify', data);
 
-    console.log('🔐 Login verify response:', response);
-
     // Store tokens and user data
     if (response.accessToken) {
       try {
         localStorage.setItem('accessToken', response.accessToken);
         localStorage.setItem('refreshToken', response.refreshToken);
-        console.log('✅ Token saved to localStorage:', response.accessToken.substring(0, 20) + '...');
 
         // Store user data
         const user: User = {
@@ -61,7 +53,7 @@ export class AuthService {
         };
         localStorage.setItem('user', JSON.stringify(user));
       } catch (error) {
-        console.error('❌ Failed to store auth data:', error);
+        // Silently fail - non-critical error
       }
     }
 
@@ -134,10 +126,8 @@ export class AuthService {
    * Update user avatar only
    */
   static async updateAvatar(avatarUrl: string): Promise<User> {
-    console.log('📡 updateAvatar: Fetching current user profile...');
     // Get current user to preserve other fields
     const currentUser = await this.fetchUserProfile();
-    console.log('📋 Current user data:', currentUser);
 
     const updatePayload = {
       firstName: currentUser.firstName || '',
@@ -148,9 +138,7 @@ export class AuthService {
       avatarUrl: avatarUrl,
     };
 
-    console.log('📡 updateAvatar: Sending PUT request to /users/me with payload:', updatePayload);
     const response = await ApiService.put<any>('/users/me', updatePayload, true);
-    console.log('📨 updateAvatar: Server response:', response);
 
     // Map backend response to User type
     const user: User = {

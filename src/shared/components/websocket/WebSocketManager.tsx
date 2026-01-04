@@ -1,4 +1,3 @@
-import { useEffect } from 'react';
 import { useAuthStore } from '../../../store/useStore';
 import { useWebSocket } from '../../../features/chat/hooks/useWebSocket';
 import { useToast } from '../../components/ui/use-toast';
@@ -24,8 +23,6 @@ export default function WebSocketManager() {
     const { toast } = useToast();
 
     const handleWebSocketMessage = (data: WebSocketMessage) => {
-        console.log('📨 WebSocket message received:', data);
-
         // Don't show notification for own messages
         if (data.senderId === user?.userId) {
             // Just dispatch event for UI update
@@ -52,15 +49,6 @@ export default function WebSocketManager() {
         userId: user?.userId || '',
         token: localStorage.getItem('accessToken') || '',
         onMessage: handleWebSocketMessage,
-        onOpen: () => {
-            console.log('🟢 WebSocket connected for user:', user?.userId);
-        },
-        onClose: () => {
-            console.log('🔴 WebSocket disconnected');
-        },
-        onError: (error) => {
-            console.error('⚠️ WebSocket error:', error);
-        },
         autoConnect: !!user?.userId,
     });
 

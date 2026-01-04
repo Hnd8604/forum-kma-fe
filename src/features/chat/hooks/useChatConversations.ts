@@ -15,7 +15,6 @@ export function useChatConversations() {
         );
 
         if (existingOpen) {
-            console.log('Conversation already open:', conversation.conversationId);
             return;
         }
 
@@ -46,7 +45,6 @@ export function useChatConversations() {
 
             if (existingOpen) {
                 // Already open, just focus it
-                console.log('Conversation already open:', existingOpen.conversationId);
                 return;
             }
 
@@ -75,8 +73,8 @@ export function useChatConversations() {
 
                 setOpenConversations((prev) => [...prev, tempConversation]);
             }
-        } catch (error) {
-            console.error('Failed to start chat:', error);
+        } catch {
+            // Failed to start chat - ignore
         }
     }, [openConversations]);
 

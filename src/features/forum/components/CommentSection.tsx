@@ -23,13 +23,7 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
   const [error, setError] = useState<string | null>(null);
   const currentUser = useAuthStore((s) => s.user);
 
-  // Debug: Log when component renders
-  useEffect(() => {
-    console.log('🔍 CommentSection rendered:', { postId, isOpen, commentsCount: comments.length });
-  }, [postId, isOpen, comments.length]);
-
   const loadComments = useCallback(async (pageNum: number = 0, append: boolean = false) => {
-    console.log('📥 loadComments called:', { pageNum, append, isOpen, postId });
     if (!isOpen) return;
 
     try {
@@ -39,21 +33,17 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
         setLoadingMore(true);
       }
 
-      console.log('📡 Calling CommentService.getCommentsByPost...');
       const response = await CommentService.getCommentsByPost({
         postId,
         page: pageNum,
         size: 10,
       });
-      console.log('✅ CommentService response:', response);
 
       // Backend now returns userReactionType directly, map to myReaction
       const commentsWithReactions = response.map((comment) => ({
         ...comment,
         myReaction: comment.myReaction || null,
       }));
-
-      console.log('📦 Mapped comments:', commentsWithReactions.length, 'items');
 
       if (append) {
         setComments((prev) => {
@@ -72,7 +62,6 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
       setPage(pageNum);
       setError(null);
     } catch (err: any) {
-      console.error('❌ Failed to load comments:', err);
       setError(err?.message || 'Không thể tải bình luận');
     } finally {
       setLoading(false);

@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback } from 'react';
-import { AuthService } from '@/features/auth/services/auth.service';
-import { User } from '@/features/auth/types/auth.types';
+import { AuthService } from '../../auth/services/auth.service';
+import { User } from '../../auth/types/auth.types';
 import { FriendshipService } from '../services/friendship.service';
 
 export interface FriendSuggestion {
@@ -53,14 +53,6 @@ export function useFriendSuggestions() {
           !sentRequestIds.has(user.userId) &&
           !receivedRequestIds.has(user.userId)
       );
-
-      // Debug log
-      console.log('[Gợi ý kết bạn] allUsers:', allUsers);
-      console.log('[Gợi ý kết bạn] friends:', friends);
-      console.log('[Gợi ý kết bạn] sentRequests:', sentRequests);
-      console.log('[Gợi ý kết bạn] receivedRequests:', receivedRequests);
-      console.log('[Gợi ý kết bạn] currentUser:', currentUser);
-      console.log('[Gợi ý kết bạn] nonFriends (filtered):', nonFriends);
 
       // Map to FriendSuggestion và random 3 user
       const suggestionList: FriendSuggestion[] = nonFriends.map((user: User) => ({

@@ -45,18 +45,14 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({ user, onSuccess, onE
     setUploading(true);
 
     try {
-      console.log('🔵 Step 1: Uploading file to server...');
       // Step 1: Upload file to get URL
       const avatarUrl = await FileUploadService.uploadAvatar(selectedFile);
-      console.log('✅ File uploaded successfully:', avatarUrl);
 
-      console.log('🔵 Step 2: Updating user profile with new avatar...');
       // Step 2: Update user profile with new avatar URL
       const updatedUser = await AuthService.updateAvatar(avatarUrl);
-      console.log('✅ User profile updated successfully:', updatedUser);
-      
+
       onSuccess(updatedUser);
-      
+
       // Clear selection
       setSelectedFile(null);
       setPreviewUrl(null);
@@ -64,7 +60,6 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({ user, onSuccess, onE
         fileInputRef.current.value = '';
       }
     } catch (error) {
-      console.error('❌ Error during avatar update:', error);
       const errorMessage = error instanceof Error ? error.message : 'Upload failed';
       onError?.(errorMessage);
     } finally {
@@ -102,9 +97,8 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({ user, onSuccess, onE
         {/* Overlay on hover */}
         {!selectedFile && (
           <div
-            className={`absolute inset-0 bg-black rounded-full flex items-center justify-center transition-opacity ${
-              hovering && !uploading ? 'opacity-70' : 'opacity-0'
-            }`}
+            className={`absolute inset-0 bg-black rounded-full flex items-center justify-center transition-opacity ${hovering && !uploading ? 'opacity-70' : 'opacity-0'
+              }`}
           >
             <Button
               type="button"

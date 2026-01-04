@@ -16,7 +16,6 @@ class WebSocketService {
      */
     connect(userId: string) {
         if (this.ws?.readyState === WebSocket.OPEN) {
-            console.log('WebSocket already connected');
             return;
         }
 
@@ -25,34 +24,27 @@ class WebSocketService {
 
         try {
             const wsUrl = `${WS_BASE_URL}?userId=${userId}`;
-            console.log('🔌 Connecting to WebSocket:', wsUrl);
-
             this.ws = new WebSocket(wsUrl);
 
             this.ws.onopen = () => {
-                console.log('🟢 WebSocket Connected!');
                 this.reconnectAttempts = 0;
             };
 
             this.ws.onmessage = (event) => {
-                console.log('📨 WebSocket Message:', event.data);
-
                 try {
                     const data = JSON.parse(event.data);
                     this.notifyHandlers(data);
-                } catch (error) {
-                    console.error('Failed to parse WebSocket message:', error);
+                } catch {
+                    // Invalid message format - ignore
                 }
             };
 
-            this.ws.onclose = (event) => {
-                console.log('🔴 WebSocket Closed', event.code, event.reason);
+            this.ws.onclose = () => {
                 this.ws = null;
 
                 // Auto-reconnect if not intentionally closed
                 if (!this.isIntentionallyClosed && this.reconnectAttempts < this.maxReconnectAttempts) {
                     this.reconnectAttempts++;
-                    console.log(`🔄 Reconnecting... (${this.reconnectAttempts}/${this.maxReconnectAttempts})`);
 
                     setTimeout(() => {
                         if (this.userId) {
@@ -62,11 +54,11 @@ class WebSocketService {
                 }
             };
 
-            this.ws.onerror = (error) => {
-                console.error('⚠️ WebSocket Error:', error);
+            this.ws.onerror = () => {
+                // Error will trigger onclose
             };
-        } catch (error) {
-            console.error('Failed to create WebSocket connection:', error);
+        } catch {
+            // Connection failed - will retry via reconnect logic
         }
     }
 
@@ -83,7 +75,6 @@ class WebSocketService {
 
         this.userId = null;
         this.reconnectAttempts = 0;
-        console.log('WebSocket disconnected');
     }
 
     /**
@@ -92,9 +83,6 @@ class WebSocketService {
     send(data: any) {
         if (this.ws?.readyState === WebSocket.OPEN) {
             this.ws.send(JSON.stringify(data));
-            console.log('📤 Sent WebSocket message:', data);
-        } else {
-            console.error('WebSocket is not connected');
         }
     }
 
@@ -117,8 +105,8 @@ class WebSocketService {
         this.messageHandlers.forEach(handler => {
             try {
                 handler(data);
-            } catch (error) {
-                console.error('Error in message handler:', error);
+            } catch {
+                // Handler error - continue with other handlers
             }
         });
     }

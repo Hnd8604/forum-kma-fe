@@ -226,12 +226,6 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
     }
   }, [messages, conversation.conversationId]);
 
-  // Debug: Log messages state
-  useEffect(() => {
-    console.log('🗨️ [ChatWindow] Messages state updated, count:', messages.length);
-    console.log('📋 [ChatWindow] Messages:', messages);
-  }, [messages]);
-
   const loadMessages = async () => {
     try {
       setLoading(true);
@@ -279,7 +273,6 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
 
     try {
       // Always send via HTTP API so backend can save and broadcast via WebSocket
-      console.log('📤 Sending message via API...');
 
       // Build request based on conversation type
       let request: any = {
@@ -294,19 +287,15 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
           throw new Error('Cannot find receiver ID for private conversation');
         }
         request.receiverId = receiverId;
-        console.log('📤 Sending private message to:', receiverId);
       } else if (conversation.type === 'group') {
         // For group chat: send groupId
         if (!conversation.groupId) {
           throw new Error('Group conversation missing groupId');
         }
         request.groupId = conversation.groupId;
-        console.log('📤 Sending group message to:', conversation.groupId);
       }
 
       const sentMessage = await ChatService.sendMessage(request);
-
-      console.log('✅ Message sent successfully, waiting for WebSocket broadcast...');
 
       // Replace the optimistic message with the real one from API
       setMessages((prev) =>

@@ -52,11 +52,8 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
         password,
       });
 
-      console.log('📱 Login response:', response);
-
       // Kiểm tra xem response có yêu cầu OTP không (code: AS_010)
       if ((response as any).code === 'AS_010' || !response.accessToken) {
-        console.log('🔐 2FA required, switching to OTP step');
         // Nếu cần 2FA, chuyển sang bước nhập OTP; lấy giá trị email mặc định từ username
         setStep('otp');
         setEmailForOtp(username);
@@ -64,8 +61,6 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
         setLoading(false);
         return;
       }
-
-      console.log('✅ Login successful without 2FA');
 
       // Convert AuthData to User for the store
       const user = {
@@ -102,7 +97,6 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
 
       // Kiểm tra nếu lỗi là yêu cầu 2FA (code: AS_010)
       if (apiError.code === 'AS_010') {
-        console.log('🔐 2FA required (from error), switching to OTP step');
         setStep('otp');
         setEmailForOtp(username);
         setTempSession(apiError.sessionId || '');

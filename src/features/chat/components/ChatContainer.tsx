@@ -11,7 +11,6 @@ interface ChatContainerProps {
 }
 
 export default function ChatContainer({ showFriendsList = false }: ChatContainerProps) {
-    console.log('🎨 ChatContainer rendered, showFriendsList:', showFriendsList);
     const { openConversations, openConversation, startChatWithUser, closeConversation, updateConversation } = useChatConversations();
     const [showAIChat, setShowAIChat] = useState(false);
 
@@ -30,8 +29,8 @@ export default function ChatContainer({ showFriendsList = false }: ChatContainer
                 if (realConv) {
                     updateConversation(tempId, realConv);
                 }
-            } catch (error) {
-                console.error('Failed to update conversation:', error);
+            } catch {
+                // Failed to update conversation - ignore
             }
         };
 
@@ -46,16 +45,13 @@ export default function ChatContainer({ showFriendsList = false }: ChatContainer
     useEffect(() => {
         const handleStartChat = (event: Event) => {
             const customEvent = event as CustomEvent;
-            console.log('🎯 start-chat event received:', customEvent.detail);
             const { userId, userName, userAvatar } = customEvent.detail;
             startChatWithUser(userId, userName, userAvatar);
         };
 
-        console.log('✅ ChatContainer mounted - listening for start-chat events');
         window.addEventListener('start-chat', handleStartChat);
 
         return () => {
-            console.log('❌ ChatContainer unmounted - removing start-chat listener');
             window.removeEventListener('start-chat', handleStartChat);
         };
     }, [startChatWithUser]);
@@ -65,8 +61,7 @@ export default function ChatContainer({ showFriendsList = false }: ChatContainer
         const handleOpenMiniChat = (event: Event) => {
             const customEvent = event as CustomEvent;
             const conversation = customEvent.detail as Conversation;
-            console.log('🎯 open-mini-chat event received:', conversation);
-            
+
             // Check if this is AI conversation
             if (conversation.conversationId === AI_CONVERSATION_ID) {
                 setShowAIChat(true);
@@ -75,11 +70,9 @@ export default function ChatContainer({ showFriendsList = false }: ChatContainer
             }
         };
 
-        console.log('✅ ChatContainer mounted - listening for open-mini-chat events');
         window.addEventListener('open-mini-chat', handleOpenMiniChat);
 
         return () => {
-            console.log('❌ ChatContainer unmounted - removing open-mini-chat listener');
             window.removeEventListener('open-mini-chat', handleOpenMiniChat);
         };
     }, [openConversation]);

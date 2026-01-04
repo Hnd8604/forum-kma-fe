@@ -54,14 +54,12 @@ export default function BlockedUsers() {
     if (!unblockDialog.user) return;
 
     try {
-      console.log('Attempting to unblock user:', unblockDialog.user.userId, unblockDialog.user.username);
       await FriendshipService.unblockUser(unblockDialog.user.userId);
       toast.success(`Đã bỏ chặn ${unblockDialog.user.username}`);
       setBlockedUsers((prev) =>
         prev.filter((u) => u.userId !== unblockDialog.user?.userId)
       );
     } catch (error: any) {
-      console.error('Unblock error:', error);
       toast.error(error.message || 'Không thể bỏ chặn người dùng');
     } finally {
       setUnblockDialog({ isOpen: false, user: null });

@@ -31,16 +31,13 @@ export function useWebSocket({
 
   const connect = useCallback(() => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
-      console.log('✅ WebSocket already connected');
       return;
     }
 
     try {
-      console.log('🔗 Connecting to WebSocket:', getWsUrl());
       const ws = new WebSocket(getWsUrl());
 
       ws.onopen = () => {
-        console.log('🟢 WebSocket connected');
         onOpen?.();
       };
 
@@ -51,31 +48,26 @@ export function useWebSocket({
           // No need to dispatch here to avoid duplicates
           onMessage(data);
         } catch (err) {
-          console.error('❌ Failed to parse WebSocket message:', err);
           onMessage(event.data);
         }
       };
 
       ws.onerror = (error) => {
-        console.error('⚠️ WebSocket error:', error);
         onError?.(error);
       };
 
       ws.onclose = () => {
-        console.log('🔴 WebSocket closed');
         wsRef.current = null;
         onClose?.();
 
         // Auto-reconnect after 3 seconds
         reconnectTimeoutRef.current = setTimeout(() => {
-          console.log('🔄 Attempting to reconnect...');
           connect();
         }, 3000);
       };
 
       wsRef.current = ws;
     } catch (err) {
-      console.error('❌ WebSocket connection failed:', err);
       onError?.(err as any);
     }
   }, [token, getWsUrl, onMessage, onError, onOpen, onClose]);

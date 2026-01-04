@@ -39,7 +39,6 @@ export default function ChatDropdown({
   useEffect(() => {
     const handleNewMessage = (event: CustomEvent) => {
       const data = event.detail;
-      console.log('📨 ChatDropdown received message:', data);
 
       const messageConversationId = data.chatId || data.conversationId;
 
@@ -91,7 +90,6 @@ export default function ChatDropdown({
   useEffect(() => {
     const handleMarkedRead = (event: CustomEvent) => {
       const { conversationId, userId } = event.detail;
-      console.log('📖 ChatDropdown: conversation marked as read:', conversationId);
 
       setConversations((prev) => {
         return prev.map((conv) => {
@@ -211,7 +209,6 @@ export default function ChatDropdown({
           variant="ghost"
           size="sm"
           onClick={() => {
-            console.log('📋 "Xem tất cả" clicked - navigating to /chat');
             onOpenFullChat();
           }}
           className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded-xl gap-1 font-medium"
@@ -280,7 +277,6 @@ export default function ChatDropdown({
                     key={conversation.conversationId}
                     onClick={(e) => {
                       e.stopPropagation();
-                      console.log('🖱️ Conversation clicked in dropdown:', conversation);
                       onSelectConversation(conversation);
                     }}
                     className="p-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 cursor-pointer transition-all rounded-xl mb-1 border border-transparent hover:border-blue-200 hover:shadow-sm"

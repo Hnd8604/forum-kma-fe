@@ -7,7 +7,6 @@
  * Can be called from profile pages, user cards, etc.
  */
 export function startChatWithUser(userId: string, userName: string, userAvatar?: string) {
-    console.log('📤 [chatActions] Dispatching start-chat event:', { userId, userName, userAvatar });
     window.dispatchEvent(new CustomEvent('start-chat', {
         detail: {
             userId,
@@ -15,7 +14,6 @@ export function startChatWithUser(userId: string, userName: string, userAvatar?:
             userAvatar,
         }
     }));
-    console.log('✅ [chatActions] Event dispatched successfully');
 }
 
 /**

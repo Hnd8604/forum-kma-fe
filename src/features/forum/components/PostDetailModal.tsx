@@ -1,12 +1,10 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { X, MessageCircle, ChevronLeft, ChevronRight, FileText, ExternalLink, ThumbsUp } from 'lucide-react';
 import { ApiPost, ReactionType } from '../types/post.types';
-import { AuthService } from '../../auth/services/auth.service';
-import { GroupService } from '../../groups/services/group.service';
-import { CommentService } from '../services/comment.service';
 import { formatTimeAgo } from '../../../shared/utils/date.utils';
 import ReactionPicker, { REACTIONS } from './ReactionPicker';
 import CommentSection from './CommentSection';
+import { useAuthorInfo, useGroupInfo } from '../hooks';
 
 interface PostDetailModalProps {
   post: ApiPost;
@@ -27,56 +25,23 @@ export default function PostDetailModal({
   onReact,
   reacting,
 }: PostDetailModalProps) {
-  // Use author info from backend if available
-  const [authorName, setAuthorName] = useState<string>(post.authorName || '');
-  const [authorAvatarUrl, setAuthorAvatarUrl] = useState<string | null>(post.authorAvatarUrl || null);
-  const [groupName, setGroupName] = useState<string>(post.groupName || '');
+  // Custom hooks để fetch thông tin author và group
+  const { authorName, authorAvatarUrl } = useAuthorInfo({
+    authorId: post.authorId,
+    initialName: post.authorName,
+    initialAvatarUrl: post.authorAvatarUrl,
+  });
+
+  const { groupName } = useGroupInfo({
+    groupId: post.groupId,
+    initialGroupName: post.groupName,
+  });
+
   const [commentCount, setCommentCount] = useState(post.commentCount || 0);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isImageExpanded, setIsImageExpanded] = useState(false);
 
   const getTimeAgo = () => formatTimeAgo(post.createdAt);
-
-  // Only fetch author info if not provided by backend
-  useEffect(() => {
-    // If backend already provided author info, use it directly
-    if (post.authorName) {
-      setAuthorName(post.authorName);
-      setAuthorAvatarUrl(post.authorAvatarUrl || null);
-      return;
-    }
-
-    // Fallback: fetch from AuthService
-    const loadAuthor = async () => {
-      try {
-        const user = await AuthService.getUserById(post.authorId);
-        const name = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || post.authorId;
-        setAuthorName(name);
-        setAuthorAvatarUrl(user.avatarUrl || null);
-      } catch {
-        setAuthorName(post.authorId?.substring(0, 8) || 'anonymous');
-        setAuthorAvatarUrl(null);
-      }
-    };
-    loadAuthor();
-  }, [post.authorId, post.authorName, post.authorAvatarUrl]);
-
-  // Load group name if not provided
-  useEffect(() => {
-    if (!post.groupName && post.groupId) {
-      const loadGroup = async () => {
-        try {
-          const group = await GroupService.getGroupById(post.groupId);
-          setGroupName(group.groupName || '');
-        } catch {
-          setGroupName('');
-        }
-      };
-      loadGroup();
-    } else if (post.groupName) {
-      setGroupName(post.groupName);
-    }
-  }, [post.groupId, post.groupName]);
 
   const handleCommentCountChange = (count: number) => {
     setCommentCount(count);
