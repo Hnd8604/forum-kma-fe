@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { ThumbsUp } from 'lucide-react';
 import type { ReactionType } from '../types/post.types';
 
@@ -9,17 +8,12 @@ interface ReactionPickerProps {
   disabled?: boolean;
   size?: 'sm' | 'md';
   showCount?: boolean;
-  className?: string; // Class for the button
+  className?: string;
 }
 
-// Facebook-style emoji reactions
+// Keep REACTIONS export for backward compatibility with PostStats and other components
 export const REACTIONS: { type: ReactionType; emoji: string; label: string; color: string; hoverBg: string }[] = [
   { type: 'LIKE', emoji: '👍', label: 'Thích', color: 'text-blue-600', hoverBg: 'hover:bg-blue-50' },
-  { type: 'LOVE', emoji: '❤️', label: 'Yêu thích', color: 'text-red-500', hoverBg: 'hover:bg-red-50' },
-  { type: 'HAHA', emoji: '😆', label: 'Haha', color: 'text-amber-500', hoverBg: 'hover:bg-amber-50' },
-  { type: 'WOW', emoji: '😮', label: 'Wow', color: 'text-amber-500', hoverBg: 'hover:bg-amber-50' },
-  { type: 'SAD', emoji: '😢', label: 'Buồn', color: 'text-amber-500', hoverBg: 'hover:bg-amber-50' },
-  { type: 'ANGRY', emoji: '😠', label: 'Phẫn nộ', color: 'text-orange-500', hoverBg: 'hover:bg-orange-50' },
 ];
 
 export default function ReactionPicker({
@@ -31,76 +25,34 @@ export default function ReactionPicker({
   showCount = true,
   className = '',
 }: ReactionPickerProps) {
-  const [showPicker, setShowPicker] = useState(false);
+  const isLiked = currentReaction === 'LIKE';
 
-  const currentReactionData = currentReaction
-    ? REACTIONS.find((r) => r.type === currentReaction)
-    : null;
-
-  const emojiSize = size === 'sm' ? 'text-base' : 'text-lg';
   const buttonPadding = size === 'sm' ? 'px-2 py-1' : 'px-3 py-1.5';
   const textSize = size === 'sm' ? 'text-xs' : 'text-sm';
+  const iconSize = size === 'sm' ? 'w-3.5 h-3.5' : 'w-4 h-4';
+
+  const handleClick = () => {
+    // Toggle like - send 'LIKE' to toggle on/off
+    onReact('LIKE');
+  };
 
   return (
-    <div
-      className={`relative ${className.includes('w-full') ? 'w-full' : ''}`}
-      onMouseEnter={() => setShowPicker(true)}
-      onMouseLeave={() => setShowPicker(false)}
-    >
-      {/* Main Button - Shows current reaction or default */}
-      <button
-        onClick={() => onReact(currentReaction || 'LIKE')}
-        disabled={disabled}
-        className={`flex items-center gap-1.5 ${buttonPadding} transition-all duration-200 ${className || 'rounded-full'} ${currentReaction
-          ? `${currentReactionData?.hoverBg} ${currentReactionData?.color}`
+    <button
+      onClick={handleClick}
+      disabled={disabled}
+      className={`flex items-center gap-1.5 ${buttonPadding} transition-all duration-200 ${className || 'rounded-full'} ${isLiked
+          ? 'text-blue-600 hover:bg-blue-50'
           : 'text-slate-500 hover:bg-slate-100'
-          } disabled:opacity-50`}
-      >
-        {currentReactionData ? (
-          <>
-            <span className={emojiSize}>{currentReactionData.emoji}</span>
-            <span className={`font-medium ${textSize}`}>{currentReactionData.label}</span>
-          </>
-        ) : (
-          <>
-            <ThumbsUp className="w-4 h-4" />
-            <span className={`font-medium ${textSize}`}>Thích</span>
-          </>
-        )}
-        {showCount && reactionCount > 0 && (
-          <span className={`${textSize} font-semibold text-slate-600 ml-0.5`}>
-            {reactionCount}
-          </span>
-        )}
-      </button>
-
-      {/* Reaction Picker Popup - Facebook style */}
-      {showPicker && (
-        <div className="absolute bottom-full left-0 pb-2 z-50">
-          <div className="bg-white rounded-full shadow-2xl border border-slate-100 px-2 py-1.5 flex items-center gap-0.5 animate-in fade-in slide-in-from-bottom-2 duration-200">
-            {REACTIONS.map((reaction, index) => {
-              const isActive = currentReaction === reaction.type;
-              return (
-                <button
-                  key={reaction.type}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onReact(reaction.type);
-                    setShowPicker(false);
-                  }}
-                  disabled={disabled}
-                  title={reaction.label}
-                  style={{ animationDelay: `${index * 30}ms` }}
-                  className={`p-1.5 rounded-full transition-all duration-200 hover:scale-150 hover:-translate-y-2 ${isActive ? 'scale-125 -translate-y-1' : ''
-                    } disabled:opacity-50 animate-in zoom-in-50`}
-                >
-                  <span className="text-2xl block">{reaction.emoji}</span>
-                </button>
-              );
-            })}
-          </div>
-        </div>
+        } disabled:opacity-50`}
+    >
+      <ThumbsUp className={`${iconSize} ${isLiked ? 'fill-blue-600' : ''}`} />
+      <span className={`font-medium ${textSize}`}>Thích</span>
+      {showCount && reactionCount > 0 && (
+        <span className={`${textSize} font-semibold text-slate-600 ml-0.5`}>
+          {reactionCount}
+        </span>
       )}
-    </div>
+    </button>
   );
 }
+

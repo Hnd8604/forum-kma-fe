@@ -205,11 +205,19 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
       {!isExpanded ? (
         <div className="flex items-center p-3 gap-3">
           {/* User Avatar */}
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/20">
-            <span className="text-white text-sm font-bold">
-              {user?.firstName?.[0]?.toUpperCase() || 'U'}
-            </span>
-          </div>
+          {user?.avatarUrl ? (
+            <img
+              src={user.avatarUrl}
+              alt={user.firstName || 'User'}
+              className="w-10 h-10 rounded-full object-cover flex-shrink-0 shadow-md"
+            />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/20">
+              <span className="text-white text-sm font-bold">
+                {user?.firstName?.[0]?.toUpperCase() || 'U'}
+              </span>
+            </div>
+          )}
 
           {/* Input Box */}
           <div

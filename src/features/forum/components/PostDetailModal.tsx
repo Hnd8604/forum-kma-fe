@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { X, MessageCircle, ChevronLeft, ChevronRight, FileText, ExternalLink, ThumbsUp } from 'lucide-react';
 import { ApiPost, ReactionType } from '../types/post.types';
 import { formatTimeAgo } from '../../../shared/utils/date.utils';
-import ReactionPicker, { REACTIONS } from './ReactionPicker';
+import ReactionPicker from './ReactionPicker';
 import CommentSection from './CommentSection';
 import { useAuthorInfo, useGroupInfo } from '../hooks';
 
@@ -235,26 +235,20 @@ export default function PostDetailModal({
                 <div className="flex items-center justify-between text-sm text-slate-500">
                   {/* Likes Section */}
                   {reactionCount > 0 && (
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1.5">
+                      <div className="bg-blue-500 rounded-full p-1">
+                        <ThumbsUp className="w-3 h-3 text-white fill-white" />
+                      </div>
                       {currentReaction ? (
                         <>
-                          <div className="text-lg">
-                            {REACTIONS.find((r) => r.type === currentReaction)?.emoji || '👍'}
-                          </div>
-                          {reactionCount > 1 && (
+                          {reactionCount > 1 ? (
                             <span className="hover:underline cursor-pointer">Bạn và {reactionCount - 1} người khác</span>
-                          )}
-                          {reactionCount === 1 && (
+                          ) : (
                             <span className="hover:underline cursor-pointer">Bạn</span>
                           )}
                         </>
                       ) : (
-                        <>
-                          <div className="bg-blue-500 rounded-full p-1">
-                            <ThumbsUp className="w-3 h-3 text-white fill-white" />
-                          </div>
-                          <span className="hover:underline cursor-pointer">{reactionCount}</span>
-                        </>
+                        <span className="hover:underline cursor-pointer">{reactionCount}</span>
                       )}
                     </div>
                   )}
