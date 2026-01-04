@@ -1,6 +1,22 @@
-import { ApiResponse, FileUploadType, UploadResponse } from '../types/file.types';
+import axios from 'axios';
+import { FileUploadType, UploadResponse } from '../types/file.types';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://72.60.198.235:8080/api/v1';
+
+// Create a separate axios instance for file uploads without default Content-Type
+const uploadAxios = axios.create({
+  baseURL: API_BASE_URL,
+  timeout: 60000, // 60 seconds for uploads
+});
+
+// Response type from backend
+interface ApiUploadResponse {
+  code: string;
+  message: string;
+  result?: UploadResponse;
+  data?: UploadResponse;
+  success?: boolean;
+}
 
 export class FileUploadService {
   private static getAuthToken(): string | null {
@@ -13,10 +29,6 @@ export class FileUploadService {
 
   /**
    * Upload a file to the server
-   * @param file - File to upload
-   * @param type - Type of upload (avatar, image, document)
-   * @param onProgress - Optional progress callback
-   * @returns Promise with the uploaded file URL
    */
   static async uploadFile(
     file: File,
@@ -26,69 +38,38 @@ export class FileUploadService {
     const formData = new FormData();
     formData.append('file', file);
 
-    const endpoint = `/files/upload/${type}`;
-    const url = `${API_BASE_URL}${endpoint}`;
+    const token = this.getAuthToken();
 
-    return new Promise((resolve, reject) => {
-      const xhr = new XMLHttpRequest();
-
-      // Track upload progress
-      if (onProgress) {
-        xhr.upload.addEventListener('progress', (e) => {
-          if (e.lengthComputable) {
-            const progress = Math.round((e.loaded / e.total) * 100);
-            onProgress(progress);
-          }
-        });
-      }
-
-      xhr.addEventListener('load', () => {
-        if (xhr.status >= 200 && xhr.status < 300) {
-          try {
-            const response: ApiResponse<UploadResponse> = JSON.parse(xhr.responseText);
-            
-            // Handle both response formats:
-            // Backend format: { code: "200", message: "...", result: { resourceUrl: "..." } }
-            // Old format: { success: true, message: "...", data: { resourceUrl: "..." } }
-            const data = response.result || response.data;
-            const isSuccess = response.code === '200' || response.success === true;
-            
-            if (isSuccess && data && data.resourceUrl) {
-              resolve(data.resourceUrl);
-            } else {
-              reject(new Error(response.message || 'Upload failed'));
+    try {
+      const response = await uploadAxios.post<ApiUploadResponse>(
+        `/files/upload/${type}`,
+        formData,
+        {
+          headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+          onUploadProgress: onProgress ? (progressEvent) => {
+            if (progressEvent.total) {
+              const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
+              onProgress(progress);
             }
-          } catch (error) {
-            reject(new Error('Invalid response format'));
-          }
-        } else {
-          try {
-            const errorResponse = JSON.parse(xhr.responseText);
-            reject(new Error(errorResponse.message || `Upload failed with status ${xhr.status}`));
-          } catch {
-            reject(new Error(`Upload failed with status ${xhr.status}`));
-          }
+          } : undefined,
         }
-      });
+      );
 
-      xhr.addEventListener('error', () => {
-        reject(new Error('Network error during upload'));
-      });
+      const responseData = response.data;
+      const data = responseData.result || responseData.data;
+      const isSuccess = responseData.code === '200' || responseData.success === true;
 
-      xhr.addEventListener('abort', () => {
-        reject(new Error('Upload cancelled'));
-      });
-
-      xhr.open('POST', url);
-
-      // Add auth token if available
-      const token = this.getAuthToken();
-      if (token) {
-        xhr.setRequestHeader('Authorization', `Bearer ${token}`);
+      if (isSuccess && data && data.resourceUrl) {
+        return data.resourceUrl;
       }
 
-      xhr.send(formData);
-    });
+      throw new Error(responseData.message || 'Upload failed');
+    } catch (error: any) {
+      if (axios.isAxiosError(error) && error.response) {
+        throw new Error(error.response.data?.message || `Upload failed: ${error.response.status}`);
+      }
+      throw error;
+    }
   }
 
   /**
@@ -106,7 +87,7 @@ export class FileUploadService {
   }
 
   /**
-   * Upload a document (PDF, DOCX, ZIP, RAR, etc.)
+   * Upload a document
    */
   static async uploadDocument(file: File, onProgress?: (progress: number) => void): Promise<string> {
     return this.uploadFile(file, 'document', onProgress);
@@ -116,19 +97,12 @@ export class FileUploadService {
    * Delete a file using its public URL
    */
   static async deleteFile(publicUrl: string): Promise<void> {
-    const url = `${API_BASE_URL}/files/delete?url=${encodeURIComponent(publicUrl)}`;
     const token = this.getAuthToken();
 
-    const response = await fetch(url, {
-      method: 'DELETE',
-      headers: {
-        ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      },
+    await uploadAxios.delete('/files/delete', {
+      params: { url: publicUrl },
+      headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
     });
-
-    if (!response.ok) {
-      throw new Error(`Failed to delete file: ${response.statusText}`);
-    }
   }
 
   /**
@@ -139,16 +113,11 @@ export class FileUploadService {
     type: FileUploadType,
     maxSizeMB: number = 10
   ): { valid: boolean; error?: string } {
-    // Check file size
     const maxSizeBytes = maxSizeMB * 1024 * 1024;
     if (file.size > maxSizeBytes) {
-      return {
-        valid: false,
-        error: `File size must be less than ${maxSizeMB}MB`,
-      };
+      return { valid: false, error: `File size must be less than ${maxSizeMB}MB` };
     }
 
-    // Check file type based on upload type
     const allowedTypes: Record<FileUploadType, string[]> = {
       avatar: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'],
       image: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'],
@@ -163,10 +132,7 @@ export class FileUploadService {
     };
 
     if (!allowedTypes[type].includes(file.type)) {
-      return {
-        valid: false,
-        error: `Invalid file type for ${type} upload`,
-      };
+      return { valid: false, error: `Invalid file type for ${type} upload` };
     }
 
     return { valid: true };
