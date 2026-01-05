@@ -62,21 +62,24 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
         return;
       }
 
-      // Convert AuthData to User for the store
+      // Fetch full user profile from API (since AuthResponse only contains tokens)
+      const userProfile = await AuthService.fetchUserProfile();
+
+      // Build user object with fetched profile data
       const user = {
-        userId: response.userId,
-        username: response.username,
-        email: response.email,
-        firstName: response.firstName,
-        lastName: response.lastName,
-        roleName: response.roleName,
-        roleId: response.roleId,
-        userStatus: response.userStatus,
-        is2FAEnabled: response.is2FAEnabled,
-        dob: response.dob,
-        gender: response.gender,
-        address: response.address,
-        avatarUrl: response.avatarUrl,
+        userId: userProfile.userId,
+        username: userProfile.username,
+        email: userProfile.email,
+        firstName: userProfile.firstName,
+        lastName: userProfile.lastName,
+        roleName: userProfile.roleName,
+        roleId: userProfile.roleId,
+        userStatus: userProfile.userStatus,
+        is2FAEnabled: userProfile.is2FAEnabled,
+        dob: userProfile.dob,
+        gender: userProfile.gender,
+        address: userProfile.address,
+        avatarUrl: userProfile.avatarUrl,
       };
 
       // Update auth store with user data
@@ -124,26 +127,29 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
     setLoading(true);
 
     try {
-      const response = await AuthService.verifyLoginOtp({
+      await AuthService.verifyLoginOtp({
         email: emailForOtp,
         otp,
       });
 
-      // Convert AuthData to User for the store
+      // Fetch full user profile from API (since AuthResponse only contains tokens)
+      const userProfile = await AuthService.fetchUserProfile();
+
+      // Build user object with fetched profile data
       const user = {
-        userId: response.userId,
-        username: response.username,
-        email: response.email,
-        firstName: response.firstName,
-        lastName: response.lastName,
-        roleName: response.roleName,
-        roleId: response.roleId,
-        userStatus: response.userStatus,
-        is2FAEnabled: response.is2FAEnabled,
-        dob: response.dob,
-        gender: response.gender,
-        address: response.address,
-        avatarUrl: response.avatarUrl,
+        userId: userProfile.userId,
+        username: userProfile.username,
+        email: userProfile.email,
+        firstName: userProfile.firstName,
+        lastName: userProfile.lastName,
+        roleName: userProfile.roleName,
+        roleId: userProfile.roleId,
+        userStatus: userProfile.userStatus,
+        is2FAEnabled: userProfile.is2FAEnabled,
+        dob: userProfile.dob,
+        gender: userProfile.gender,
+        address: userProfile.address,
+        avatarUrl: userProfile.avatarUrl,
       };
 
       // Update auth store with user data

@@ -14,6 +14,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   Dialog,
   DialogContent,
@@ -55,14 +56,14 @@ const AVAILABLE_PERMISSIONS = [
 
 export default function AdminRoleManagement() {
   const { toast } = useToast();
-  
+
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
-  
+
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-  
+
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [formData, setFormData] = useState({ name: '', permissions: [] as string[] });
   const [saving, setSaving] = useState(false);
@@ -195,37 +196,41 @@ export default function AdminRoleManagement() {
     }));
   };
 
-  const getRoleBadgeColor = (roleName: string) => {
+  const getRoleBadge = (roleName: string) => {
     switch (roleName.toUpperCase()) {
       case 'ADMIN':
-        return 'bg-red-500';
+        return <Badge className="bg-slate-800 text-white font-normal">{roleName}</Badge>;
       case 'MODERATOR':
-        return 'bg-blue-500';
+        return <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 font-normal">{roleName}</Badge>;
       case 'USER':
-        return 'bg-green-500';
+        return <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-200 font-normal">{roleName}</Badge>;
       default:
-        return 'bg-gray-500';
+        return <Badge variant="outline" className="font-normal">{roleName}</Badge>;
     }
   };
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Quản Lý Vai Trò</h1>
-          <p className="text-muted-foreground">
-            Quản lý vai trò và quyền hạn trong hệ thống
-          </p>
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-amber-500 rounded-xl">
+            <Shield className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-slate-800">Quản Lý Vai Trò</h1>
+            <p className="text-sm text-slate-500">Quản lý vai trò và quyền hạn</p>
+          </div>
         </div>
         <div className="flex gap-2">
-          <Button variant="outline" onClick={fetchRoles} disabled={loading}>
+          <Button variant="outline" onClick={fetchRoles} disabled={loading} className="border-slate-300">
             <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
             Làm mới
           </Button>
           <Button onClick={() => {
             setFormData({ name: '', permissions: [] });
             setShowCreateDialog(true);
-          }}>
+          }} className="bg-slate-800 hover:bg-slate-900">
             <Plus className="h-4 w-4 mr-2" />
             Tạo vai trò
           </Button>
@@ -233,82 +238,90 @@ export default function AdminRoleManagement() {
       </div>
 
       {/* Table */}
-      <div className="border rounded-lg">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Tên vai trò</TableHead>
-              <TableHead>Quyền hạn</TableHead>
-              <TableHead className="text-right">Hành động</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center py-10">
-                  <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                </TableCell>
+      <Card className="border-slate-200">
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-slate-50 hover:bg-slate-50">
+                <TableHead className="font-semibold text-slate-700">Tên vai trò</TableHead>
+                <TableHead className="font-semibold text-slate-700">Quyền hạn</TableHead>
+                <TableHead className="text-right font-semibold text-slate-700">Hành động</TableHead>
               </TableRow>
-            ) : roles.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={3} className="text-center py-10 text-muted-foreground">
-                  Chưa có vai trò nào
-                </TableCell>
-              </TableRow>
-            ) : (
-              roles.map((role) => (
-                <TableRow key={role.id}>
-                  <TableCell>
-                    <div className="flex items-center gap-2">
-                      <Shield className="h-4 w-4 text-muted-foreground" />
-                      <Badge className={getRoleBadgeColor(role.name)}>
-                        {role.name}
-                      </Badge>
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex flex-wrap gap-1">
-                      {role.permissions?.length > 0 ? (
-                        role.permissions.map((perm) => (
-                          <Badge key={perm} variant="outline" className="text-xs">
-                            {perm}
-                          </Badge>
-                        ))
-                      ) : (
-                        <span className="text-sm text-muted-foreground">Không có quyền đặc biệt</span>
-                      )}
-                    </div>
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => openEditDialog(role)}
-                        title="Chỉnh sửa"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          setSelectedRole(role);
-                          setShowDeleteDialog(true);
-                        }}
-                        title="Xóa vai trò"
-                        disabled={role.name.toUpperCase() === 'ADMIN' || role.name.toUpperCase() === 'USER'}
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-12">
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto text-slate-400" />
+                    <p className="text-sm text-slate-500 mt-2">Đang tải...</p>
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ) : roles.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={3} className="text-center py-12 text-slate-500">
+                    Chưa có vai trò nào
+                  </TableCell>
+                </TableRow>
+              ) : (
+                roles.map((role) => (
+                  <TableRow key={role.id} className="hover:bg-slate-50/50">
+                    <TableCell>
+                      <div className="flex items-center gap-2">
+                        <Shield className="h-4 w-4 text-slate-400" />
+                        {getRoleBadge(role.name)}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex flex-wrap gap-1">
+                        {role.permissions?.length > 0 ? (
+                          role.permissions.slice(0, 4).map((perm) => (
+                            <Badge key={perm} variant="outline" className="text-xs font-normal text-slate-600">
+                              {perm}
+                            </Badge>
+                          ))
+                        ) : (
+                          <span className="text-sm text-slate-500">Không có quyền đặc biệt</span>
+                        )}
+                        {role.permissions?.length > 4 && (
+                          <Badge variant="outline" className="text-xs font-normal text-slate-500">
+                            +{role.permissions.length - 4}
+                          </Badge>
+                        )}
+                      </div>
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => openEditDialog(role)}
+                          title="Chỉnh sửa"
+                          className="h-8 w-8 hover:bg-slate-100"
+                        >
+                          <Edit className="h-4 w-4 text-slate-600" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedRole(role);
+                            setShowDeleteDialog(true);
+                          }}
+                          title="Xóa vai trò"
+                          className="h-8 w-8 hover:bg-red-50"
+                          disabled={role.name.toUpperCase() === 'ADMIN' || role.name.toUpperCase() === 'USER'}
+                        >
+                          <Trash2 className="h-4 w-4 text-red-600" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
 
       {/* Create/Edit Dialog */}
       <Dialog open={showCreateDialog || showEditDialog} onOpenChange={(open) => {
@@ -319,9 +332,9 @@ export default function AdminRoleManagement() {
           setFormData({ name: '', permissions: [] });
         }
       }}>
-        <DialogContent className="max-w-md">
+        <DialogContent className="max-w-md bg-white">
           <DialogHeader>
-            <DialogTitle>
+            <DialogTitle className="text-slate-800">
               {showCreateDialog ? 'Tạo vai trò mới' : 'Chỉnh sửa vai trò'}
             </DialogTitle>
             <DialogDescription>
@@ -333,31 +346,33 @@ export default function AdminRoleManagement() {
 
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="roleName">Tên vai trò</Label>
+              <Label htmlFor="roleName" className="text-slate-700">Tên vai trò</Label>
               <Input
                 id="roleName"
                 value={formData.name}
                 onChange={(e) => setFormData((prev) => ({ ...prev, name: e.target.value }))}
                 placeholder="VD: MODERATOR"
                 disabled={showEditDialog && (selectedRole?.name === 'ADMIN' || selectedRole?.name === 'USER')}
+                className="border-slate-300"
               />
             </div>
 
             <div className="space-y-2">
-              <Label>Quyền hạn</Label>
-              <div className="border rounded-lg p-3 space-y-3 max-h-[300px] overflow-y-auto">
+              <Label className="text-slate-700">Quyền hạn</Label>
+              <div className="border border-slate-200 rounded-lg p-3 space-y-3 max-h-[280px] overflow-y-auto bg-slate-50">
                 {AVAILABLE_PERMISSIONS.map((perm) => (
                   <div key={perm.id} className="flex items-start space-x-3">
                     <Checkbox
                       id={perm.id}
                       checked={formData.permissions.includes(perm.id)}
                       onCheckedChange={() => togglePermission(perm.id)}
+                      className="mt-0.5"
                     />
-                    <div className="grid gap-1">
-                      <Label htmlFor={perm.id} className="font-medium cursor-pointer">
+                    <div className="grid gap-0.5">
+                      <Label htmlFor={perm.id} className="font-medium cursor-pointer text-slate-800">
                         {perm.label}
                       </Label>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-slate-500">
                         {perm.description}
                       </p>
                     </div>
@@ -375,12 +390,14 @@ export default function AdminRoleManagement() {
                 setShowEditDialog(false);
               }}
               disabled={saving}
+              className="border-slate-300"
             >
               Hủy
             </Button>
             <Button
               onClick={showCreateDialog ? handleCreate : handleEdit}
               disabled={saving}
+              className="bg-slate-800 hover:bg-slate-900"
             >
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {showCreateDialog ? 'Tạo' : 'Lưu'}
@@ -391,20 +408,20 @@ export default function AdminRoleManagement() {
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>Xóa vai trò</AlertDialogTitle>
+            <AlertDialogTitle className="text-slate-800">Xóa vai trò</AlertDialogTitle>
             <AlertDialogDescription>
               Bạn có chắc chắn muốn xóa vai trò <strong>{selectedRole?.name}</strong>?
               Người dùng có vai trò này sẽ được chuyển về vai trò mặc định.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={saving}>Hủy</AlertDialogCancel>
+            <AlertDialogCancel disabled={saving} className="border-slate-300">Hủy</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={saving}
-              className="bg-red-500 hover:bg-red-600"
+              className="bg-red-600 hover:bg-red-700"
             >
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Xóa

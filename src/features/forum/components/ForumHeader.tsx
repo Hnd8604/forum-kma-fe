@@ -3,7 +3,7 @@ import { useState, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Search, User, LogOut, Settings, ChevronDown, UserPlus, Users } from 'lucide-react';
+import { Search, User, LogOut, Settings, ChevronDown, UserPlus, Users, Shield } from 'lucide-react';
 import { ChatHeaderIcon } from '../../chat';
 import SearchDropdown from './SearchDropdown';
 import { useAuthStore } from '@/store/useStore';
@@ -167,6 +167,17 @@ export default function ForumHeader({
                     <span className="font-medium text-slate-900">Cài đặt</span>
                   </Link>
                 </DropdownMenuItem>
+                {/* Admin Dashboard Link - Only visible for admin users */}
+                {(user?.roleName?.toUpperCase() === 'ADMIN' || user?.roles?.some(role => role.toUpperCase() === 'ADMIN')) && (
+                  <DropdownMenuItem asChild className="cursor-pointer rounded-xl p-3 hover:bg-slate-50">
+                    <Link to="/admin" className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-purple-100 flex items-center justify-center">
+                        <Shield className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <span className="font-medium text-slate-900">Quay về trang admin</span>
+                    </Link>
+                  </DropdownMenuItem>
+                )}
               </div>
               <DropdownMenuSeparator className="my-1" />
               <div className="p-2">

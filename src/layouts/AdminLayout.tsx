@@ -10,8 +10,9 @@ import {
   Settings,
   LogOut,
   Menu,
-  X,
   UsersRound,
+  ChevronRight,
+  Home,
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -26,11 +27,11 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
 
   const menuItems = [
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
-    { icon: Users, label: 'Quản Lý Người Dùng', path: '/admin/users' },
-    { icon: FileText, label: 'Quản Lý Bài Viết', path: '/admin/posts' },
-    { icon: UsersRound, label: 'Quản Lý Nhóm', path: '/admin/groups' },
-    { icon: Shield, label: 'Quản Lý Vai Trò', path: '/admin/roles' },
-    { icon: MessageSquare, label: 'Báo Cáo Vi Phạm', path: '/admin/reports' },
+    { icon: Users, label: 'Người Dùng', path: '/admin/users' },
+    { icon: FileText, label: 'Bài Viết', path: '/admin/posts' },
+    { icon: UsersRound, label: 'Nhóm', path: '/admin/groups' },
+    { icon: Shield, label: 'Vai Trò', path: '/admin/roles' },
+    { icon: MessageSquare, label: 'Báo Cáo', path: '/admin/reports' },
     { icon: Settings, label: 'Cài Đặt', path: '/admin/settings' },
   ];
 
@@ -43,93 +44,119 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     navigate('/forum');
   };
 
-  return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 dark:from-gray-900 dark:via-blue-950 dark:to-indigo-950">
-      {/* Top Navigation */}
-      <header className="bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg shadow-lg border-b border-gray-200/50 dark:border-gray-700/50 fixed top-0 left-0 right-0 z-30">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center gap-4">
-            <button
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              className="p-2 hover:bg-gradient-to-r hover:from-blue-500 hover:to-indigo-500 hover:text-white rounded-lg transition-all duration-200 group"
-            >
-              {sidebarOpen ? <X className="h-5 w-5 group-hover:scale-110 transition-transform" /> : <Menu className="h-5 w-5 group-hover:scale-110 transition-transform" />}
-            </button>
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
-                <Shield className="h-5 w-5 text-white" />
-              </div>
-              <h1 className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                Admin Panel
-              </h1>
-            </div>
-          </div>
+  const getInitials = () => {
+    if (user?.firstName && user?.lastName) {
+      return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
+    }
+    return 'AD';
+  };
 
-          <div className="flex items-center gap-4">
-            <button
-              onClick={handleBackToForum}
-              className="px-5 py-2.5 text-sm font-medium bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-lg hover:shadow-lg hover:scale-105 transition-all duration-200"
-            >
-              Về Trang Chủ
-            </button>
-            <div className="flex items-center gap-4 px-4 py-2 bg-gradient-to-r from-gray-50 to-gray-100 dark:from-gray-800 dark:to-gray-700 rounded-lg border border-gray-200 dark:border-gray-600">
-              <div className="text-right">
-                <p className="text-sm font-semibold text-gray-900 dark:text-white">
+  return (
+    <div className="min-h-screen bg-[#f8fafc] flex">
+      {/* Sidebar */}
+      <aside
+        className={`fixed left-0 top-0 bottom-0 bg-[#1e293b] transition-all duration-300 z-30 flex flex-col ${sidebarOpen ? 'w-64' : 'w-20'
+          }`}
+      >
+        {/* Logo */}
+        <div className="h-16 flex items-center px-4 border-b border-slate-700">
+          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+            <Shield className="h-5 w-5 text-white" />
+          </div>
+          {sidebarOpen && (
+            <span className="ml-3 text-lg font-semibold text-white">
+              Admin Panel
+            </span>
+          )}
+        </div>
+
+        {/* Navigation */}
+        <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
+          {menuItems.map((item) => {
+            const isActive = location.pathname === item.path;
+            return (
+              <button
+                key={item.path}
+                onClick={() => navigate(item.path)}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive
+                    ? 'bg-blue-600 text-white'
+                    : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                  }`}
+                title={!sidebarOpen ? item.label : undefined}
+              >
+                <item.icon className="h-5 w-5 flex-shrink-0" />
+                {sidebarOpen && (
+                  <span className="text-sm font-medium">{item.label}</span>
+                )}
+              </button>
+            );
+          })}
+        </nav>
+
+        {/* User Section */}
+        <div className="p-3 border-t border-slate-700">
+          <div className={`flex items-center gap-3 ${sidebarOpen ? '' : 'justify-center'}`}>
+            <div className="w-9 h-9 bg-slate-600 rounded-full flex items-center justify-center flex-shrink-0">
+              <span className="text-sm font-medium text-white">{getInitials()}</span>
+            </div>
+            {sidebarOpen && (
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-white truncate">
                   {user?.firstName} {user?.lastName}
                 </p>
-                <p className="text-xs font-medium text-blue-600 dark:text-blue-400">
+                <p className="text-xs text-slate-400 truncate">
                   {user?.roleName || 'Admin'}
                 </p>
               </div>
-              <button
-                onClick={handleLogout}
-                className="p-2 hover:bg-gradient-to-r hover:from-red-500 hover:to-pink-500 hover:text-white rounded-lg transition-all duration-200 group"
-                title="Đăng xuất"
-              >
-                <LogOut className="h-5 w-5 text-gray-600 dark:text-gray-300 group-hover:text-white" />
-              </button>
-            </div>
+            )}
           </div>
         </div>
-      </header>
+      </aside>
 
-      <div className="flex pt-16">
-        {/* Sidebar */}
-        <aside
-          className={`fixed left-0 top-16 bottom-0 bg-white/90 dark:bg-gray-900/90 backdrop-blur-lg border-r border-gray-200/50 dark:border-gray-700/50 shadow-xl transition-all duration-300 z-20 ${
-            sidebarOpen ? 'w-72' : 'w-0'
-          } overflow-hidden`}
-        >
-          <nav className="p-4 space-y-2">
-            {menuItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              return (
-                <button
-                  key={item.path}
-                  onClick={() => navigate(item.path)}
-                  className={`w-full flex items-center gap-4 px-5 py-3.5 rounded-xl transition-all duration-200 group ${
-                    isActive
-                      ? 'bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg scale-105'
-                      : 'text-gray-700 dark:text-gray-300 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 dark:hover:from-gray-800 dark:hover:to-gray-700 hover:scale-102'
-                  }`}
-                >
-                  <item.icon className={`h-5 w-5 transition-transform group-hover:scale-110 ${
-                    isActive ? 'text-white' : 'text-blue-600 dark:text-blue-400'
-                  }`} />
-                  <span className="font-semibold">{item.label}</span>
-                </button>
-              );
-            })}
-          </nav>
-        </aside>
+      {/* Main Content Area */}
+      <div className={`flex-1 transition-all duration-300 ${sidebarOpen ? 'ml-64' : 'ml-20'}`}>
+        {/* Top Header */}
+        <header className="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 sticky top-0 z-20">
+          <div className="flex items-center gap-4">
+            <button
+              onClick={() => setSidebarOpen(!sidebarOpen)}
+              className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+            >
+              <Menu className="h-5 w-5 text-slate-600" />
+            </button>
 
-        {/* Main Content */}
-        <main
-          className={`flex-1 transition-all duration-300 ${
-            sidebarOpen ? 'ml-72' : 'ml-0'
-          }`}
-        >
-          <div className="p-8 max-w-7xl mx-auto">
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-2 text-sm">
+              <span className="text-slate-500">Admin</span>
+              <ChevronRight className="h-4 w-4 text-slate-400" />
+              <span className="text-slate-800 font-medium">
+                {menuItems.find(item => item.path === location.pathname)?.label || 'Dashboard'}
+              </span>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <button
+              onClick={handleBackToForum}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-800 hover:bg-slate-100 rounded-lg transition-colors"
+            >
+              <Home className="h-4 w-4" />
+              Về Trang Chủ
+            </button>
+            <div className="w-px h-6 bg-slate-200" />
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+              Đăng xuất
+            </button>
+          </div>
+        </header>
+
+        {/* Page Content */}
+        <main className="p-6">
+          <div className="max-w-7xl mx-auto">
             {children}
           </div>
         </main>

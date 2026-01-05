@@ -12,6 +12,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -34,18 +35,19 @@ import {
   FileText,
   Globe,
   Lock,
+  UsersRound,
 } from 'lucide-react';
 
 export default function AdminGroupManagement() {
   const { toast } = useToast();
-  
+
   const [groups, setGroups] = useState<AdminGroup[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  
+
   const [selectedGroup, setSelectedGroup] = useState<AdminGroup | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -83,7 +85,7 @@ export default function AdminGroupManagement() {
 
   const handleDelete = async () => {
     if (!selectedGroup) return;
-    
+
     setDeleteLoading(true);
     try {
       await AdminService.deleteGroup(selectedGroup.id);
@@ -110,193 +112,204 @@ export default function AdminGroupManagement() {
     switch (visibility) {
       case 'PUBLIC':
         return (
-          <Badge variant="default" className="bg-green-500">
+          <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-200 font-normal">
             <Globe className="h-3 w-3 mr-1" />
             Công khai
           </Badge>
         );
       case 'PRIVATE':
         return (
-          <Badge variant="secondary">
+          <Badge variant="secondary" className="bg-slate-100 text-slate-700 border-slate-200 font-normal">
             <Lock className="h-3 w-3 mr-1" />
             Riêng tư
           </Badge>
         );
       default:
-        return <Badge variant="outline">{visibility}</Badge>;
+        return <Badge variant="outline" className="font-normal">{visibility}</Badge>;
     }
   };
 
   const filteredGroups = searchQuery
     ? groups.filter(
-        (g) =>
-          g.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          g.description?.toLowerCase().includes(searchQuery.toLowerCase())
-      )
+      (g) =>
+        g.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        g.description?.toLowerCase().includes(searchQuery.toLowerCase())
+    )
     : groups;
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">Quản Lý Nhóm</h1>
-          <p className="text-muted-foreground">
-            Tổng cộng {totalElements} nhóm
-          </p>
+        <div className="flex items-center gap-3">
+          <div className="p-2.5 bg-violet-500 rounded-xl">
+            <UsersRound className="h-5 w-5 text-white" />
+          </div>
+          <div>
+            <h1 className="text-xl font-bold text-slate-800">Quản Lý Nhóm</h1>
+            <p className="text-sm text-slate-500">{totalElements} nhóm</p>
+          </div>
         </div>
-        <Button variant="outline" onClick={fetchGroups} disabled={loading}>
+        <Button variant="outline" onClick={fetchGroups} disabled={loading} className="border-slate-300">
           <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
           Làm mới
         </Button>
       </div>
 
       {/* Search */}
-      <form onSubmit={handleSearch} className="flex gap-2">
-        <div className="relative flex-1 max-w-md">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input
-            placeholder="Tìm kiếm nhóm..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10"
-          />
-        </div>
-        <Button type="submit">Tìm kiếm</Button>
-      </form>
+      <Card className="border-slate-200">
+        <CardContent className="p-4">
+          <form onSubmit={handleSearch} className="flex gap-3">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Input
+                placeholder="Tìm kiếm nhóm..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="pl-10 border-slate-300"
+              />
+            </div>
+            <Button type="submit" className="bg-slate-800 hover:bg-slate-900">Tìm kiếm</Button>
+          </form>
+        </CardContent>
+      </Card>
 
       {/* Table */}
-      <div className="border rounded-lg">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Tên nhóm</TableHead>
-              <TableHead>Mô tả</TableHead>
-              <TableHead>Chủ sở hữu</TableHead>
-              <TableHead>Thành viên</TableHead>
-              <TableHead>Bài viết</TableHead>
-              <TableHead>Hiển thị</TableHead>
-              <TableHead>Ngày tạo</TableHead>
-              <TableHead className="text-right">Hành động</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center py-10">
-                  <Loader2 className="h-6 w-6 animate-spin mx-auto" />
-                </TableCell>
+      <Card className="border-slate-200">
+        <CardContent className="p-0">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-slate-50 hover:bg-slate-50">
+                <TableHead className="font-semibold text-slate-700">Tên nhóm</TableHead>
+                <TableHead className="font-semibold text-slate-700">Mô tả</TableHead>
+                <TableHead className="font-semibold text-slate-700">Chủ sở hữu</TableHead>
+                <TableHead className="font-semibold text-slate-700">Thành viên</TableHead>
+                <TableHead className="font-semibold text-slate-700">Bài viết</TableHead>
+                <TableHead className="font-semibold text-slate-700">Hiển thị</TableHead>
+                <TableHead className="font-semibold text-slate-700">Ngày tạo</TableHead>
+                <TableHead className="text-right font-semibold text-slate-700">Hành động</TableHead>
               </TableRow>
-            ) : filteredGroups.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={8} className="text-center py-10 text-muted-foreground">
-                  Không tìm thấy nhóm nào
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredGroups.map((group) => (
-                <TableRow key={group.id}>
-                  <TableCell>
-                    <p className="font-medium">{group.name}</p>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm text-muted-foreground max-w-[200px] truncate">
-                      {group.description || '-'}
-                    </p>
-                  </TableCell>
-                  <TableCell>
-                    <p className="text-sm">{group.ownerName || group.ownerId}</p>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 text-sm">
-                      <Users className="h-4 w-4 text-muted-foreground" />
-                      {group.memberCount}
-                    </div>
-                  </TableCell>
-                  <TableCell>
-                    <div className="flex items-center gap-1 text-sm">
-                      <FileText className="h-4 w-4 text-muted-foreground" />
-                      {group.postCount}
-                    </div>
-                  </TableCell>
-                  <TableCell>{getVisibilityBadge(group.visibility)}</TableCell>
-                  <TableCell>
-                    {new Date(group.createdAt).toLocaleDateString('vi-VN')}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="flex items-center justify-end gap-2">
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => window.open(`/forum/group/${group.id}`, '_blank')}
-                        title="Xem nhóm"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        variant="ghost"
-                        size="icon"
-                        onClick={() => {
-                          setSelectedGroup(group);
-                          setShowDeleteDialog(true);
-                        }}
-                        title="Xóa nhóm"
-                      >
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
+            </TableHeader>
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-12">
+                    <Loader2 className="h-6 w-6 animate-spin mx-auto text-slate-400" />
+                    <p className="text-sm text-slate-500 mt-2">Đang tải...</p>
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
-      </div>
+              ) : filteredGroups.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={8} className="text-center py-12 text-slate-500">
+                    Không tìm thấy nhóm nào
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filteredGroups.map((group) => (
+                  <TableRow key={group.id} className="hover:bg-slate-50/50">
+                    <TableCell>
+                      <p className="font-medium text-slate-800">{group.name}</p>
+                    </TableCell>
+                    <TableCell>
+                      <p className="text-sm text-slate-500 max-w-[200px] truncate">
+                        {group.description || '-'}
+                      </p>
+                    </TableCell>
+                    <TableCell className="text-slate-600">{group.ownerName || group.ownerId}</TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5 text-sm text-slate-600">
+                        <Users className="h-4 w-4 text-slate-400" />
+                        {group.memberCount}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <div className="flex items-center gap-1.5 text-sm text-slate-600">
+                        <FileText className="h-4 w-4 text-slate-400" />
+                        {group.postCount}
+                      </div>
+                    </TableCell>
+                    <TableCell>{getVisibilityBadge(group.visibility)}</TableCell>
+                    <TableCell className="text-slate-600">
+                      {new Date(group.createdAt).toLocaleDateString('vi-VN')}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-1">
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => window.open(`/forum/group/${group.id}`, '_blank')}
+                          title="Xem nhóm"
+                          className="h-8 w-8 hover:bg-slate-100"
+                        >
+                          <Eye className="h-4 w-4 text-slate-600" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedGroup(group);
+                            setShowDeleteDialog(true);
+                          }}
+                          title="Xóa nhóm"
+                          className="h-8 w-8 hover:bg-red-50"
+                        >
+                          <Trash2 className="h-4 w-4 text-red-600" />
+                        </Button>
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </CardContent>
 
-      {/* Pagination */}
-      {totalPages > 1 && (
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground">
-            Trang {page + 1} / {totalPages}
-          </p>
-          <div className="flex gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={page === 0}
-            >
-              <ChevronLeft className="h-4 w-4" />
-              Trước
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
-              disabled={page >= totalPages - 1}
-            >
-              Sau
-              <ChevronRight className="h-4 w-4" />
-            </Button>
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex items-center justify-between px-4 py-3 border-t border-slate-200">
+            <p className="text-sm text-slate-600">
+              Trang <span className="font-medium">{page + 1}</span> / <span className="font-medium">{totalPages}</span>
+            </p>
+            <div className="flex gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={page === 0}
+                className="border-slate-300"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setPage((p) => Math.min(totalPages - 1, p + 1))}
+                disabled={page >= totalPages - 1}
+                className="border-slate-300"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
           </div>
-        </div>
-      )}
+        )}
+      </Card>
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className="bg-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>Xóa nhóm</AlertDialogTitle>
+            <AlertDialogTitle className="text-slate-800">Xóa nhóm</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn xóa nhóm <strong>{selectedGroup?.name}</strong>? 
+              Bạn có chắc chắn muốn xóa nhóm <strong>{selectedGroup?.name}</strong>?
               Tất cả bài viết và thành viên trong nhóm sẽ bị xóa. Hành động này không thể hoàn tác.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={deleteLoading}>Hủy</AlertDialogCancel>
+            <AlertDialogCancel disabled={deleteLoading} className="border-slate-300">Hủy</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDelete}
               disabled={deleteLoading}
-              className="bg-red-500 hover:bg-red-600"
+              className="bg-red-600 hover:bg-red-700"
             >
               {deleteLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Xóa

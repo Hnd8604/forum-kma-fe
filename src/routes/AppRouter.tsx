@@ -39,12 +39,15 @@ function LoginWrapper() {
     return <LoginPage
         onLogin={(user) => {
             // Check if user is admin from the user data directly
-            const userIsAdmin = user?.roleName?.toLowerCase() === 'admin' || 
-                               user?.roles?.some(role => role.toLowerCase() === 'admin');
+            const userIsAdmin = user?.roleName?.toUpperCase() === 'ADMIN' ||
+                user?.roles?.some((role: string) => role.toUpperCase() === 'ADMIN');
+
+            // Use window.location.href for immediate redirect
+            // This ensures the redirect happens before React re-renders
             if (userIsAdmin) {
-                navigate('/admin');
+                window.location.href = '/admin';
             } else {
-                navigate('/forum');
+                window.location.href = '/forum';
             }
         }}
         onSwitchToRegister={() => navigate('/register')}
@@ -53,23 +56,21 @@ function LoginWrapper() {
 
 function RegisterWrapper() {
     const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
-    const user = useAuthStore((s) => s.user);
+    const isAdmin = useAuthStore((s) => s.isAdmin);
     const navigate = useNavigate();
 
     if (isLoggedIn) {
         // Check if user is admin and redirect accordingly
-        const userIsAdmin = user?.roleName?.toLowerCase() === 'admin' || 
-                           user?.roles?.some(role => role.toLowerCase() === 'admin');
-        return <Navigate to={userIsAdmin ? '/admin' : '/forum'} replace />;
+        return <Navigate to={isAdmin() ? '/admin' : '/forum'} replace />;
     }
 
     return <RegisterPage
-        onRegister={(user) => {
+        onRegister={(registeredUser) => {
             // Check if registered user is admin and redirect accordingly
-            const userIsAdmin = user?.roleName?.toLowerCase() === 'admin' || 
-                               user?.roles?.some(role => role.toLowerCase() === 'admin');
-            if (userIsAdmin) navigate('/admin');
-            else navigate('/forum');
+            const userIsAdmin = registeredUser?.roleName?.toUpperCase() === 'ADMIN' ||
+                registeredUser?.roles?.some((role: string) => role.toUpperCase() === 'ADMIN');
+            if (userIsAdmin) navigate('/admin', { replace: true });
+            else navigate('/forum', { replace: true });
         }}
         onSwitchToLogin={() => navigate('/login')}
     />;
@@ -251,7 +252,7 @@ export default function AppRouter() {
             { path: '/', element: <Navigate to="/login" replace /> },
             { path: '/login', element: <LoginWrapper /> },
             { path: '/register', element: <RegisterWrapper /> },
-            
+
             // Admin routes
             { path: '/admin', element: <AdminWrapper /> },
             { path: '/admin/users', element: <AdminWrapper><AdminUserManagement /></AdminWrapper> },
@@ -260,7 +261,7 @@ export default function AppRouter() {
             { path: '/admin/roles', element: <AdminWrapper><AdminRoleManagement /></AdminWrapper> },
             { path: '/admin/reports', element: <AdminWrapper><div className="p-6"><h1 className="text-2xl font-bold">Báo Cáo Vi Phạm</h1><p className="text-muted-foreground mt-2">Tính năng đang phát triển...</p></div></AdminWrapper> },
             { path: '/admin/settings', element: <AdminWrapper><div className="p-6"><h1 className="text-2xl font-bold">Cài Đặt Hệ Thống</h1><p className="text-muted-foreground mt-2">Tính năng đang phát triển...</p></div></AdminWrapper> },
-            
+
             // Forum routes
             { path: '/forum', element: <ForumWrapper /> },
             { path: '/forum/group/:groupId', element: <ForumWrapper><GroupPage /></ForumWrapper> },
