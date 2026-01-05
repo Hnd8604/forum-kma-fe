@@ -1,10 +1,10 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Button } from '../../../shared/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Send, Loader2, MessageSquare } from 'lucide-react';
 import { CommentService } from '../services/comment.service';
-import type { Comment, ReactionType } from '../types/post.types';
+import type { Comment, ReactionType } from '@/interfaces/post.types';
 import CommentItem from './CommentItem';
-import { useAuthStore } from '../../../store/useStore';
+import { useAuthStore } from '@/store/useStore';
 
 interface CommentSectionProps {
   postId: string;

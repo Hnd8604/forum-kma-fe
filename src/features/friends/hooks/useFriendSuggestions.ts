@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
-import { AuthService } from '../../auth/services/auth.service';
-import { User } from '../../auth/types/auth.types';
-import { FriendshipService } from '../services/friendship.service';
+import { AuthService } from '@/features/auth/services/auth.service';
+import { User } from '@/interfaces/auth.types';
+import { FriendshipService } from '@/features/friends/services/friendship.service';
 
 export interface FriendSuggestion {
   userId: string;

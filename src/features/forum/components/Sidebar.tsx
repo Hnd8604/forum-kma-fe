@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, TrendingUp, Users, ChevronDown, ChevronUp, Plus, Loader2, Flame, Star, Zap, LayoutGrid } from 'lucide-react';
-import { Button } from '../../../shared/components/ui/button';
+import { Home, Users, ChevronDown, ChevronUp, Plus, Loader2, Flame, Star, Zap, LayoutGrid } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { GroupService } from '../services/group.service';
 import CreateGroupDialog from './CreateGroupDialog';
-import type { Group } from '../types/post.types';
+import type { Group } from '@/interfaces/post.types';
 
 const feedOptions = [
   { id: 'home', name: 'Trang chủ', icon: Home },
@@ -109,7 +109,6 @@ export default function Sidebar() {
           {/* Feed Options */}
           <div className="mb-4">
             {feedOptions.map((item) => {
-              const isActive = item.id === 'home'; // You can track active state if needed
               return (
                 <Button
                   key={item.id}

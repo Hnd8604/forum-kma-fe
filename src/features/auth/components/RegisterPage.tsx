@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { Button } from '../../../shared/components/ui/button';
-import { Input } from '../../../shared/components/ui/input';
-import { Label } from '../../../shared/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../../shared/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { GraduationCap, Mail, Lock, User, Sparkles } from 'lucide-react';
 import { AuthService } from '../services/auth.service';
-import { useAuthStore } from '../../../store/useStore';
-import { ApiError } from '../types/auth.types';
+import { useAuthStore } from '@/store/useStore';
+import { ApiError } from '@/interfaces/auth.types';
 import EmailVerificationDialog from './EmailVerificationDialog';
 
 interface RegisterPageProps {

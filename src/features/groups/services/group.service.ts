@@ -1,4 +1,4 @@
-import { ApiService } from '../../../shared/services/api.service';
+import { ApiService } from '@/api/api.service';
 import {
   Group,
   CreateGroupRequest,
@@ -6,7 +6,7 @@ import {
   GroupMemberCheckResponse,
   GroupMemberResponse,
   PageResponse,
-} from '../types/group.types';
+} from '@/interfaces/group.types';
 
 export class GroupService {
   /**

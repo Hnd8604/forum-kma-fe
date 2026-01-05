@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
-import { ChatService } from '../services/chat.service';
-import type { Conversation } from '../types/chat.types';
+import { ChatService } from '@/features/chat/services/chat.service';
+import type { Conversation } from '@/interfaces/chat.types';
 
 export function useChatConversations() {
     const [openConversations, setOpenConversations] = useState<Conversation[]>([]);
@@ -34,8 +34,8 @@ export function useChatConversations() {
      */
     const startChatWithUser = useCallback(async (
         userId: string,
-        userName: string,
-        userAvatar?: string
+        _userName: string,
+        _userAvatar?: string
     ) => {
         try {
             // Check if conversation already open

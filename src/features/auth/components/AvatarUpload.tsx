@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
-import { Button } from '../../../shared/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Camera, Loader2, Save } from 'lucide-react';
-import { FileUploadService } from '../../../shared/services/file-upload.service';
+import { FileUploadService } from '@/lib/file-upload.service';
 import { AuthService } from '../services/auth.service';
-import { User } from '../types/auth.types';
+import { User } from '@/interfaces/auth.types';
 
 interface AvatarUploadProps {
   user: User;

@@ -18,7 +18,9 @@ export { InteractionService } from './services/interaction.service';
 export { GroupService } from './services/group.service';
 
 // Hooks
-export { useAuthorInfo, useGroupInfo, useReaction } from './hooks';
+export { useAuthorInfo } from './hooks/useAuthorInfo';
+export { useGroupInfo } from './hooks/useGroupInfo';
+export { useReaction } from './hooks/useReaction';
 
 // Types
 export type {
@@ -46,4 +48,4 @@ export type {
   GroupMemberCheck,
   MemberRole,
   UpdateMemberRoleRequest,
-} from './types/post.types';
+} from '@/interfaces/post.types';

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Button } from '../../../shared/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { MessageCircle } from 'lucide-react';
 import { startChatWithUser } from '../utils/chatActions';
 import { AuthService } from '../../auth/services/auth.service';

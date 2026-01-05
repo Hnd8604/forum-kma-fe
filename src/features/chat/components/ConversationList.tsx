@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react';
 import { ChatService } from '../services/chat.service';
 import { AuthService } from '../../auth/services/auth.service';
-import type { Conversation } from '../types/chat.types';
-import { Card } from '../../../shared/components/ui/card';
-import { Button } from '../../../shared/components/ui/button';
-import { ScrollArea } from '../../../shared/components/ui/scroll-area';
-import { Badge } from '../../../shared/components/ui/badge';
+import type { Conversation } from '@/interfaces/chat.types';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageCircle, Users, Plus, PenSquare, Sparkles } from 'lucide-react';
-import { useAuthStore } from '../../../store/useStore';
+import { useAuthStore } from '@/store/useStore';
 import AIAvatar from './AIAvatar';
 import { formatConversationTime } from '../utils/timeFormat';
 

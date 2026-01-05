@@ -1,11 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { Button } from '../../../shared/components/ui/button';
-import { Input } from '../../../shared/components/ui/input';
+import { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 // switch replaced by single button UI
-import { useAuthStore } from '../../../store/useStore';
+import { useAuthStore } from '@/store/useStore';
 import { AuthService } from '../services/auth.service';
 import { TwoFAService } from '../services/twofa.service';
-import { Alert, AlertDescription } from '../../../shared/components/ui/alert';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AvatarUpload } from './AvatarUpload';
 import EmailVerificationDialog from './EmailVerificationDialog';
 import ChangePasswordDialog from './ChangePasswordDialog';
@@ -32,7 +32,6 @@ export default function SettingsPage() {
   const [toggling2FA, setToggling2FA] = useState(false);
   const [saveError, setSaveError] = useState('');
   const [saveSuccess, setSaveSuccess] = useState('');
-  const [uploadingAvatar, setUploadingAvatar] = useState(false);
 
   // Fetch user profile on mount
   useEffect(() => {
@@ -61,9 +60,6 @@ export default function SettingsPage() {
     fetchProfile();
   }, [setUser]);
 
-  // TODO: Get accessToken from auth store
-  const accessToken = localStorage.getItem('accessToken') || '';
-
   const handleSave = async () => {
     setSaving(true);
     setSaveError('');
@@ -91,37 +87,6 @@ export default function SettingsPage() {
       setSaveError(error.message || 'Có lỗi xảy ra khi cập nhật thông tin');
     } finally {
       setSaving(false);
-    }
-  };
-
-  const handleToggle2FA = async (checked: boolean) => {
-    if (checked) {
-      // Enable 2FA - gọi API trực tiếp
-      setToggling2FA(true);
-      setSaveError('');
-      setSaveSuccess('');
-      
-      try {
-        const response = await TwoFAService.enable();
-        setIs2FAEnabled(true);
-        setSaveSuccess(response.message || 'Đã bật xác thực 2 yếu tố');
-        
-        // Update user in store
-        if (user) {
-          setUser({ ...user, is2FAEnabled: true });
-        }
-      } catch (error: any) {
-        console.error('Error enabling 2FA:', error);
-        setSaveError(error.message || 'Có lỗi xảy ra khi bật xác thực 2 yếu tố');
-        setIs2FAEnabled(false);
-      } finally {
-        setToggling2FA(false);
-      }
-    } else {
-      // Disable 2FA - mở dialog để xác thực OTP
-      setIsDisableTwoFAOpen(true);
-      // Revert switch ngay lập tức, sẽ cập nhật sau khi xác thực thành công
-      setIs2FAEnabled(true);
     }
   };
 

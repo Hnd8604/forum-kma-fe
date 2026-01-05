@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { ChatBotRequest, ChatBotResponse } from '../types/chatbot.types';
+import { ChatBotRequest, ChatBotResponse } from '@/interfaces/chatbot.types';
 
 const CHATBOT_API_URL = import.meta.env.VITE_CHAT_BOT_URL;
 

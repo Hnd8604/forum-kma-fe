@@ -1,14 +1,14 @@
 import { useState, useEffect } from 'react';
-import { Button } from '../../../shared/components/ui/button';
-import { Textarea } from '../../../shared/components/ui/textarea';
-import { Input } from '../../../shared/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../../shared/components/ui/select';
+import { Button } from '@/components/ui/button';
+import { Textarea } from '@/components/ui/textarea';
+import { Input } from '@/components/ui/input';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Image, X, Loader2, FileText, Upload, File } from 'lucide-react';
-import { useAuthStore } from '../../../store/useStore';
+import { useAuthStore } from '@/store/useStore';
 import { PostService } from '../services/post.service';
 import { GroupService } from '../services/group.service';
-import { ApiService } from '../../../shared/services/api.service';
-import type { Group, PostType, ApiPost } from '../types/post.types';
+import { ApiService } from '@/api/api.service';
+import type { Group, PostType, ApiPost } from '@/interfaces/post.types';
 
 interface SelectedFileWithPreview {
   file: File;

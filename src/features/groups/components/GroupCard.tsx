@@ -1,9 +1,9 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Users, Globe, Lock, UserPlus, CheckCircle, Loader2 } from 'lucide-react';
-import { Button } from '../../../shared/components/ui/button';
-import { Badge } from '../../../shared/components/ui/badge';
-import { Card, CardContent } from '../../../shared/components/ui/card';
-import { Group, GroupVisibility } from '../types/group.types';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent } from '@/components/ui/card';
+import { Group, GroupVisibility } from '@/interfaces/group.types';
 import { GroupService } from '../services/group.service';
 import { toast } from 'sonner';
 

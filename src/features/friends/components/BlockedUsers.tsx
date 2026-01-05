@@ -1,7 +1,7 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ShieldX, UserPlus } from 'lucide-react';
-import { Button } from '../../../shared/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,8 +11,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../../../shared/components/ui/alert-dialog';
-import { FriendshipResponse } from '../types/friendship.types';
+} from '@/components/ui/alert-dialog';
+import { FriendshipResponse } from '@/interfaces/friendship.types';
 import { FriendshipService } from '../services/friendship.service';
 import { toast } from 'sonner';
 

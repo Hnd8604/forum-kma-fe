@@ -1,13 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { UserPlus, UserMinus, Clock, Check, X, Ban, Loader2 } from 'lucide-react';
-import { Button } from '../../../shared/components/ui/button';
+import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../../../shared/components/ui/dropdown-menu';
-import { FriendshipStatus, FriendshipStatusResponse } from '../types/friendship.types';
+} from '@/components/ui/dropdown-menu';
+import { FriendshipStatus, FriendshipStatusResponse } from '@/interfaces/friendship.types';
 import { FriendshipService } from '../services/friendship.service';
 import { toast } from 'sonner';
 

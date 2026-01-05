@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { ChatService } from '../services/chat.service';
 import { AuthService } from '../../auth/services/auth.service';
-import type { User } from '../../auth/types/auth.types';
+import type { User } from '@/interfaces/auth.types';
 import {
   Dialog,
   DialogContent,
@@ -9,13 +9,13 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../../../shared/components/ui/dialog';
-import { Button } from '../../../shared/components/ui/button';
-import { Input } from '../../../shared/components/ui/input';
-import { Label } from '../../../shared/components/ui/label';
-import { Alert, AlertDescription } from '../../../shared/components/ui/alert';
-import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/ui/avatar';
-import { ScrollArea } from '../../../shared/components/ui/scroll-area';
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { X, Search, UserPlus, Check } from 'lucide-react';
 
 interface CreateGroupDialogProps {

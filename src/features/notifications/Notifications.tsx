@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 import { X, Bell, MessageSquare, Newspaper, Settings } from 'lucide-react';
-import { Button } from '../../shared/components/ui/button';
-import { Card } from '../../shared/components/ui/card';
-import { ScrollArea } from '../../shared/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
+import { Card } from '@/components/ui/card';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface NotificationItem {
   id: string;

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { AuthService } from '../../auth/services/auth.service';
+import { AuthService } from '@/features/auth/services/auth.service';
 
 interface AuthorInfo {
     authorName: string;

@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Users, UserPlus, ShieldX, ArrowLeft, Sparkles } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Button } from '../../../shared/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../shared/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import FriendsList from './FriendsList';
 import FriendRequests from './FriendRequests';
 import BlockedUsers from './BlockedUsers';

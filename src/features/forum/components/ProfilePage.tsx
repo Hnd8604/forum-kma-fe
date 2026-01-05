@@ -1,18 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useParams } from 'react-router-dom';
-import { Button } from '../../../shared/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/ui/avatar';
-import { Card, CardContent } from '../../../shared/components/ui/card';
-import { useAuthStore } from '../../../store/useStore';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Card, CardContent } from '@/components/ui/card';
+import { useAuthStore } from '@/store/useStore';
 import { PostService } from '../services/post.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { FriendshipService } from '../../friends/services/friendship.service';
 import { FriendButton } from '../../friends';
 import { StartChatButton } from '../../chat';
 import PostCard from './PostCard';
-import type { ApiPost } from '../types/post.types';
-import type { User } from '../../auth/types/auth.types';
-import type { FriendshipResponse } from '../../friends/types/friendship.types';
+import type { ApiPost } from '@/interfaces/post.types';
+import type { User } from '@/interfaces/auth.types';
+import type { FriendshipResponse } from '@/interfaces/friendship.types';
 import {
   Info,
   FileText,

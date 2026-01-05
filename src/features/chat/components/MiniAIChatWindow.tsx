@@ -1,12 +1,12 @@
 import { useState, useRef, useEffect } from 'react';
 import { X, Send, RotateCw, Sparkles } from 'lucide-react';
-import { Card } from '../../../shared/components/ui/card';
-import { Button } from '../../../shared/components/ui/button';
-import { Input } from '../../../shared/components/ui/input';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { chatbotService } from '../../chatbot/services/chatbot.service';
-import type { ChatBotMessage } from '../../chatbot/types/chatbot.types';
+import type { ChatBotMessage } from '@/interfaces/chatbot.types';
 import AIAvatar from './AIAvatar';
-import { useAuthStore } from '../../../store/useStore';
+import { useAuthStore } from '@/store/useStore';
 
 interface MiniAIChatWindowProps {
   onClose: () => void;

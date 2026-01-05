@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Button } from '../../../shared/components/ui/button';
-import { Alert, AlertDescription } from '../../../shared/components/ui/alert';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
   Smartphone, 
   Monitor, 
@@ -10,13 +10,12 @@ import {
   Loader2, 
   MapPin, 
   Clock,
-  LogOut,
   AlertTriangle,
   ChevronDown,
   ChevronUp
 } from 'lucide-react';
 import { SessionService } from '../services/session.service';
-import type { Session } from '../types/auth.types';
+import type { Session } from '@/interfaces/auth.types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,14 +25,14 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../../../shared/components/ui/alert-dialog';
+} from '@/components/ui/alert-dialog';
 
 export default function SessionManagement() {
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [revoking, setRevoking] = useState<string | null>(null);
-  const [revokingAll, setRevokingAll] = useState(false);
+  const [_revokingAll, setRevokingAll] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [showRevokeAllDialog, setShowRevokeAllDialog] = useState(false);

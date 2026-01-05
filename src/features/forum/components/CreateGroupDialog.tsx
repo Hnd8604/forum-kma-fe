@@ -1,15 +1,15 @@
 import { useState, useEffect } from 'react';
 import { Globe, Lock, Loader2 } from 'lucide-react';
-import { Button } from '../../../shared/components/ui/button';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogFooter,
-} from '../../../shared/components/ui/dialog';
+} from '@/components/ui/dialog';
 import { GroupService } from '../services/group.service';
-import type { GroupPrivacy } from '../types/post.types';
+import type { GroupPrivacy } from '@/interfaces/post.types';
 
 interface CreateGroupDialogProps {
   isOpen: boolean;

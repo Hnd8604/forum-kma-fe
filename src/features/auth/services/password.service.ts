@@ -1,4 +1,4 @@
-import { ApiService } from '../../../shared/services/api.service';
+import { ApiService } from '@/api/api.service';
 
 export interface ChangePasswordRequest {
   oldPassword: string;
@@ -19,7 +19,7 @@ export const passwordService = {
   // Bước 1: Yêu cầu đổi mật khẩu (sẽ gửi OTP)
   async requestChangePassword(
     data: ChangePasswordRequest,
-    accessToken: string
+    _accessToken: string
   ): Promise<ApiResponse<string>> {
     const result = await ApiService.post<string>('/auth/change-password', data, true);
     return {
@@ -32,7 +32,7 @@ export const passwordService = {
   // Bước 2: Xác nhận đổi mật khẩu với OTP
   async verifyChangePassword(
     data: VerifyChangePasswordRequest,
-    accessToken: string
+    _accessToken: string
   ): Promise<ApiResponse<string>> {
     const result = await ApiService.post<string>('/auth/change-password/verify', data, true);
     return {

@@ -1,5 +1,5 @@
 import { ThumbsUp } from 'lucide-react';
-import type { ReactionType } from '../../types/post.types';
+import type { ReactionType } from '@/interfaces/post.types';
 
 interface PostStatsProps {
     reactionCount: number;

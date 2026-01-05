@@ -32,4 +32,4 @@ export type {
   CreateGroupResponse,
   MessageType,
   ConversationType,
-} from './types/chat.types';
+} from '@/interfaces/chat.types';

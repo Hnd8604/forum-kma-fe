@@ -4,9 +4,9 @@ import { useNavigate } from 'react-router-dom';
 import { Search, Loader2 } from 'lucide-react';
 import { PostService } from '../services/post.service';
 import { AuthService } from '../../auth/services/auth.service';
-import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/ui/avatar';
-import type { ApiPost } from '../types/post.types';
-import type { User } from '../../auth/types/auth.types';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import type { ApiPost } from '@/interfaces/post.types';
+import type { User } from '@/interfaces/auth.types';
 
 interface SearchDropdownProps {
     searchQuery: string;

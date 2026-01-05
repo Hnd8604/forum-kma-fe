@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { FriendshipService } from '../../friends/services/friendship.service';
-import { Card } from '../../../shared/components/ui/card';
-import { Input } from '../../../shared/components/ui/input';
-import { ScrollArea } from '../../../shared/components/ui/scroll-area';
+import { Card } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Search, MessageCircle, Users } from 'lucide-react';
 
 interface Friend {

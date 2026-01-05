@@ -1,12 +1,12 @@
 import { useState, useEffect, useCallback } from 'react';
 import CreatePost from './CreatePost';
 import PostCard from './PostCard';
-import { Button } from '../../../shared/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { Flame, Zap, Loader2, LayoutGrid } from 'lucide-react';
 import { PostService } from '../services/post.service';
-import type { ApiPost } from '../types/post.types';
+import type { ApiPost } from '@/interfaces/post.types';
 
-import { useAuthStore } from '../../../store/useStore';
+import { useAuthStore } from '@/store/useStore';
 
 export default function ForumFeed() {
   const [posts, setPosts] = useState<ApiPost[]>([]);

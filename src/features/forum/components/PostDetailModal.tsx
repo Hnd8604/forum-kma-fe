@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { X, MessageCircle, ChevronLeft, ChevronRight, FileText, ExternalLink, ThumbsUp } from 'lucide-react';
-import { ApiPost, ReactionType } from '../types/post.types';
-import { formatTimeAgo } from '../../../shared/utils/date.utils';
+import { ApiPost, ReactionType } from '@/interfaces/post.types';
+import { formatTimeAgo } from '@/lib/date.utils';
 import ReactionPicker from './ReactionPicker';
 import CommentSection from './CommentSection';
 import { useAuthorInfo, useGroupInfo } from '../hooks';

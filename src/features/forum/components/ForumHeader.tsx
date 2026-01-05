@@ -1,19 +1,19 @@
 import { Link } from 'react-router-dom';
 import { useState, useRef } from 'react';
-import { Button } from '../../../shared/components/ui/button';
-import { Input } from '../../../shared/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Search, User, LogOut, Settings, ChevronDown, UserPlus, Users } from 'lucide-react';
 import { ChatHeaderIcon } from '../../chat';
 import SearchDropdown from './SearchDropdown';
-import { useAuthStore } from '../../../store/useStore';
+import { useAuthStore } from '@/store/useStore';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from '../../../shared/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu';
 
 interface ForumHeaderProps {
   searchQuery: string;
@@ -29,7 +29,7 @@ export default function ForumHeader({
   onSearchChange,
   onLogout,
   onOpenMiniChat,
-  onOpenFriendsList,
+  onOpenFriendsList: _onOpenFriendsList,
 }: ForumHeaderProps) {
   const user = useAuthStore((s) => s.user);
   const [isSearchFocused, setIsSearchFocused] = useState(false);

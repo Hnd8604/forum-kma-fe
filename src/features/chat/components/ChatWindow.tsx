@@ -1,15 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ChatService } from '../services/chat.service';
-import type { Conversation, Message } from '../types/chat.types';
-import { Card } from '../../../shared/components/ui/card';
-import { Button } from '../../../shared/components/ui/button';
-import { Input } from '../../../shared/components/ui/input';
-import { ScrollArea } from '../../../shared/components/ui/scroll-area';
+import type { Conversation, Message } from '@/interfaces/chat.types';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Send, ArrowLeft, Users, MessageCircle, Settings2 } from 'lucide-react';
-import { useAuthStore } from '../../../store/useStore';
+import { useAuthStore } from '@/store/useStore';
 import { AuthService } from '../../auth/services/auth.service';
-import { useWebSocket } from '../hooks/useWebSocket';
-import { formatMessageTime } from '../utils/timeFormat';
 import GroupMembersDialog from './GroupMembersDialog';
 
 // Check if should show time between messages (5+ minutes gap or different sender)
@@ -72,7 +70,6 @@ interface ChatWindowProps {
 
 export default function ChatWindow({ conversation, onBack, onConversationRead }: ChatWindowProps) {
   const user = useAuthStore((s) => s.user);
-  const token = localStorage.getItem('accessToken') || '';
   const [displayName, setDisplayName] = useState<string>('');
   const [chatAvatar, setChatAvatar] = useState<string>(''); // Renamed/purposed for both group and user avatar
   const [messages, setMessages] = useState<Message[]>([]);
@@ -118,10 +115,6 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
       });
     }
   }, []); // Empty deps - uses ref for current value
-
-  const handleWsError = useCallback((error: Event) => {
-    console.error('❌ WebSocket error in ChatWindow:', error);
-  }, []);
 
   // Listen to global WebSocket events (WebSocketManager handles the connection)
   useEffect(() => {

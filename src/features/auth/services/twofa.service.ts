@@ -1,5 +1,5 @@
-import { ApiService } from '../../../shared/services/api.service';
-import { TwoFAEnableResponse, TwoFADisableResponse } from '../types/auth.types';
+import { ApiService } from '@/api/api.service';
+import { TwoFAEnableResponse, TwoFADisableResponse } from '@/interfaces/auth.types';
 
 export class TwoFAService {
   /**

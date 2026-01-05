@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import ChatIconButton from './ChatIconButton';
 import MiniChatWindow from './MiniChatWindow';
-import type { Conversation } from '../types/chat.types';
+import type { Conversation } from '@/interfaces/chat.types';
 
 interface OpenChat {
   conversation: Conversation;

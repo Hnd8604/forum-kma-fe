@@ -2,17 +2,17 @@ import { useState, useEffect } from 'react';
 import { ChatService } from '../services/chat.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { FriendshipService } from '../../friends/services/friendship.service';
-import { useAuthStore } from '../../../store/useStore';
+import { useAuthStore } from '@/store/useStore';
 import {
     Dialog,
     DialogContent,
     DialogHeader,
     DialogTitle,
-} from '../../../shared/components/ui/dialog';
-import { Button } from '../../../shared/components/ui/button';
-import { Input } from '../../../shared/components/ui/input';
-import { ScrollArea } from '../../../shared/components/ui/scroll-area';
-import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/ui/avatar';
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
     AlertDialog,
     AlertDialogAction,
@@ -22,7 +22,7 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-} from '../../../shared/components/ui/alert-dialog';
+} from '@/components/ui/alert-dialog';
 import {
     Users,
     UserPlus,
@@ -31,7 +31,6 @@ import {
     Shield,
     Search,
     LogOut,
-    X,
     Check
 } from 'lucide-react';
 import { toast } from 'sonner';

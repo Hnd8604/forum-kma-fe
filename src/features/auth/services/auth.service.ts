@@ -1,5 +1,5 @@
-import { ApiService } from '../../../shared/services/api.service';
-import { LoginRequest, RegisterRequest, AuthData, User, RefreshTokenRequest, RefreshTokenResponse, UpdateProfileRequest } from '../types/auth.types';
+import { ApiService } from '@/api/api.service';
+import { LoginRequest, RegisterRequest, AuthData, User, RefreshTokenResponse, UpdateProfileRequest } from '@/interfaces/auth.types';
 
 export class AuthService {
   /**
@@ -221,7 +221,7 @@ export class AuthService {
   /**
    * Update user profile (legacy - use updateAvatar or updateProfileInfo instead)
    */
-  static async updateProfile(userId: string, data: UpdateProfileRequest): Promise<User> {
+  static async updateProfile(_userId: string, data: UpdateProfileRequest): Promise<User> {
     // Only send fields that backend accepts in UserUpdateRequest
     const updatePayload = {
       firstName: data.firstName,

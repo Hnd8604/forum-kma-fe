@@ -1,10 +1,10 @@
-import { ApiService } from '../../../shared/services/api.service';
+import { ApiService } from '@/api/api.service';
 import type {
   Comment,
   CreateCommentRequest,
   UpdateCommentRequest,
   ReactionType,
-} from '../types/post.types';
+} from '@/interfaces/post.types';
 
 export interface GetCommentsParams {
   postId: string;

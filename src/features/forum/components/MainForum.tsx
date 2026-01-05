@@ -3,9 +3,9 @@ import Sidebar from './Sidebar';
 import ForumFeed from './ForumFeed';
 import ForumHeader from './ForumHeader';
 import { FriendsSidebar } from '../../friends';
-import { useAuthStore } from '../../../store/useStore';
+import { useAuthStore } from '@/store/useStore';
 import { AuthService } from '../../auth/services/auth.service';
-import { MainAppLayout } from '../../../shared/components/layout';
+import { MainAppLayout } from '@/layouts';
 
 interface MainForumProps {
   onLogout: () => void;
@@ -18,7 +18,6 @@ interface MainForumProps {
 
 export default function MainForum({ onLogout, onOpenNotifications, onOpenMiniChat, onStartChat, onOpenFriendsList, children }: MainForumProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const user = useAuthStore((s) => s.user);
   const setUser = useAuthStore((s) => s.setUser);
 
   useEffect(() => {

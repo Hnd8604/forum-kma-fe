@@ -1,16 +1,16 @@
 import { useState, useEffect } from 'react';
 import { MessageCircle } from 'lucide-react';
-import { Button } from '../../../shared/components/ui/button';
-import { Badge } from '../../../shared/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from '../../../shared/components/ui/popover';
+} from '@/components/ui/popover';
 import ChatDropdown from './ChatDropdown';
 import { ChatService } from '../services/chat.service';
-import { useAuthStore } from '../../../store/useStore';
-import type { Conversation } from '../types/chat.types';
+import { useAuthStore } from '@/store/useStore';
+import type { Conversation } from '@/interfaces/chat.types';
 
 interface ChatIconButtonProps {
   onOpenFullChat: () => void;

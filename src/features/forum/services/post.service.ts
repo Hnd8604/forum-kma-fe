@@ -1,4 +1,4 @@
-import { ApiService } from '../../../shared/services/api.service';
+import { ApiService } from '@/api/api.service';
 import type {
   ApiPost,
   PaginatedResponse,
@@ -6,7 +6,7 @@ import type {
   UpdatePostRequest,
   PostStatus,
   PostType,
-} from '../types/post.types';
+} from '@/interfaces/post.types';
 
 export interface GetPostsParams {
   page?: number;

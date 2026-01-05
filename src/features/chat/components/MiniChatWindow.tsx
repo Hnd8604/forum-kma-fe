@@ -1,12 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChatService } from '../services/chat.service';
 import { AuthService } from '../../auth/services/auth.service';
-import type { Conversation, Message } from '../types/chat.types';
-import { Card } from '../../../shared/components/ui/card';
-import { Button } from '../../../shared/components/ui/button';
-import { Input } from '../../../shared/components/ui/input';
+import type { Conversation, Message } from '@/interfaces/chat.types';
+import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import { X, Send, Users } from 'lucide-react';
-import { useAuthStore } from '../../../store/useStore';
+import { useAuthStore } from '@/store/useStore';
 import { formatMessageTime } from '../utils/timeFormat';
 
 // Check if should show time between messages (5+ minutes gap or different sender)

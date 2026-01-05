@@ -1,4 +1,4 @@
-import { ApiService } from '../../../shared/services/api.service';
+import { ApiService } from '@/api/api.service';
 import type {
   Group,
   PaginatedResponse,
@@ -8,7 +8,7 @@ import type {
   GroupMember,
   GroupMemberCheck,
   UpdateMemberRoleRequest,
-} from '../types/post.types';
+} from '@/interfaces/post.types';
 
 export interface GetGroupsParams {
   page?: number;

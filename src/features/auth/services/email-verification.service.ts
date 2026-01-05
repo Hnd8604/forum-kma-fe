@@ -1,5 +1,5 @@
-import { ApiService } from '../../../shared/services/api.service';
-import { ApiResponse } from '../types/auth.types';
+import { ApiService } from '@/api/api.service';
+import { ApiResponse } from '@/interfaces/auth.types';
 
 export class EmailVerificationService {
   /**

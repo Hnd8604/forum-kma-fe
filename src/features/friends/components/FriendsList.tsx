@@ -1,15 +1,15 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, UserMinus, Ban, MoreVertical, Search, MessageCircle, UserX } from 'lucide-react';
-import { Button } from '../../../shared/components/ui/button';
-import { Input } from '../../../shared/components/ui/input';
-import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/ui/avatar';
+import { Users, UserMinus, Ban, MoreVertical, Search, UserX } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../../../shared/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -19,8 +19,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../../../shared/components/ui/alert-dialog';
-import { FriendshipResponse } from '../types/friendship.types';
+} from '@/components/ui/alert-dialog';
+import { FriendshipResponse } from '@/interfaces/friendship.types';
 import { FriendshipService } from '../services/friendship.service';
 import { StartChatButton } from '../../chat';
 import { toast } from 'sonner';
@@ -29,7 +29,7 @@ interface FriendsListProps {
   onStartChat?: (userId: string, username: string) => void;
 }
 
-export default function FriendsList({ onStartChat }: FriendsListProps) {
+export default function FriendsList({ onStartChat: _onStartChat }: FriendsListProps) {
   const [friends, setFriends] = useState<FriendshipResponse[]>([]);
   const [filteredFriends, setFilteredFriends] = useState<FriendshipResponse[]>([]);
   const [loading, setLoading] = useState(true);

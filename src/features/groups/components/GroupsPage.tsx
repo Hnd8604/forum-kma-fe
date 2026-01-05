@@ -1,9 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Plus, Loader2, Users, Filter } from 'lucide-react';
-import { Link } from 'react-router-dom';
-import { Button } from '../../../shared/components/ui/button';
-import { Input } from '../../../shared/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../../shared/components/ui/tabs';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Dialog,
   DialogContent,
@@ -12,18 +11,18 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '../../../shared/components/ui/dialog';
-import { Label } from '../../../shared/components/ui/label';
-import { Textarea } from '../../../shared/components/ui/textarea';
+} from '@/components/ui/dialog';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from '../../../shared/components/ui/select';
+} from '@/components/ui/select';
 import GroupCard from './GroupCard';
-import { Group, GroupVisibility, CreateGroupRequest } from '../types/group.types';
+import { Group, GroupVisibility, CreateGroupRequest } from '@/interfaces/group.types';
 import { GroupService } from '../services/group.service';
 import { toast } from 'sonner';
 

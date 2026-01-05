@@ -1,7 +1,7 @@
 import { useState } from 'react';
-import { Button } from '../../../shared/components/ui/button';
-import { Input } from '../../../shared/components/ui/input';
-import { Label } from '../../../shared/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
@@ -9,21 +9,15 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '../../../shared/components/ui/dialog';
-import { Alert, AlertDescription } from '../../../shared/components/ui/alert';
-import { ApiService } from '../../../shared/services/api.service';
+} from '@/components/ui/dialog';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { ApiService } from '@/api/api.service';
 import { KeyRound, CheckCircle2 } from 'lucide-react';
 
 interface ChangePasswordDialogProps {
   isOpen: boolean;
   onClose: () => void;
   is2FAEnabled?: boolean;
-}
-
-interface ApiResponse {
-  code: string | number;
-  message: string;
-  data?: any;
 }
 
 type Step = 'password' | 'otp';
@@ -168,15 +162,6 @@ export default function ChangePasswordDialog({
     setOtp('');
     setError('');
     setSuccess('');
-  };
-
-  const getStepTitle = () => {
-    switch (step) {
-      case 'password':
-        return 'Mật khẩu';
-      case 'otp':
-        return 'Xác thực';
-    }
   };
 
   return (

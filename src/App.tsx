@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import LoginPage from './features/auth/components/LoginPage';
-import MainForum from './features/forum/components/MainForum';
-import Notifications from './features/notifications/Notifications';
-import { ChatContainer } from './features/chat';
-import WebSocketManager from './shared/components/websocket/WebSocketManager';
-import { Toaster } from './shared/components/ui/toaster';
+import LoginPage from '@/features/auth/components/LoginPage';
+import MainForum from '@/features/forum/components/MainForum';
+import Notifications from '@/features/notifications/Notifications';
+import { ChatContainer } from '@/features/chat';
+import WebSocketManager from '@/components/websocket/WebSocketManager';
+import { Toaster } from '@/components/ui/toaster';
 
 export default function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

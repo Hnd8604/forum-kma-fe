@@ -1,11 +1,11 @@
-import { ApiService } from '../../../shared/services/api.service';
+import { ApiService } from '@/api/api.service';
 import type {
   Message,
   Conversation,
   SendMessageRequest,
   CreateGroupRequest,
   CreateGroupResponse,
-} from '../types/chat.types';
+} from '@/interfaces/chat.types';
 
 const CHAT_SERVICE_BASE = '/chat';
 

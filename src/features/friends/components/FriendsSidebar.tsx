@@ -1,11 +1,10 @@
-import React, { useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { UserPlus, Users, MessageCircle, ChevronRight, Loader2, UserCheck } from 'lucide-react';
-import { Button } from '../../../shared/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/ui/avatar';
-import { FriendshipResponse, FriendshipStatus } from '../types/friendship.types';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { FriendshipResponse } from '@/interfaces/friendship.types';
 import { FriendshipService } from '../services/friendship.service';
-import { AuthService, User } from '../../auth';
 import { useFriendSuggestions } from '../hooks/useFriendSuggestions';
 import { toast } from 'sonner';
 
@@ -13,7 +12,7 @@ interface FriendsSidebarProps {
   onStartChat?: (userId: string, username: string) => void;
 }
 
-export default function FriendsSidebar({ onStartChat }: FriendsSidebarProps) {
+export default function FriendsSidebar({ onStartChat: _onStartChat }: FriendsSidebarProps) {
   const navigate = useNavigate();
   const [friends, setFriends] = useState<FriendshipResponse[]>([]);
   const [receivedRequests, setReceivedRequests] = useState<FriendshipResponse[]>([]);
@@ -289,7 +288,7 @@ export default function FriendsSidebar({ onStartChat }: FriendsSidebarProps) {
               const isProcessing = processingIds.has(user.userId);
               return (
                 <div key={user.userId} className="flex items-center gap-3">
-                  <Avatar 
+                  <Avatar
                     className="h-9 w-9 border-2 border-white/30 cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={() => navigate(`/profile/${user.userId}`)}
                   >
@@ -298,10 +297,10 @@ export default function FriendsSidebar({ onStartChat }: FriendsSidebarProps) {
                       {getInitials(user)}
                     </AvatarFallback>
                   </Avatar>
-                  <div 
+                  <div
                     className="flex-1 min-w-0 cursor-pointer hover:opacity-80 transition-opacity"
                     onClick={() => navigate(`/profile/${user.userId}`)}>
-                  
+
                     <p className="text-sm font-medium text-white truncate">
                       {getDisplayName(user)}
                     </p>

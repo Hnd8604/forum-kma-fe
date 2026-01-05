@@ -1,12 +1,12 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Button } from '../../../shared/components/ui/button';
+import { Button } from '@/components/ui/button';
 import {
   MessageSquare,
   MoreHorizontal,
   Trash,
   Loader2,
 } from 'lucide-react';
-import { ApiPost, ReactionType } from '../types/post.types';
+import { ApiPost } from '@/interfaces/post.types';
 import { CommentService } from '../services/comment.service';
 import { toast } from 'sonner';
 import {
@@ -14,7 +14,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '../../../shared/components/ui/dropdown-menu';
+} from '@/components/ui/dropdown-menu';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,10 +24,10 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
-} from '../../../shared/components/ui/alert-dialog';
+} from '@/components/ui/alert-dialog';
 import { PostService } from '../services/post.service';
-import { useAuthStore } from '../../../store/useStore';
-import { formatTimeAgo } from '../../../shared/utils/date.utils';
+import { useAuthStore } from '@/store/useStore';
+import { formatTimeAgo } from '@/lib/date.utils';
 import ReactionPicker from './ReactionPicker';
 import PostDetailModal from './PostDetailModal';
 import { useAuthorInfo, useGroupInfo, useReaction } from '../hooks';

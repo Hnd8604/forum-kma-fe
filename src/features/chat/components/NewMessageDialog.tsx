@@ -1,12 +1,11 @@
 import { useState, useEffect } from 'react';
-import { Button } from '../../../shared/components/ui/button';
-import { Input } from '../../../shared/components/ui/input';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../../../shared/components/ui/dialog';
-import { ScrollArea } from '../../../shared/components/ui/scroll-area';
-import { Search, MessageCircle, X } from 'lucide-react';
-import { AuthService } from '../../auth/services/auth.service';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Search, MessageCircle } from 'lucide-react';
 import { ChatService } from '../services/chat.service';
-import type { User } from '../../auth/types/auth.types';
+import type { User } from '@/interfaces/auth.types';
 
 interface NewMessageDialogProps {
     isOpen: boolean;
@@ -48,7 +47,7 @@ export default function NewMessageDialog({
             setSending(true);
             // Send initial message to create conversation
             const message = await ChatService.sendMessage({
-                toUserId: userId,
+                receiverId: userId,
                 message: 'Xin chào!',
                 type: 'TEXT',
             });

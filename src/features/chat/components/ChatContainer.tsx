@@ -3,8 +3,9 @@ import { useChatConversations } from '../hooks/useChatConversations';
 import MiniChatWindow from './MiniChatWindow';
 import MiniAIChatWindow from './MiniAIChatWindow';
 import FriendsList from './FriendsList';
-import type { Conversation } from '../types/chat.types';
+import type { Conversation } from '@/interfaces/chat.types';
 import { AI_CONVERSATION_ID } from './ConversationList';
+import { ChatService } from '../services/chat.service';
 
 interface ChatContainerProps {
     showFriendsList?: boolean;
@@ -22,7 +23,6 @@ export default function ChatContainer({ showFriendsList = false }: ChatContainer
 
             // Fetch the real conversation from backend
             try {
-                const { ChatService } = await import('../services/chat.service');
                 const conversations = await ChatService.getConversations();
                 const realConv = conversations.find(c => c.conversationId === realConversationId);
 

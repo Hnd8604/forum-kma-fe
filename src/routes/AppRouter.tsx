@@ -1,21 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import { createBrowserRouter, RouterProvider, Navigate, useNavigate } from 'react-router-dom';
-import LoginPage from '../features/auth/components/LoginPage';
-import RegisterPage from '../features/auth/components/RegisterPage';
-import SettingsPage from '../features/auth/components/SettingsPage';
-import ProfilePage from '../features/forum/components/ProfilePage';
-import MainForum from '../features/forum/components/MainForum';
-import ForumHeader from '../features/forum/components/ForumHeader';
-import GroupPage from '../features/forum/components/GroupPage';
-import Notifications from '../features/notifications/Notifications';
-import { ChatPage, ChatContainer } from '../features/chat';
-import type { Conversation } from '../features/chat';
-import WebSocketManager from '../shared/components/websocket/WebSocketManager';
-import { Toaster } from '../shared/components/ui/toaster';
-import { FriendsPage } from '../features/friends';
-import { GroupsPage } from '../features/groups';
-import { useAuthStore } from '../store/useStore';
-import { MainAppLayout } from '../shared/components/layout';
+import LoginPage from '@/features/auth/components/LoginPage';
+import RegisterPage from '@/features/auth/components/RegisterPage';
+import SettingsPage from '@/features/auth/components/SettingsPage';
+import ProfilePage from '@/features/forum/components/ProfilePage';
+import MainForum from '@/features/forum/components/MainForum';
+import ForumHeader from '@/features/forum/components/ForumHeader';
+import GroupPage from '@/features/forum/components/GroupPage';
+import Notifications from '@/features/notifications/Notifications';
+import { ChatPage, ChatContainer } from '@/features/chat';
+import WebSocketManager from '@/components/websocket/WebSocketManager';
+import { Toaster } from '@/components/ui/toaster';
+import { FriendsPage } from '@/features/friends';
+import { GroupsPage } from '@/features/groups';
+import { useAuthStore } from '@/store/useStore';
+import { MainAppLayout } from '@/layouts';
 
 function LoginWrapper() {
     const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
@@ -39,11 +38,6 @@ function RegisterWrapper() {
         onRegister={() => navigate('/forum')}
         onSwitchToLogin={() => navigate('/')}
     />;
-}
-
-interface OpenChat {
-    conversation: Conversation;
-    id: string;
 }
 
 function ForumWrapper({ children }: { children?: React.ReactNode }) {

@@ -1,5 +1,5 @@
-import { ApiService } from '../../../shared/services/api.service';
-import { FriendshipResponse, FriendshipStatusResponse } from '../types/friendship.types';
+import { ApiService } from '@/api/api.service';
+import { FriendshipResponse, FriendshipStatusResponse } from '@/interfaces/friendship.types';
 
 export class FriendshipService {
   /**

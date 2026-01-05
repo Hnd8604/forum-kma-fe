@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { User } from '../features/auth/types/auth.types';
+import { User } from '@/interfaces/auth.types';
 import { AuthService } from '../features/auth/services/auth.service';
 
 // Auth Store

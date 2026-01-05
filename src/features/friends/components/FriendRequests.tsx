@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { Check, X, UserPlus, Inbox, Send, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import { Check, X, Inbox, ArrowDownLeft, ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { Button } from '../../../shared/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '../../../shared/components/ui/avatar';
-import { FriendshipResponse } from '../types/friendship.types';
+import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { FriendshipResponse } from '@/interfaces/friendship.types';
 import { FriendshipService } from '../services/friendship.service';
 import { toast } from 'sonner';
 
@@ -103,32 +103,6 @@ export default function FriendRequests({ onRequestHandled }: FriendRequestsProps
       return `${request.firstName} ${request.lastName}`;
     }
     return request.username;
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffTime = Math.abs(now.getTime() - date.getTime());
-    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
-
-    if (diffDays === 0) {
-      const diffHours = Math.floor(diffTime / (1000 * 60 * 60));
-      if (diffHours === 0) {
-        const diffMinutes = Math.floor(diffTime / (1000 * 60));
-        return `${diffMinutes} phút trước`;
-      }
-      return `${diffHours} giờ trước`;
-    } else if (diffDays === 1) {
-      return 'Hôm qua';
-    } else if (diffDays < 7) {
-      return `${diffDays} ngày trước`;
-    }
-
-    return date.toLocaleDateString('vi-VN', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-    });
   };
 
   if (loading) {

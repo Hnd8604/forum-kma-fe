@@ -1,10 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { MessageCircle, X, Send, Search } from 'lucide-react';
-import { Button } from '../../../shared/components/ui/button';
-import { Input } from '../../../shared/components/ui/input';
-import { ScrollArea } from '../../../shared/components/ui/scroll-area';
-import { Card } from '../../../shared/components/ui/card';
-import { Badge } from '../../../shared/components/ui/badge';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Card } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 
 interface Contact {
   id: number;

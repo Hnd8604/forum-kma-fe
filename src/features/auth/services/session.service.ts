@@ -1,5 +1,5 @@
-import { ApiService } from '../../../shared/services/api.service';
-import type { Session } from '../types/auth.types';
+import { ApiService } from '@/api/api.service';
+import type { Session } from '@/interfaces/auth.types';
 
 export class SessionService {
   /**

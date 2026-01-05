@@ -4,7 +4,7 @@ import ChatWindow from './ChatWindow';
 import AIChatWindow from './AIChatWindow';
 import CreateGroupDialog from './CreateGroupDialog';
 import NewMessageDialog from './NewMessageDialog';
-import type { Conversation } from '../types/chat.types';
+import type { Conversation } from '@/interfaces/chat.types';
 
 export default function ChatPage() {
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
@@ -17,7 +17,7 @@ export default function ChatPage() {
     setRefreshKey((prev) => prev + 1);
   };
 
-  const handleConversationCreated = (conversationId: string) => {
+  const handleConversationCreated = (_conversationId: string) => {
     handleRefresh();
     // Optionally select the new conversation
     // You might want to fetch and select it here

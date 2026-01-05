@@ -1,15 +1,15 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   Users, Settings, ChevronLeft, Loader2, Shield, Crown,
-  UserMinus, UserPlus, MoreVertical, Globe, Lock, Edit2, Trash2, X, Check
+  UserMinus, UserPlus, Globe, Lock, Edit2, Trash2, X
 } from 'lucide-react';
-import { Button } from '../../../shared/components/ui/button';
+import { Button } from '@/components/ui/button';
 import { GroupService } from '../services/group.service';
 import { PostService } from '../services/post.service';
 import PostCard from './PostCard';
 import CreatePost from './CreatePost';
-import type { Group, GroupMember, GroupMemberCheck, ApiPost } from '../types/post.types';
+import type { Group, GroupMember, GroupMemberCheck, ApiPost } from '@/interfaces/post.types';
 
 export default function GroupPage() {
   const { groupId } = useParams<{ groupId: string }>();

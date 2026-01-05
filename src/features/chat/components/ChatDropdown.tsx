@@ -1,11 +1,10 @@
 import { useState, useEffect } from 'react';
 import { ChatService } from '../services/chat.service';
 import { AuthService } from '../../auth/services/auth.service';
-import { useAuthStore } from '../../../store/useStore';
-import type { Conversation } from '../types/chat.types';
-import { Button } from '../../../shared/components/ui/button';
-import { ScrollArea } from '../../../shared/components/ui/scroll-area';
-import { Badge } from '../../../shared/components/ui/badge';
+import { useAuthStore } from '@/store/useStore';
+import type { Conversation } from '@/interfaces/chat.types';
+import { Button } from '@/components/ui/button';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { MessageCircle, Users, ArrowRight } from 'lucide-react';
 import AIAvatar from './AIAvatar';
 import { AI_CONVERSATION_ID } from './ConversationList';

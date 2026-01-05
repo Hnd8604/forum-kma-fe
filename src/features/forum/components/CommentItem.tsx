@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '../../../shared/components/ui/button';
-import { MoreHorizontal, Edit2, Trash2, Check, X, MessageCircle, ChevronDown, ChevronUp } from 'lucide-react';
-import type { Comment, ReactionType } from '../types/post.types';
+import { Button } from '@/components/ui/button';
+import { MoreHorizontal, Edit2, Trash2, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
+import type { Comment, ReactionType } from '@/interfaces/post.types';
 import ReactionPicker from './ReactionPicker';
 import { InteractionService } from '../services/interaction.service';
 import { CommentService } from '../services/comment.service';
-import { useAuthStore } from '../../../store/useStore';
-import { formatTimeAgo } from '../../../shared/utils/date.utils';
+import { useAuthStore } from '@/store/useStore';
+import { formatTimeAgo } from '@/lib/date.utils';
 
 interface CommentItemProps {
   comment: Comment;

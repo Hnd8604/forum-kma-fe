@@ -1,12 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Button } from '../../../shared/components/ui/button';
-import { Input } from '../../../shared/components/ui/input';
-import { Label } from '../../../shared/components/ui/label';
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '../../../shared/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Lock, User } from 'lucide-react';
 import { AuthService } from '../services/auth.service';
-import { useAuthStore } from '../../../store/useStore';
-import { ApiError } from '../types/auth.types';
+import { useAuthStore } from '@/store/useStore';
+import { ApiError } from '@/interfaces/auth.types';
 import ForgotPasswordDialog from './ForgotPasswordDialog';
 
 interface LoginPageProps {
@@ -21,7 +21,7 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [otp, setOtp] = useState('');
-  const [tempSession, setTempSession] = useState<string>(''); // Lưu session tạm thời nếu cần
+  const [_tempSession, setTempSession] = useState<string>('');
   const [emailForOtp, setEmailForOtp] = useState<string>('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -54,9 +54,9 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
 
       // Kiểm tra xem response có yêu cầu OTP không (code: AS_010)
       if ((response as any).code === 'AS_010' || !response.accessToken) {
-        // Nếu cần 2FA, chuyển sang bước nhập OTP; lấy giá trị email mặc định từ username
+        // Nếu cần 2FA, chuyển sang bước nhập OTP
         setStep('otp');
-        setEmailForOtp(username);
+        setEmailForOtp(''); // Luôn để trống khi vào OTP
         setTempSession((response as any).sessionId || (response as any).tempToken || '');
         setLoading(false);
         return;
@@ -98,7 +98,7 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
       // Kiểm tra nếu lỗi là yêu cầu 2FA (code: AS_010)
       if (apiError.code === 'AS_010') {
         setStep('otp');
-        setEmailForOtp(username);
+        setEmailForOtp(''); // Luôn để trống khi vào OTP
         setTempSession(apiError.sessionId || '');
         setLoading(false);
         return;

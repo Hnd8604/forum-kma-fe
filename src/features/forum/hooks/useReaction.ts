@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from 'react';
-import { InteractionService } from '../services/interaction.service';
-import type { ReactionType } from '../types/post.types';
+import { InteractionService } from '@/features/forum/services/interaction.service';
+import type { ReactionType } from '@/interfaces/post.types';
 
 interface UseReactionParams {
     postId: string;

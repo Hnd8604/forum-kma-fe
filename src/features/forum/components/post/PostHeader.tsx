@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Image as ImageIcon, FileText } from 'lucide-react';
-import type { PostType } from '../../types/post.types';
+import type { PostType } from '@/interfaces/post.types';
 
 interface PostHeaderProps {
     authorId: string;

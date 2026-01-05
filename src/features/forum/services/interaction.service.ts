@@ -1,9 +1,9 @@
-import { ApiService } from '../../../shared/services/api.service';
+import { ApiService } from '@/api/api.service';
 import type {
   Interaction,
   InteractionCount,
   CreateInteractionRequest,
-} from '../types/post.types';
+} from '@/interfaces/post.types';
 
 export class InteractionService {
   /**

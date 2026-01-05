@@ -1,17 +1,17 @@
 import { useState, useEffect } from 'react';
-import { Button } from '../../../shared/components/ui/button';
-import { Input } from '../../../shared/components/ui/input';
-import { Label } from '../../../shared/components/ui/label';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-} from '../../../shared/components/ui/dialog';
+} from '@/components/ui/dialog';
 import { emailVerificationService } from '../services/email-verification.service';
-import { Alert, AlertDescription } from '../../../shared/components/ui/alert';
-import { Mail, CheckCircle2, KeyRound, X } from 'lucide-react';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Mail, CheckCircle2, X } from 'lucide-react';
 
 interface EmailVerificationDialogProps {
   isOpen: boolean;
