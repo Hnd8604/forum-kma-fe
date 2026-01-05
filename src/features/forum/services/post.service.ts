@@ -23,6 +23,7 @@ export interface GetFeedParams {
 
 export interface GetAuthorPostsParams extends GetPostsParams {
   status?: PostStatus;
+  sort?: 'createdAt,DESC' | 'reactionCount,DESC';
 }
 
 export interface GetGroupPostsParams extends GetFeedParams {
@@ -80,11 +81,12 @@ export class PostService {
     authorId: string,
     params: GetAuthorPostsParams = {}
   ): Promise<PaginatedResponse<ApiPost>> {
-    const { page = 0, limit = 10, search = '', status } = params;
+    const { page = 0, limit = 10, search = '', status, sort = 'createdAt,DESC' } = params;
     const queryParams = new URLSearchParams({
       page: page.toString(),
       limit: limit.toString(),
       search,
+      sort,
     });
     if (status) queryParams.append('status', status);
 

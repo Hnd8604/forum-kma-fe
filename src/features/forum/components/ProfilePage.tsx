@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent } from '@/components/ui/card';
@@ -23,7 +23,9 @@ import { toast } from 'sonner';
 type ProfileTab = 'about' | 'posts' | 'friends';
 
 export default function ProfilePage() {
-  const { userId: paramUserId } = useParams<{ userId: string }>();
+  const { userId: paramUserId } = useParams<{ userId?: string }>();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const currentUser = useAuthStore((s) => s.user);
   const [profileUser, setProfileUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<ApiPost[]>([]);
@@ -34,6 +36,16 @@ export default function ProfilePage() {
 
   const isOwnProfile = !paramUserId || paramUserId === currentUser?.userId;
   const targetUserId = paramUserId || currentUser?.userId;
+
+  // Sync activeTab with URL query params
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['about', 'posts', 'friends'].includes(tab)) {
+      setActiveTab(tab as ProfileTab);
+    } else {
+      setActiveTab('about');
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     loadProfileData();
@@ -66,8 +78,17 @@ export default function ProfilePage() {
 
     setPostsLoading(true);
     try {
-      const response = await PostService.getPostsByAuthor(targetUserId, { limit: 20 });
-      setPosts(response.content || []);
+      const response = await PostService.getPostsByAuthor(targetUserId, { 
+        limit: 20, 
+        sort: 'createdAt,DESC' 
+      });
+      // Sắp xếp bài viết theo thứ tự mới nhất (createdAt giảm dần)
+      const sortedPosts = (response.content || []).sort((a, b) => {
+        const dateA = new Date(a.createdAt).getTime();
+        const dateB = new Date(b.createdAt).getTime();
+        return dateB - dateA; // Mới nhất trước
+      });
+      setPosts(sortedPosts);
     } catch (error) {
       console.error('Error loading posts:', error);
     } finally {
@@ -82,6 +103,12 @@ export default function ProfilePage() {
     } catch (error) {
       console.error('Error loading friends:', error);
     }
+  };
+
+  const handleTabChange = (tab: ProfileTab) => {
+    setActiveTab(tab);
+    const basePath = isOwnProfile ? '/profile' : `/profile/${targetUserId}`;
+    navigate(`${basePath}?tab=${tab}`, { replace: true });
   };
 
   const handleReactionChange = (postId: string, newCount: number, myReaction: string | null) => {
@@ -209,21 +236,21 @@ export default function ProfilePage() {
         <div className="flex gap-2">
           <TabButton
             active={activeTab === 'about'}
-            onClick={() => setActiveTab('about')}
+            onClick={() => handleTabChange('about')}
             icon={<Info className="h-4 w-4" />}
           >
             Giới thiệu
           </TabButton>
           <TabButton
             active={activeTab === 'posts'}
-            onClick={() => setActiveTab('posts')}
+            onClick={() => handleTabChange('posts')}
             icon={<FileText className="h-4 w-4" />}
           >
             Bài viết
           </TabButton>
           <TabButton
             active={activeTab === 'friends'}
-            onClick={() => setActiveTab('friends')}
+            onClick={() => handleTabChange('friends')}
             icon={<Users className="h-4 w-4" />}
           >
             Bạn bè

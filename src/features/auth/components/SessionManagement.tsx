@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { 
@@ -28,6 +29,7 @@ import {
 } from '@/components/ui/alert-dialog';
 
 export default function SessionManagement() {
+  const navigate = useNavigate();
   const [sessions, setSessions] = useState<Session[]>([]);
   const [loading, setLoading] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
@@ -86,7 +88,7 @@ export default function SessionManagement() {
       
       // Redirect to login after 2 seconds
       setTimeout(() => {
-        window.location.href = '/';
+        navigate('/login');
       }, 2000);
     } catch (err: any) {
       setError(err.message || 'Không thể thu hồi tất cả phiên');

@@ -109,7 +109,7 @@ export default function SearchDropdown({ searchQuery, onClose, isOpen, inputRef 
     const handlePostClick = (postId: string) => {
         onClose();
         // Navigate to post detail page with proper URL
-        window.history.pushState({}, '', `/forum/post/${postId}`);
+        navigate(`/forum/post/${postId}`, { replace: true });
         window.dispatchEvent(new CustomEvent('open-post-modal', { detail: { postId } }));
     };
 

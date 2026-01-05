@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Users, UserPlus, ShieldX, ArrowLeft, Sparkles } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import FriendsList from './FriendsList';
@@ -11,9 +11,28 @@ interface FriendsPageProps {
   onStartChat?: (userId: string, username: string) => void;
 }
 
+type FriendTab = 'friends' | 'requests' | 'blocked';
+
 export default function FriendsPage({ onStartChat }: FriendsPageProps) {
-  const [activeTab, setActiveTab] = useState('friends');
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const [activeTab, setActiveTab] = useState<FriendTab>('friends');
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Sync activeTab with URL query params
+  useEffect(() => {
+    const tab = searchParams.get('tab');
+    if (tab && ['friends', 'requests', 'blocked'].includes(tab)) {
+      setActiveTab(tab as FriendTab);
+    } else {
+      setActiveTab('friends');
+    }
+  }, [searchParams]);
+
+  const handleTabChange = (value: string) => {
+    setActiveTab(value as FriendTab);
+    navigate(`/friends?tab=${value}`, { replace: true });
+  };
 
   const handleRequestHandled = () => {
     // Refresh friends list when a request is accepted
@@ -44,7 +63,7 @@ export default function FriendsPage({ onStartChat }: FriendsPageProps) {
 
         {/* Main Card */}
         <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl shadow-blue-500/5 border border-white/50 overflow-hidden">
-          <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <Tabs value={activeTab} onValueChange={handleTabChange}>
             {/* Tab Navigation */}
             <div className="border-b border-slate-100 px-6 pt-6">
               <TabsList className="grid w-full grid-cols-3 bg-slate-100/50 p-1 rounded-2xl h-14">

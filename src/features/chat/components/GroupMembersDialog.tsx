@@ -204,8 +204,8 @@ export default function GroupMembersDialog({
             toast.success('Đã rời khỏi nhóm');
             onClose();
             onMemberChange?.();
-            // Reload conversations
-            window.location.reload();
+            // Refresh conversation list via event
+            window.dispatchEvent(new CustomEvent('refresh-conversations'));
         } catch (error: any) {
             console.error('Failed to leave group:', error);
             toast.error(error.message || 'Không thể rời nhóm');

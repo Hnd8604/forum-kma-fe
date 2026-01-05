@@ -1,17 +1,22 @@
 import { useState, useCallback, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import ConversationList, { AI_CONVERSATION_ID } from './ConversationList';
 import ChatWindow from './ChatWindow';
 import AIChatWindow from './AIChatWindow';
 import CreateGroupDialog from './CreateGroupDialog';
 import NewMessageDialog from './NewMessageDialog';
+import { ChatService } from '../services/chat.service';
 import type { Conversation } from '@/interfaces/chat.types';
 
 export default function ChatPage() {
+  const { conversationId } = useParams<{ conversationId?: string }>();
+  const navigate = useNavigate();
   const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [showAIChat, setShowAIChat] = useState(false);
   const [isCreateGroupOpen, setIsCreateGroupOpen] = useState(false);
   const [isNewMessageOpen, setIsNewMessageOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+  const [loadingConversation, setLoadingConversation] = useState(false);
 
   const handleRefresh = () => {
     setRefreshKey((prev) => prev + 1);
@@ -35,11 +40,46 @@ export default function ChatPage() {
     if (conversation.conversationId === AI_CONVERSATION_ID) {
       setShowAIChat(true);
       setSelectedConversation(null);
+      navigate('/chat/ai', { replace: true });
     } else {
       setShowAIChat(false);
       setSelectedConversation(conversation);
+      navigate(`/chat/${conversation.conversationId}`, { replace: true });
     }
-  }, []);
+  }, [navigate]);
+
+  // Load conversation from URL on mount or when conversationId changes
+  useEffect(() => {
+    if (!conversationId) {
+      setSelectedConversation(null);
+      setShowAIChat(false);
+      return;
+    }
+
+    if (conversationId === 'ai') {
+      setShowAIChat(true);
+      setSelectedConversation(null);
+      return;
+    }
+
+    // Load conversation by ID
+    const loadConversation = async () => {
+      setLoadingConversation(true);
+      try {
+        const conversation = await ChatService.getConversationById(conversationId);
+        setSelectedConversation(conversation);
+        setShowAIChat(false);
+      } catch (error) {
+        console.error('Failed to load conversation:', error);
+        // If conversation not found, go back to chat list
+        navigate('/chat', { replace: true });
+      } finally {
+        setLoadingConversation(false);
+      }
+    };
+
+    loadConversation();
+  }, [conversationId, navigate]);
 
   // Listen for conversation updates from ConversationList
   useEffect(() => {
@@ -80,12 +120,16 @@ export default function ChatPage() {
       </div>
 
       <div className="flex-1">
-        {showAIChat ? (
-          <AIChatWindow onBack={() => setShowAIChat(false)} />
+        {loadingConversation ? (
+          <div className="h-full flex items-center justify-center">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+          </div>
+        ) : showAIChat ? (
+          <AIChatWindow onBack={() => navigate('/chat', { replace: true })} />
         ) : selectedConversation ? (
           <ChatWindow
             conversation={selectedConversation}
-            onBack={() => setSelectedConversation(null)}
+            onBack={() => navigate('/chat', { replace: true })}
             onConversationRead={handleConversationRead}
           />
         ) : (

@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import {
   MessageSquare,
@@ -43,10 +44,12 @@ interface PostCardProps {
   post: ApiPost;
   onReactionChange?: (postId: string, newCount: number, myReaction: string | null) => void;
   onDelete?: (postId: string) => void;
+  autoOpenIfId?: string;
 }
 
-export default function PostCard({ post, onReactionChange, onDelete }: PostCardProps) {
+export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfId }: PostCardProps) {
   const currentUser = useAuthStore((s) => s.user);
+  const navigate = useNavigate();
 
   // Custom hooks để fetch thông tin author và group
   const { authorName, authorAvatarUrl } = useAuthorInfo({
@@ -78,14 +81,14 @@ export default function PostCard({ post, onReactionChange, onDelete }: PostCardP
   // Handle opening modal with URL change
   const openModal = useCallback(() => {
     setShowModal(true);
-    window.history.pushState({ postId: post.postId }, '', `/forum/post/${post.postId}`);
-  }, [post.postId]);
+    navigate(`/forum/post/${post.postId}`, { replace: true });
+  }, [post.postId, navigate]);
 
   // Handle closing modal with URL change
   const closeModal = useCallback(() => {
     setShowModal(false);
-    window.history.pushState({}, '', '/forum');
-  }, []);
+    navigate('/forum', { replace: true });
+  }, [navigate]);
 
   // Listen for browser back/forward navigation
   useEffect(() => {
@@ -110,6 +113,13 @@ export default function PostCard({ post, onReactionChange, onDelete }: PostCardP
     window.addEventListener('open-post-modal', handleOpenPostModal as EventListener);
     return () => window.removeEventListener('open-post-modal', handleOpenPostModal as EventListener);
   }, [post.postId]);
+
+  // Auto-open modal if URL contains this post's ID
+  useEffect(() => {
+    if (autoOpenIfId === post.postId) {
+      setShowModal(true);
+    }
+  }, [autoOpenIfId, post.postId]);
 
   // Check ownership
   const isOwner = currentUser?.userId === post.authorId;

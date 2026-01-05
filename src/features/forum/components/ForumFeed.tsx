@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useParams } from 'react-router-dom';
 import CreatePost from './CreatePost';
 import PostCard from './PostCard';
 import { Button } from '@/components/ui/button';
@@ -9,6 +10,7 @@ import type { ApiPost } from '@/interfaces/post.types';
 import { useAuthStore } from '@/store/useStore';
 
 export default function ForumFeed() {
+  const { postId } = useParams<{ postId?: string }>();
   const [posts, setPosts] = useState<ApiPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -202,6 +204,7 @@ export default function ForumFeed() {
                 post={post}
                 onReactionChange={handleReactionChange}
                 onDelete={handlePostDelete}
+                autoOpenIfId={postId}
               />
             ))}
 

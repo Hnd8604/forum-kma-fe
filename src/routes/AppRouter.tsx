@@ -36,7 +36,7 @@ function RegisterWrapper() {
 
     return <RegisterPage
         onRegister={() => navigate('/forum')}
-        onSwitchToLogin={() => navigate('/')}
+        onSwitchToLogin={() => navigate('/login')}
     />;
 }
 
@@ -194,17 +194,20 @@ export default function AppRouter() {
 
     const router = createBrowserRouter(
         [
-            { path: '/', element: <LoginWrapper /> },
+            { path: '/', element: <Navigate to="/login" replace /> },
+            { path: '/login', element: <LoginWrapper /> },
             { path: '/register', element: <RegisterWrapper /> },
             { path: '/forum', element: <ForumWrapper /> },
             { path: '/forum/group/:groupId', element: <ForumWrapper><GroupPage /></ForumWrapper> },
+            { path: '/forum/post/:postId', element: <ForumWrapper /> },
             { path: '/settings', element: <SimplePageWrapper><SettingsPage /></SimplePageWrapper> },
             { path: '/profile', element: <SimplePageWrapper><ProfilePage /></SimplePageWrapper> },
             { path: '/profile/:userId', element: <SimplePageWrapper><ProfilePage /></SimplePageWrapper> },
             { path: '/friends', element: <SimplePageWrapper><FriendsPage /></SimplePageWrapper> },
             { path: '/groups', element: <ForumWrapper><GroupsPage /></ForumWrapper> },
             { path: '/chat', element: <ChatWrapper /> },
-            { path: '*', element: <Navigate to="/" replace /> },
+            { path: '/chat/:conversationId', element: <ChatWrapper /> },
+            { path: '*', element: <Navigate to="/login" replace /> },
         ],
         {
             future: {

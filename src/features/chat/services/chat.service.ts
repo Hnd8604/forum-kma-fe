@@ -45,6 +45,20 @@ export class ChatService {
   }
 
   /**
+   * Lấy thông tin một cuộc hội thoại theo ID
+   */
+  static async getConversationById(conversationId: string): Promise<Conversation> {
+    const conversations = await this.getConversations();
+    const conversation = conversations.find(c => c.conversationId === conversationId);
+    
+    if (!conversation) {
+      throw new Error('Conversation not found');
+    }
+    
+    return conversation;
+  }
+
+  /**
    * Lấy lịch sử tin nhắn
    */
   static async getMessages(conversationId: string): Promise<Message[]> {

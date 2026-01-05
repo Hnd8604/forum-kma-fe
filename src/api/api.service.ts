@@ -104,7 +104,8 @@ axiosInstance.interceptors.response.use(
         localStorage.removeItem('accessToken');
         localStorage.removeItem('refreshToken');
         localStorage.removeItem('user');
-        window.location.href = '/';
+        // Use window.location for service-level redirect (cannot use navigate here)
+        window.location.href = '/login';
         return Promise.reject(refreshError);
       }
     }
