@@ -22,6 +22,14 @@ export interface AuthData {
   lastName: string;
   accessToken: string;
   refreshToken: string;
+  roleName?: string;
+  roleId?: string;
+  userStatus?: 'ACTIVE' | 'INACTIVE' | 'PENDING';
+  is2FAEnabled?: boolean;
+  dob?: string;
+  gender?: string;
+  address?: string;
+  avatarUrl?: string;
 }
 
 export interface User {
@@ -41,7 +49,7 @@ export interface User {
   gender?: string;
   address?: string;
   avatarUrl?: string;
-  roleId?: number;
+  roleId?: string;
   roleName?: string;
 }
 

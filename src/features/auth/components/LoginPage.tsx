@@ -10,7 +10,7 @@ import { ApiError } from '@/interfaces/auth.types';
 import ForgotPasswordDialog from './ForgotPasswordDialog';
 
 interface LoginPageProps {
-  onLogin: () => void;
+  onLogin: (user: any) => void;
   onSwitchToRegister?: () => void;
 }
 
@@ -69,6 +69,14 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
         email: response.email,
         firstName: response.firstName,
         lastName: response.lastName,
+        roleName: response.roleName,
+        roleId: response.roleId,
+        userStatus: response.userStatus,
+        is2FAEnabled: response.is2FAEnabled,
+        dob: response.dob,
+        gender: response.gender,
+        address: response.address,
+        avatarUrl: response.avatarUrl,
       };
 
       // Update auth store with user data
@@ -90,8 +98,8 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
         }
       }
 
-      // Call the onLogin callback
-      onLogin();
+      // Call the onLogin callback with user data
+      onLogin(user);
     } catch (error: any) {
       const apiError = error as ApiError;
 
@@ -128,6 +136,14 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
         email: response.email,
         firstName: response.firstName,
         lastName: response.lastName,
+        roleName: response.roleName,
+        roleId: response.roleId,
+        userStatus: response.userStatus,
+        is2FAEnabled: response.is2FAEnabled,
+        dob: response.dob,
+        gender: response.gender,
+        address: response.address,
+        avatarUrl: response.avatarUrl,
       };
 
       // Update auth store with user data
@@ -142,8 +158,8 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
         }
       }
 
-      // Call the onLogin callback
-      onLogin();
+      // Call the onLogin callback with user data
+      onLogin(user);
     } catch (error: any) {
       const apiError = error as ApiError;
       setError(apiError.message || 'Mã OTP không chính xác hoặc đã hết hạn.');

@@ -14,28 +14,63 @@ import { Toaster } from '@/components/ui/toaster';
 import { FriendsPage } from '@/features/friends';
 import { GroupsPage } from '@/features/groups';
 import { useAuthStore } from '@/store/useStore';
-import { MainAppLayout } from '@/layouts';
+import { MainAppLayout, AdminLayout } from '@/layouts';
+import { AdminDashboard } from '@/pages';
+import {
+    AdminUserManagement,
+    AdminPostManagement,
+    AdminGroupManagement,
+    AdminRoleManagement,
+} from '@/features/admin';
 
 function LoginWrapper() {
     const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+    const isAdmin = useAuthStore((s) => s.isAdmin);
     const navigate = useNavigate();
 
-    if (isLoggedIn) return <Navigate to="/forum" replace />;
+    if (isLoggedIn) {
+        // Redirect admin users to admin dashboard
+        if (isAdmin()) {
+            return <Navigate to="/admin" replace />;
+        }
+        return <Navigate to="/forum" replace />;
+    }
 
     return <LoginPage
-        onLogin={() => navigate('/forum')}
+        onLogin={(user) => {
+            // Check if user is admin from the user data directly
+            const userIsAdmin = user?.roleName?.toLowerCase() === 'admin' || 
+                               user?.roles?.some(role => role.toLowerCase() === 'admin');
+            if (userIsAdmin) {
+                navigate('/admin');
+            } else {
+                navigate('/forum');
+            }
+        }}
         onSwitchToRegister={() => navigate('/register')}
     />;
 }
 
 function RegisterWrapper() {
     const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+    const user = useAuthStore((s) => s.user);
     const navigate = useNavigate();
 
-    if (isLoggedIn) return <Navigate to="/forum" replace />;
+    if (isLoggedIn) {
+        // Check if user is admin and redirect accordingly
+        const userIsAdmin = user?.roleName?.toLowerCase() === 'admin' || 
+                           user?.roles?.some(role => role.toLowerCase() === 'admin');
+        return <Navigate to={userIsAdmin ? '/admin' : '/forum'} replace />;
+    }
 
     return <RegisterPage
-        onRegister={() => navigate('/forum')}
+        onRegister={(user) => {
+            // Check if registered user is admin and redirect accordingly
+            const userIsAdmin = user?.roleName?.toLowerCase() === 'admin' || 
+                               user?.roles?.some(role => role.toLowerCase() === 'admin');
+            if (userIsAdmin) navigate('/admin');
+            else navigate('/forum');
+        }}
         onSwitchToLogin={() => navigate('/login')}
     />;
 }
@@ -133,6 +168,25 @@ function SimplePageWrapper({ children }: { children: React.ReactNode }) {
     );
 }
 
+// Admin Wrapper - Protected route for admin users only
+function AdminWrapper({ children }: { children?: React.ReactNode }) {
+    const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
+    const isAdmin = useAuthStore((s) => s.isAdmin);
+
+    if (!isLoggedIn) return <Navigate to="/login" replace />;
+    if (!isAdmin()) return <Navigate to="/forum" replace />;
+
+    return (
+        <>
+            <WebSocketManager />
+            <AdminLayout>
+                {children || <AdminDashboard />}
+            </AdminLayout>
+            <Toaster />
+        </>
+    );
+}
+
 function ChatWrapper() {
     const logout = useAuthStore((s) => s.logout);
     const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
@@ -197,6 +251,17 @@ export default function AppRouter() {
             { path: '/', element: <Navigate to="/login" replace /> },
             { path: '/login', element: <LoginWrapper /> },
             { path: '/register', element: <RegisterWrapper /> },
+            
+            // Admin routes
+            { path: '/admin', element: <AdminWrapper /> },
+            { path: '/admin/users', element: <AdminWrapper><AdminUserManagement /></AdminWrapper> },
+            { path: '/admin/posts', element: <AdminWrapper><AdminPostManagement /></AdminWrapper> },
+            { path: '/admin/groups', element: <AdminWrapper><AdminGroupManagement /></AdminWrapper> },
+            { path: '/admin/roles', element: <AdminWrapper><AdminRoleManagement /></AdminWrapper> },
+            { path: '/admin/reports', element: <AdminWrapper><div className="p-6"><h1 className="text-2xl font-bold">Báo Cáo Vi Phạm</h1><p className="text-muted-foreground mt-2">Tính năng đang phát triển...</p></div></AdminWrapper> },
+            { path: '/admin/settings', element: <AdminWrapper><div className="p-6"><h1 className="text-2xl font-bold">Cài Đặt Hệ Thống</h1><p className="text-muted-foreground mt-2">Tính năng đang phát triển...</p></div></AdminWrapper> },
+            
+            // Forum routes
             { path: '/forum', element: <ForumWrapper /> },
             { path: '/forum/group/:groupId', element: <ForumWrapper><GroupPage /></ForumWrapper> },
             { path: '/forum/post/:postId', element: <ForumWrapper /> },

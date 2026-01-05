@@ -80,4 +80,39 @@ export default {
         MARK_READ: (id: string) => `/notifications/${id}/read`,
         MARK_ALL_READ: "/notifications/read-all",
     },
+    ADMIN_ENDPOINTS: {
+        // User Management
+        GET_ALL_USERS: "/users",
+        GET_USER_BY_ID: (id: string) => `/users/${id}`,
+        SEARCH_USERS: "/users/search",
+        BAN_USER: (id: string) => `/users/${id}/ban`,
+        UNBAN_USER: (id: string) => `/users/${id}/unban`,
+        DELETE_USER: (id: string) => `/users/${id}`,
+        
+        // Role Management
+        GET_ALL_ROLES: "/roles",
+        GET_ROLE_BY_ID: (id: string) => `/roles/${id}`,
+        CREATE_ROLE: "/roles",
+        UPDATE_ROLE: (id: string) => `/roles/${id}`,
+        DELETE_ROLE: (id: string) => `/roles/${id}`,
+        
+        // Post Management
+        GET_ALL_POSTS: "/posts",
+        DELETE_POST: (id: string) => `/posts/${id}`,
+        GET_POSTS_BY_GROUP: (groupId: string) => `/posts/feed/group/${groupId}`,
+        
+        // Group Management
+        GET_ALL_GROUPS: "/groups",
+        GET_GROUP_BY_ID: (id: string) => `/groups/${id}`,
+        DELETE_GROUP: (id: string) => `/groups/${id}`,
+        GET_GROUP_MEMBERS: (id: string) => `/groups/${id}/members`,
+        UPDATE_MEMBER_ROLE: (id: string) => `/groups/${id}/members/role`,
+        REMOVE_MEMBER: (groupId: string, userId: string) => `/groups/${groupId}/members/${userId}`,
+        
+        // Comment Management
+        DELETE_COMMENT: (id: string) => `/comments/${id}`,
+        
+        // Statistics
+        GET_STATS: "/admin/stats",
+    },
 } as const;

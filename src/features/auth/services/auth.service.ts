@@ -14,13 +14,21 @@ export class AuthService {
         localStorage.setItem('accessToken', response.accessToken);
         localStorage.setItem('refreshToken', response.refreshToken);
 
-        // Store user data
+        // Store user data với đầy đủ thông tin
         const user: User = {
           userId: response.userId,
           username: response.username,
           email: response.email,
           firstName: response.firstName,
           lastName: response.lastName,
+          roleName: response.roleName,
+          roleId: response.roleId,
+          userStatus: response.userStatus,
+          is2FAEnabled: response.is2FAEnabled,
+          dob: response.dob,
+          gender: response.gender,
+          address: response.address,
+          avatarUrl: response.avatarUrl,
         };
         localStorage.setItem('user', JSON.stringify(user));
       } catch (error) {
@@ -43,13 +51,21 @@ export class AuthService {
         localStorage.setItem('accessToken', response.accessToken);
         localStorage.setItem('refreshToken', response.refreshToken);
 
-        // Store user data
+        // Store user data với đầy đủ thông tin
         const user: User = {
           userId: response.userId,
           username: response.username,
           email: response.email,
           firstName: response.firstName,
           lastName: response.lastName,
+          roleName: response.roleName,
+          roleId: response.roleId,
+          userStatus: response.userStatus,
+          is2FAEnabled: response.is2FAEnabled,
+          dob: response.dob,
+          gender: response.gender,
+          address: response.address,
+          avatarUrl: response.avatarUrl,
         };
         localStorage.setItem('user', JSON.stringify(user));
       } catch (error) {
@@ -72,13 +88,21 @@ export class AuthService {
         localStorage.setItem('accessToken', response.accessToken);
         localStorage.setItem('refreshToken', response.refreshToken);
 
-        // Store user data
+        // Store user data với đầy đủ thông tin
         const user: User = {
           userId: response.userId,
           username: response.username,
           email: response.email,
           firstName: response.firstName,
           lastName: response.lastName,
+          roleName: response.roleName,
+          roleId: response.roleId,
+          userStatus: response.userStatus,
+          is2FAEnabled: response.is2FAEnabled,
+          dob: response.dob,
+          gender: response.gender,
+          address: response.address,
+          avatarUrl: response.avatarUrl,
         };
         localStorage.setItem('user', JSON.stringify(user));
       } catch (error) {

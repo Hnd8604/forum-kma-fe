@@ -10,7 +10,7 @@ import { ApiError } from '@/interfaces/auth.types';
 import EmailVerificationDialog from './EmailVerificationDialog';
 
 interface RegisterPageProps {
-  onRegister: () => void;
+  onRegister: (user: any) => void;
   onSwitchToLogin?: () => void;
 }
 
@@ -303,11 +303,13 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
         onClose={() => {
           setShowEmailVerification(false);
           // Call the onRegister callback when verification dialog closes
-          onRegister();
+          const user = useAuthStore.getState().user;
+          onRegister(user);
         }}
         onVerificationComplete={() => {
           setShowEmailVerification(false);
-          onRegister();
+          const user = useAuthStore.getState().user;
+          onRegister(user);
         }}
       />
 
