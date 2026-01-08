@@ -30,8 +30,10 @@ export default function SettingsPage() {
   const [isDisableTwoFAOpen, setIsDisableTwoFAOpen] = useState(false);
   const [is2FAEnabled, setIs2FAEnabled] = useState(false);
   const [toggling2FA, setToggling2FA] = useState(false);
-  const [saveError, setSaveError] = useState('');
-  const [saveSuccess, setSaveSuccess] = useState('');
+  const [avatarError, setAvatarError] = useState('');
+  const [avatarSuccess, setAvatarSuccess] = useState('');
+  const [profileError, setProfileError] = useState('');
+  const [profileSuccess, setProfileSuccess] = useState('');
 
   // Fetch user profile on mount
   useEffect(() => {
@@ -40,7 +42,7 @@ export default function SettingsPage() {
         setLoading(true);
         const profile = await AuthService.fetchUserProfile();
         setUser(profile);
-        
+
         // Update form fields
         setUsername(profile.username);
         setEmail(profile.email);
@@ -62,11 +64,11 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     setSaving(true);
-    setSaveError('');
-    setSaveSuccess('');
+    setProfileError('');
+    setProfileSuccess('');
 
     if (!user?.userId) {
-      setSaveError('Không tìm thấy thông tin user');
+      setProfileError('Không tìm thấy thông tin user');
       setSaving(false);
       return;
     }
@@ -82,9 +84,9 @@ export default function SettingsPage() {
 
       // Update local store
       setUser(updatedUser);
-      setSaveSuccess('Cập nhật thông tin thành công!');
+      setProfileSuccess('Cập nhật thông tin thành công!');
     } catch (error: any) {
-      setSaveError(error.message || 'Có lỗi xảy ra khi cập nhật thông tin');
+      setProfileError(error.message || 'Có lỗi xảy ra khi cập nhật thông tin');
     } finally {
       setSaving(false);
     }
@@ -92,8 +94,8 @@ export default function SettingsPage() {
 
   const handleDisable2FASuccess = () => {
     setIs2FAEnabled(false);
-    setSaveSuccess('Đã tắt xác thực 2 yếu tố thành công');
-    
+    setProfileSuccess('Đã tắt xác thực 2 yếu tố thành công');
+
     // Update user in store
     if (user) {
       setUser({ ...user, is2FAEnabled: false });
@@ -102,17 +104,17 @@ export default function SettingsPage() {
 
   const handleEnable2FA = async () => {
     setToggling2FA(true);
-    setSaveError('');
-    setSaveSuccess('');
+    setProfileError('');
+    setProfileSuccess('');
 
     try {
       const response = await TwoFAService.enable();
       setIs2FAEnabled(true);
-      setSaveSuccess(response.message || 'Đã bật xác thực 2 yếu tố');
+      setProfileSuccess(response.message || 'Đã bật xác thực 2 yếu tố');
       if (user) setUser({ ...user, is2FAEnabled: true });
     } catch (error: any) {
       console.error('Error enabling 2FA:', error);
-      setSaveError(error.message || 'Có lỗi xảy ra khi bật xác thực 2 yếu tố');
+      setProfileError(error.message || 'Có lỗi xảy ra khi bật xác thực 2 yếu tố');
     } finally {
       setToggling2FA(false);
     }
@@ -131,15 +133,15 @@ export default function SettingsPage() {
           <h3 className="text-xl font-semibold text-slate-900">Ảnh đại diện</h3>
         </div>
 
-        {saveError && (
+        {avatarError && (
           <Alert variant="destructive" className="rounded-xl border-red-200 bg-red-50 mb-4">
-            <AlertDescription className="text-red-600">{saveError}</AlertDescription>
+            <AlertDescription className="text-red-600">{avatarError}</AlertDescription>
           </Alert>
         )}
 
-        {saveSuccess && (
+        {avatarSuccess && (
           <Alert className="border-green-200 text-green-700 bg-green-50 rounded-xl mb-4">
-            <AlertDescription>{saveSuccess}</AlertDescription>
+            <AlertDescription>{avatarSuccess}</AlertDescription>
           </Alert>
         )}
 
@@ -148,12 +150,12 @@ export default function SettingsPage() {
             user={user}
             onSuccess={(updatedUser) => {
               setUser(updatedUser);
-              setSaveSuccess('Cập nhật ảnh đại diện thành công!');
-              setSaveError('');
+              setAvatarSuccess('Cập nhật ảnh đại diện thành công!');
+              setAvatarError('');
             }}
             onError={(error) => {
-              setSaveError(error);
-              setSaveSuccess('');
+              setAvatarError(error);
+              setAvatarSuccess('');
             }}
           />
         )}
@@ -167,22 +169,34 @@ export default function SettingsPage() {
           </div>
           <h3 className="text-xl font-semibold text-slate-900">Thông tin cá nhân</h3>
         </div>
-        
+
+        {profileError && (
+          <Alert variant="destructive" className="rounded-xl border-red-200 bg-red-50 mb-4">
+            <AlertDescription className="text-red-600">{profileError}</AlertDescription>
+          </Alert>
+        )}
+
+        {profileSuccess && (
+          <Alert className="border-green-200 text-green-700 bg-green-50 rounded-xl mb-4">
+            <AlertDescription>{profileSuccess}</AlertDescription>
+          </Alert>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium text-slate-700 block mb-2">Họ</label>
-            <Input 
-              value={lastName} 
-              onChange={(e) => setLastName(e.target.value)} 
+            <Input
+              value={lastName}
+              onChange={(e) => setLastName(e.target.value)}
               placeholder="Nhập họ"
               className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
             />
           </div>
           <div>
             <label className="text-sm font-medium text-slate-700 block mb-2">Tên</label>
-            <Input 
-              value={firstName} 
-              onChange={(e) => setFirstName(e.target.value)} 
+            <Input
+              value={firstName}
+              onChange={(e) => setFirstName(e.target.value)}
               placeholder="Nhập tên"
               className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
             />
@@ -191,9 +205,9 @@ export default function SettingsPage() {
 
         <div>
           <label className="text-sm font-medium text-slate-700 block mb-2">Email</label>
-          <Input 
-            value={email} 
-            onChange={(e) => setEmail(e.target.value)} 
+          <Input
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
             placeholder="example@kma.vn"
             className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
           />
@@ -201,21 +215,21 @@ export default function SettingsPage() {
 
         <div>
           <label className="text-sm font-medium text-slate-700 block mb-2">Tên đăng nhập</label>
-          <Input 
-            value={username} 
-            onChange={(e) => setUsername(e.target.value)} 
+          <Input
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
             placeholder="Nhập tên đăng nhập"
             className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
           />
         </div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
             <label className="text-sm font-medium text-slate-700 block mb-2">Ngày sinh</label>
-            <Input 
+            <Input
               type="date"
-              value={dob} 
-              onChange={(e) => setDob(e.target.value)} 
+              value={dob}
+              onChange={(e) => setDob(e.target.value)}
               className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
             />
           </div>
@@ -233,20 +247,20 @@ export default function SettingsPage() {
             </select>
           </div>
         </div>
-        
+
         <div>
           <label className="text-sm font-medium text-slate-700 block mb-2">Địa chỉ</label>
-          <Input 
-            value={address} 
-            onChange={(e) => setAddress(e.target.value)} 
+          <Input
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
             placeholder="Nhập địa chỉ"
             className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
           />
         </div>
 
         <div className="flex items-center justify-end pt-2">
-          <Button 
-            onClick={handleSave} 
+          <Button
+            onClick={handleSave}
             disabled={saving}
             className="h-11 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all"
           >
@@ -263,7 +277,7 @@ export default function SettingsPage() {
           </div>
           <h3 className="text-xl font-semibold text-slate-900">Bảo mật</h3>
         </div>
-        
+
         <div className="space-y-1">
           <div className="flex items-center justify-between py-4 px-4 rounded-xl hover:bg-slate-50 transition-all">
             <div>
@@ -272,7 +286,7 @@ export default function SettingsPage() {
                 Cập nhật mật khẩu của bạn để bảo vệ tài khoản
               </p>
             </div>
-            <Button 
+            <Button
               onClick={() => setIsChangePasswordOpen(true)}
               variant="outline"
               className="h-10 px-5 rounded-xl border-slate-200 hover:bg-slate-100 hover:border-slate-300 font-medium transition-all"
@@ -285,8 +299,8 @@ export default function SettingsPage() {
             <div>
               <h4 className="font-semibold text-slate-900">Xác thực Email</h4>
               <p className="text-sm text-slate-500 mt-0.5">
-                {user?.userStatus === 'ACTIVE' 
-                  ? 'Email của bạn đã được xác thực' 
+                {user?.userStatus === 'ACTIVE'
+                  ? 'Email của bạn đã được xác thực'
                   : 'Xác thực email để bảo vệ tài khoản của bạn'
                 }
               </p>
@@ -299,7 +313,7 @@ export default function SettingsPage() {
                 <span className="text-sm font-semibold">Đã xác thực</span>
               </div>
             ) : (
-              <Button 
+              <Button
                 onClick={() => setIsEmailVerificationOpen(true)}
                 variant="outline"
                 className="h-10 px-5 rounded-xl border-slate-200 hover:bg-slate-100 hover:border-slate-300 font-medium transition-all"
@@ -322,11 +336,10 @@ export default function SettingsPage() {
                 variant={is2FAEnabled ? "outline" : "default"}
                 size="sm"
                 disabled={toggling2FA || loading}
-                className={`h-10 px-5 rounded-xl font-medium transition-all ${
-                  is2FAEnabled 
-                    ? 'border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300' 
+                className={`h-10 px-5 rounded-xl font-medium transition-all ${is2FAEnabled
+                    ? 'border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300'
                     : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25'
-                }`}
+                  }`}
               >
                 {toggling2FA ? 'Đang xử lý...' : (is2FAEnabled ? 'Tắt 2FA' : 'Bật 2FA')}
               </Button>
@@ -350,10 +363,10 @@ export default function SettingsPage() {
         isOpen={isEmailVerificationOpen}
         onClose={() => setIsEmailVerificationOpen(false)}
         onVerificationComplete={() => {
-          setSaveSuccess('Email đã được xác thực thành công!');
+          setProfileSuccess('Email đã được xác thực thành công!');
         }}
       />
-      
+
       <ChangePasswordDialog
         isOpen={isChangePasswordOpen}
         onClose={() => setIsChangePasswordOpen(false)}

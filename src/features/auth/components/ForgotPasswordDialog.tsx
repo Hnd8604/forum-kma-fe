@@ -179,36 +179,31 @@ export default function ForgotPasswordDialog({
         {/* Progress Indicator */}
         <div className="flex items-center justify-between mb-4 px-4">
           <div className="flex flex-col items-center flex-1">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              step === 'email' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
-            }`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step === 'email' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
+              }`}>
               {step === 'email' ? <Mail size={20} /> : <CheckCircle2 size={20} />}
             </div>
             <span className="text-xs mt-2 font-medium">Email</span>
           </div>
-          
-          <div className={`flex-1 h-1 mx-2 ${
-            step === 'otp' || step === 'password' ? 'bg-green-600' : 'bg-gray-300'
-          }`} />
-          
+
+          <div className={`flex-1 h-1 mx-2 ${step === 'otp' || step === 'password' ? 'bg-green-600' : 'bg-gray-300'
+            }`} />
+
           <div className="flex flex-col items-center flex-1">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              step === 'email' ? 'bg-gray-300 text-gray-600' : 
-              step === 'otp' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
-            }`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step === 'email' ? 'bg-gray-300 text-gray-600' :
+                step === 'otp' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
+              }`}>
               {step === 'password' ? <CheckCircle2 size={20} /> : <span className="text-sm font-semibold">OTP</span>}
             </div>
             <span className="text-xs mt-2 font-medium">Xác thực</span>
           </div>
-          
-          <div className={`flex-1 h-1 mx-2 ${
-            step === 'password' ? 'bg-green-600' : 'bg-gray-300'
-          }`} />
-          
+
+          <div className={`flex-1 h-1 mx-2 ${step === 'password' ? 'bg-green-600' : 'bg-gray-300'
+            }`} />
+
           <div className="flex flex-col items-center flex-1">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
-              step === 'password' ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
-            }`}>
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step === 'password' ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
+              }`}>
               <KeyRound size={20} />
             </div>
             <span className="text-xs mt-2 font-medium">Mật khẩu</span>
@@ -238,7 +233,6 @@ export default function ForgotPasswordDialog({
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="example@kma.vn"
                   autoFocus
                   className="h-11"
                   onKeyDown={(e) => e.key === 'Enter' && handleSendOtp()}
@@ -271,10 +265,10 @@ export default function ForgotPasswordDialog({
                   <p className="text-xs">Mã OTP có hiệu lực trong 10 phút</p>
                 </div>
               </div>
-              
+
               <div className="flex justify-center pt-2">
-                <Button 
-                  variant="link" 
+                <Button
+                  variant="link"
                   onClick={handleSendOtp}
                   disabled={loading}
                   className="text-sm"
@@ -343,16 +337,16 @@ export default function ForgotPasswordDialog({
               </Button>
             </>
           )}
-          
+
           {step === 'otp' && (
             <>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => {
                   setStep('email');
                   setOtp('');
                   setError('');
-                }} 
+                }}
                 disabled={loading}
               >
                 Quay lại
@@ -362,17 +356,17 @@ export default function ForgotPasswordDialog({
               </Button>
             </>
           )}
-          
+
           {step === 'password' && (
             <>
-              <Button 
-                variant="outline" 
+              <Button
+                variant="outline"
                 onClick={() => {
                   setStep('otp');
                   setNewPassword('');
                   setConfirmPassword('');
                   setError('');
-                }} 
+                }}
                 disabled={loading}
               >
                 Quay lại

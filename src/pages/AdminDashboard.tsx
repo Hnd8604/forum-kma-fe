@@ -63,10 +63,10 @@ export default function AdminDashboard() {
       color: 'bg-emerald-500',
     },
     {
-      title: 'Nhóm',
+      title: 'Danh Mục',
       value: stats?.totalGroups ?? 0,
       icon: UsersRound,
-      description: 'Nhóm hoạt động',
+      description: 'Danh mục bài viết',
       onClick: () => navigate('/admin/groups'),
       color: 'bg-violet-500',
     },
@@ -94,8 +94,8 @@ export default function AdminDashboard() {
       onClick: () => navigate('/admin/posts'),
     },
     {
-      title: 'Quản Lý Nhóm',
-      description: 'Quản lý các nhóm trong hệ thống',
+      title: 'Quản Lý Danh Mục',
+      description: 'Quản lý các danh mục bài viết',
       icon: UsersRound,
       onClick: () => navigate('/admin/groups'),
     },

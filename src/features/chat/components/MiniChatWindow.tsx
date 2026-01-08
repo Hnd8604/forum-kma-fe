@@ -1,13 +1,15 @@
 import { useState, useEffect, useRef } from 'react';
 import { ChatService } from '../services/chat.service';
 import { AuthService } from '../../auth/services/auth.service';
-import type { Conversation, Message } from '@/interfaces/chat.types';
+import type { Conversation, Message, MessageType, SendMessageRequest } from '@/interfaces/chat.types';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { X, Send, Users } from 'lucide-react';
 import { useAuthStore } from '@/store/useStore';
 import { formatMessageTime } from '../utils/timeFormat';
+import ChatMediaUpload from './ChatMediaUpload';
+import ChatMessageContent from './ChatMessageContent';
 
 // Check if should show time between messages (5+ minutes gap or different sender)
 const shouldShowTime = (currentMsg: Message, prevMsg: Message | null): boolean => {
@@ -104,7 +106,8 @@ export default function MiniChatWindow({
           fromUserId: data.senderId || data.fromUserId,
           toUserId: data.receiverId,
           message: data.message,
-          type: data.type || 'TEXT',
+          type: data.messageType || data.type || 'TEXT',
+          resourceUrls: data.resourceUrls || [],
           createdAt: data.sentAt || data.createdAt || new Date().toISOString(),
         };
 
@@ -192,16 +195,24 @@ export default function MiniChatWindow({
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!newMessage.trim() || sending) return;
+  const handleSendMessage = async (messageType: MessageType = 'TEXT', resourceUrls?: string[]) => {
     const messageText = newMessage.trim();
+
+    // For TEXT messages, require text content
+    // For media messages, text is optional (caption)
+    if (messageType === 'TEXT' && !messageText) return;
+    if (messageType !== 'TEXT' && (!resourceUrls || resourceUrls.length === 0)) return;
+    if (sending) return;
+
     setNewMessage('');
     setSending(true);
+
     try {
-      // Build request giống như ChatWindow để backend broadcast qua WebSocket
-      let request: any = {
-        message: messageText,
-        type: 'TEXT',
+      // Build request
+      let request: SendMessageRequest = {
+        message: messageText || (messageType === 'IMAGE' ? '📷 Hình ảnh' : messageType === 'VIDEO' ? '🎬 Video' : '📎 Tệp đính kèm'),
+        type: messageType,
+        resourceUrls: resourceUrls,
       };
 
       if (conversation.conversationId.startsWith('temp-') && conversation.partnerId) {
@@ -233,7 +244,7 @@ export default function MiniChatWindow({
           chatId: sentMessage.conversationId || conversation.conversationId,
           conversationId: sentMessage.conversationId || conversation.conversationId,
           senderId: user?.userId,
-          message: messageText,
+          message: request.message,
           sentAt: sentMessage.createdAt || new Date().toISOString(),
         }
       }));
@@ -253,6 +264,11 @@ export default function MiniChatWindow({
     } finally {
       setSending(false);
     }
+  };
+
+  // Handle media upload
+  const handleMediaUpload = (urls: string[], type: MessageType) => {
+    handleSendMessage(type, urls);
   };
 
   const scrollToBottom = () => {
@@ -357,7 +373,12 @@ export default function MiniChatWindow({
                         ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
                         : 'bg-white text-slate-900 border border-slate-200'
                         }`}>
-                        <p className="text-sm whitespace-pre-wrap break-words overflow-wrap-anywhere" style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}>{message.message}</p>
+                        <ChatMessageContent
+                          message={message.message}
+                          type={message.type}
+                          resourceUrls={message.resourceUrls}
+                          isMine={isMine}
+                        />
                       </div>
                     </div>
                   </div>
@@ -369,8 +390,11 @@ export default function MiniChatWindow({
       </div>
 
       {/* Input */}
-      <div className="p-4 border-t border-slate-200 bg-white">
-        <div className="flex gap-2">
+      <div className="p-3 border-t border-slate-200 bg-white">
+        <div className="flex items-center gap-2">
+          {/* Media upload buttons */}
+          <ChatMediaUpload onUpload={handleMediaUpload} disabled={sending} />
+
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
@@ -380,7 +404,7 @@ export default function MiniChatWindow({
             className="flex-1 h-10 text-sm rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
           />
           <Button
-            onClick={handleSendMessage}
+            onClick={() => handleSendMessage()}
             disabled={!newMessage.trim() || sending}
             size="sm"
             className="h-10 w-10 p-0 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 shadow-lg shadow-blue-500/25"

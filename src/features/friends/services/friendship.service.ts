@@ -31,6 +31,13 @@ export class FriendshipService {
   }
 
   /**
+   * Cancel a friend request sent by current user
+   */
+  static async cancelFriendRequest(friendshipId: string): Promise<void> {
+    return ApiService.post<void>(`/friends/request/cancel/${friendshipId}`, {}, true);
+  }
+
+  /**
    * Unfriend a user
    */
   static async unfriend(userId: string): Promise<void> {
@@ -77,5 +84,14 @@ export class FriendshipService {
    */
   static async getBlockedUsers(): Promise<FriendshipResponse[]> {
     return ApiService.get<FriendshipResponse[]>('/friends/blocked', true);
+  }
+
+  /**
+   * Get suggested users for friend requests
+   * Returns random users who are not already friends, blocked, or have pending requests
+   * @param limit - Maximum number of suggestions (default: 5)
+   */
+  static async getSuggestedUsers(limit: number = 5): Promise<FriendshipResponse[]> {
+    return ApiService.get<FriendshipResponse[]>(`/friends/suggestions?limit=${limit}`, true);
   }
 }

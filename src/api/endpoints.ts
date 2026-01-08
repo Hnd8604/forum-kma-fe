@@ -43,21 +43,27 @@ export default {
         JOIN: (id: string) => `/groups/${id}/join`,
         LEAVE: (id: string) => `/groups/${id}/leave`,
         GET_MEMBERS: (id: string) => `/groups/${id}/members`,
-        GET_MY_GROUPS: "/groups/my",
-        SUGGESTED: "/groups/suggested",
+        GET_MY_GROUPS: "/groups/my-groups",
+        SUGGESTIONS: "/groups/suggestions",
+        CHECK_MEMBERSHIP: (id: string) => `/groups/${id}/membership`,
+        UPDATE_MEMBER_ROLE: (id: string) => `/groups/${id}/members/role`,
+        REMOVE_MEMBER: (groupId: string, userId: string) => `/groups/${groupId}/members/${userId}`,
+        TRANSFER_OWNERSHIP: (id: string) => `/groups/${id}/transfer-ownership`,
     },
     FRIENDSHIP_ENDPOINTS: {
-        GET_FRIENDS: "/friendships/friends",
-        GET_REQUESTS: "/friendships/requests",
-        GET_SENT_REQUESTS: "/friendships/sent",
-        SEND_REQUEST: "/friendships/request",
-        ACCEPT: (id: string) => `/friendships/accept/${id}`,
-        REJECT: (id: string) => `/friendships/reject/${id}`,
-        UNFRIEND: (id: string) => `/friendships/unfriend/${id}`,
-        BLOCK: (userId: string) => `/friendships/block/${userId}`,
-        UNBLOCK: (userId: string) => `/friendships/unblock/${userId}`,
-        GET_BLOCKED: "/friendships/blocked",
-        GET_STATUS: (userId: string) => `/friendships/status/${userId}`,
+        // New API endpoints matching backend FriendshipController
+        GET_FRIENDS: "/friends",
+        GET_REQUESTS_RECEIVED: "/friends/requests/received",
+        GET_REQUESTS_SENT: "/friends/requests/sent",
+        SEND_REQUEST: (userId: string) => `/friends/request/${userId}`,
+        ACCEPT: (friendshipId: string) => `/friends/accept/${friendshipId}`,
+        REJECT: (friendshipId: string) => `/friends/reject/${friendshipId}`,
+        UNFRIEND: (userId: string) => `/friends/${userId}`,
+        BLOCK: (userId: string) => `/friends/block/${userId}`,
+        UNBLOCK: (userId: string) => `/friends/unblock/${userId}`,
+        GET_BLOCKED: "/friends/blocked",
+        GET_STATUS: (userId: string) => `/friends/status/${userId}`,
+        SUGGESTIONS: "/friends/suggestions",
     },
     CHAT_ENDPOINTS: {
         SEND_MESSAGE: "/chat/send",
@@ -85,22 +91,23 @@ export default {
         GET_ALL_USERS: "/users",
         GET_USER_BY_ID: (id: string) => `/users/${id}`,
         SEARCH_USERS: "/users/search",
+        CREATE_USER: "/users",
         BAN_USER: (id: string) => `/users/${id}/ban`,
         UNBAN_USER: (id: string) => `/users/${id}/unban`,
         DELETE_USER: (id: string) => `/users/${id}`,
-        
+
         // Role Management
         GET_ALL_ROLES: "/roles",
         GET_ROLE_BY_ID: (id: string) => `/roles/${id}`,
         CREATE_ROLE: "/roles",
         UPDATE_ROLE: (id: string) => `/roles/${id}`,
         DELETE_ROLE: (id: string) => `/roles/${id}`,
-        
+
         // Post Management
         GET_ALL_POSTS: "/posts",
         DELETE_POST: (id: string) => `/posts/${id}`,
         GET_POSTS_BY_GROUP: (groupId: string) => `/posts/feed/group/${groupId}`,
-        
+
         // Group Management
         GET_ALL_GROUPS: "/groups",
         GET_GROUP_BY_ID: (id: string) => `/groups/${id}`,
@@ -108,10 +115,10 @@ export default {
         GET_GROUP_MEMBERS: (id: string) => `/groups/${id}/members`,
         UPDATE_MEMBER_ROLE: (id: string) => `/groups/${id}/members/role`,
         REMOVE_MEMBER: (groupId: string, userId: string) => `/groups/${groupId}/members/${userId}`,
-        
+
         // Comment Management
         DELETE_COMMENT: (id: string) => `/comments/${id}`,
-        
+
         // Statistics
         GET_STATS: "/admin/stats",
     },

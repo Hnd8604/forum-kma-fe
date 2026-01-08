@@ -310,7 +310,6 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
                     <Input
                       id="emailForOtp"
                       type="email"
-                      placeholder="your@email.com"
                       value={emailForOtp}
                       onChange={(e) => setEmailForOtp(e.target.value)}
                       className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm transition-all"

@@ -1,17 +1,16 @@
 import { useState, useEffect } from 'react';
-import { Users, UserPlus, ShieldX, ArrowLeft, Sparkles } from 'lucide-react';
+import { Users, UserPlus, ArrowLeft, Sparkles } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import FriendsList from './FriendsList';
 import FriendRequests from './FriendRequests';
-import BlockedUsers from './BlockedUsers';
 
 interface FriendsPageProps {
   onStartChat?: (userId: string, username: string) => void;
 }
 
-type FriendTab = 'friends' | 'requests' | 'blocked';
+type FriendTab = 'friends' | 'requests';
 
 export default function FriendsPage({ onStartChat }: FriendsPageProps) {
   const [searchParams] = useSearchParams();
@@ -22,7 +21,7 @@ export default function FriendsPage({ onStartChat }: FriendsPageProps) {
   // Sync activeTab with URL query params
   useEffect(() => {
     const tab = searchParams.get('tab');
-    if (tab && ['friends', 'requests', 'blocked'].includes(tab)) {
+    if (tab && ['friends', 'requests'].includes(tab)) {
       setActiveTab(tab as FriendTab);
     } else {
       setActiveTab('friends');
@@ -66,7 +65,7 @@ export default function FriendsPage({ onStartChat }: FriendsPageProps) {
           <Tabs value={activeTab} onValueChange={handleTabChange}>
             {/* Tab Navigation */}
             <div className="border-b border-slate-100 px-6 pt-6">
-              <TabsList className="grid w-full grid-cols-3 bg-slate-100/50 p-1 rounded-2xl h-14">
+              <TabsList className="grid w-full grid-cols-2 bg-slate-100/50 p-1 rounded-2xl h-14">
                 <TabsTrigger
                   value="friends"
                   className="flex items-center gap-2.5 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
@@ -85,15 +84,6 @@ export default function FriendsPage({ onStartChat }: FriendsPageProps) {
                   </div>
                   <span className="font-medium">Lời mời</span>
                 </TabsTrigger>
-                <TabsTrigger
-                  value="blocked"
-                  className="flex items-center gap-2.5 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
-                >
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-500 to-slate-700 flex items-center justify-center">
-                    <ShieldX className="h-4 w-4 text-white" />
-                  </div>
-                  <span className="font-medium">Đã chặn</span>
-                </TabsTrigger>
               </TabsList>
             </div>
 
@@ -107,9 +97,7 @@ export default function FriendsPage({ onStartChat }: FriendsPageProps) {
                 <FriendRequests onRequestHandled={handleRequestHandled} />
               </TabsContent>
 
-              <TabsContent value="blocked" className="mt-0">
-                <BlockedUsers />
-              </TabsContent>
+
             </div>
           </Tabs>
         </div>

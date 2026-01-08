@@ -100,8 +100,8 @@ export default function ForumFeed() {
         authorName: user?.username || newPost.authorName || 'Người dùng', // fallback
         authorAvatarUrl: user?.avatarUrl, // Use current user avatar
         // Construct display name if available
-        ...(user?.firstName && user?.lastName ? {
-          authorName: `${user.firstName} ${user.lastName}`
+        ...(user?.lastName && user?.firstName ? {
+          authorName: `${user.lastName} ${user.firstName}`
         } : {}),
         reactionCount: 0,
         commentCount: 0,

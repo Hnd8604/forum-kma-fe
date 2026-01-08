@@ -8,6 +8,16 @@ import { InteractionService } from '../services/interaction.service';
 import { CommentService } from '../services/comment.service';
 import { useAuthStore } from '@/store/useStore';
 import { formatTimeAgo } from '@/lib/date.utils';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 interface CommentItemProps {
   comment: Comment;
@@ -39,9 +49,20 @@ export default function CommentItem({
   const [replies, setReplies] = useState<Comment[]>([]);
   const [loadingReplies, setLoadingReplies] = useState(false);
   const [cachedTotalReplies, setCachedTotalReplies] = useState<number | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   // Use avatar URL directly from backend response
   const authorAvatarUrl = comment.authorAvatarUrl || null;
   const currentUser = useAuthStore((s) => s.user);
+
+  // Check if current user can modify this comment (owner or admin)
+  const canModifyComment = currentUser && (
+    currentUser.userId === comment.authorId ||
+    currentUser.roleName === 'ADMIN' ||
+    currentUser.roleName === 'ROLE_ADMIN' ||
+    currentUser.roles?.includes('ADMIN') ||
+    currentUser.roles?.includes('ROLE_ADMIN')
+  );
 
   // Calculate total reply count recursively (children + grandchildren + ...)
   const calculateTotalReplies = (commentList: Comment[]): number => {
@@ -157,7 +178,7 @@ export default function CommentItem({
       // Use current user info if backend doesn't return full author info
       const authorName = newReply.authorName && newReply.authorName !== newReply.authorId
         ? newReply.authorName
-        : `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim() || currentUser?.username || newReply.authorId;
+        : `${currentUser?.lastName || ''} ${currentUser?.firstName || ''}`.trim() || currentUser?.username || newReply.authorId;
 
       const replyAuthorAvatarUrl = newReply.authorAvatarUrl || currentUser?.avatarUrl;
 
@@ -242,46 +263,52 @@ export default function CommentItem({
                 )}
             </div>
 
-            {/* Actions Menu */}
-            <div className="relative">
-              <button
-                onClick={() => setShowActions(!showActions)}
-                className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-all"
-              >
-                <MoreHorizontal className="w-4 h-4" />
-              </button>
+            {/* Actions Menu - Only show if user can modify */}
+            {canModifyComment && (
+              <div className="relative">
+                <button
+                  onClick={() => setShowActions(!showActions)}
+                  className="p-1 rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 opacity-0 group-hover:opacity-100 transition-all"
+                >
+                  <MoreHorizontal className="w-4 h-4" />
+                </button>
 
-              {showActions && (
-                <>
-                  <div
-                    className="fixed inset-0 z-10"
-                    onClick={() => setShowActions(false)}
-                  />
-                  <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-20 min-w-[120px]">
-                    <button
-                      onClick={() => {
-                        setIsEditing(true);
-                        setShowActions(false);
-                      }}
-                      className="w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
-                    >
-                      <Edit2 className="w-3.5 h-3.5" />
-                      Chỉnh sửa
-                    </button>
-                    <button
-                      onClick={() => {
-                        onDelete(comment.commentId);
-                        setShowActions(false);
-                      }}
-                      className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                      Xóa
-                    </button>
-                  </div>
-                </>
-              )}
-            </div>
+                {showActions && (
+                  <>
+                    <div
+                      className="fixed inset-0 z-10"
+                      onClick={() => setShowActions(false)}
+                    />
+                    <div className="absolute right-0 top-full mt-1 bg-white rounded-lg shadow-lg border border-slate-200 py-1 z-20 min-w-[120px]">
+                      {/* Edit button - Only for comment owner */}
+                      {currentUser?.userId === comment.authorId && (
+                        <button
+                          onClick={() => {
+                            setIsEditing(true);
+                            setShowActions(false);
+                          }}
+                          className="w-full px-3 py-2 text-left text-sm text-slate-700 hover:bg-slate-50 flex items-center gap-2"
+                        >
+                          <Edit2 className="w-3.5 h-3.5" />
+                          Chỉnh sửa
+                        </button>
+                      )}
+                      {/* Delete button - For owner or admin */}
+                      <button
+                        onClick={() => {
+                          setShowDeleteDialog(true);
+                          setShowActions(false);
+                        }}
+                        className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                        Xóa
+                      </button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Comment Content */}
@@ -438,6 +465,41 @@ export default function CommentItem({
           </div>
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent className="bg-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xác nhận xóa bình luận</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bạn có chắc chắn muốn xóa bình luận này không? Hành động này không thể hoàn tác.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel
+              onClick={() => setShowDeleteDialog(false)}
+              disabled={deleting}
+            >
+              Hủy
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={async () => {
+                setDeleting(true);
+                try {
+                  await onDelete(comment.commentId);
+                } finally {
+                  setDeleting(false);
+                  setShowDeleteDialog(false);
+                }
+              }}
+              disabled={deleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {deleting ? 'Đang xóa...' : 'Xóa'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

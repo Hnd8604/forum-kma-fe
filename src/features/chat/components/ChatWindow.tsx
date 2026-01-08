@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { ChatService } from '../services/chat.service';
-import type { Conversation, Message } from '@/interfaces/chat.types';
+import type { Conversation, Message, MessageType, SendMessageRequest } from '@/interfaces/chat.types';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,6 +9,8 @@ import { Send, ArrowLeft, Users, MessageCircle, Settings2 } from 'lucide-react';
 import { useAuthStore } from '@/store/useStore';
 import { AuthService } from '../../auth/services/auth.service';
 import GroupMembersDialog from './GroupMembersDialog';
+import ChatMediaUpload from './ChatMediaUpload';
+import ChatMessageContent from './ChatMessageContent';
 
 // Check if should show time between messages (5+ minutes gap or different sender)
 const shouldShowTime = (currentMsg: Message, prevMsg: Message | null): boolean => {
@@ -102,7 +104,8 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
         fromUserId: data.fromUserId || data.senderId,
         conversationId: data.conversationId || data.chatId,
         message: data.message || data.text,
-        type: data.messageType || 'TEXT',
+        type: data.messageType || data.type || 'TEXT',
+        resourceUrls: data.resourceUrls || [],
         createdAt: data.createdAt || data.sentAt || new Date().toISOString(),
       };
       setMessages((prev) => {
@@ -151,7 +154,7 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
         if (other) {
           try {
             const u = await AuthService.getUserById(other);
-            const name = `${u.firstName || u.username || ''} ${u.lastName || ''}`.trim() || u.username || other;
+            const name = `${u.lastName || ''} ${u.firstName || u.username || ''}`.trim() || u.username || other;
             setDisplayName(name);
             setChatAvatar(u.avatarUrl || '');
           } catch (err) {
@@ -196,7 +199,7 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
           missingIds.map(async (userId) => {
             try {
               const u = await AuthService.getUserById(userId);
-              const name = `${u.firstName || u.username || ''} ${u.lastName || ''}`.trim() || u.username || userId;
+              const name = `${u.lastName || ''} ${u.firstName || u.username || ''}`.trim() || u.username || userId;
               return { userId, name, avatarUrl: u.avatarUrl || '' };
             } catch (err) {
               console.error('Failed to fetch user', userId, err);
@@ -245,33 +248,44 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
     }
   };
 
-  const handleSendMessage = async () => {
-    if (!newMessage.trim() || sending) return;
-
+  const handleSendMessage = async (messageType: MessageType = 'TEXT', resourceUrls?: string[]) => {
     const messageText = newMessage.trim();
+
+    // For TEXT messages, require text content
+    // For media messages, text is optional (caption)
+    if (messageType === 'TEXT' && !messageText) return;
+    if (messageType !== 'TEXT' && (!resourceUrls || resourceUrls.length === 0)) return;
+    if (sending) return;
+
     setNewMessage('');
     setSending(true);
 
     // Optimistic update - add message to UI immediately
     const tempId = `temp-${Date.now()}`;
+    const displayMessage = messageText || (messageType === 'IMAGE' ? '📷 Hình ảnh' : messageType === 'VIDEO' ? '🎬 Video' : '📎 Tệp đính kèm');
     const optimisticMessage: Message = {
       id: tempId,
       fromUserId: user?.userId || '',
       conversationId: conversation.conversationId,
-      message: messageText,
-      type: 'TEXT',
+      message: displayMessage,
+      type: messageType,
+      resourceUrls: resourceUrls,
       createdAt: new Date().toISOString(),
     };
     setMessages((prev) => [...prev, optimisticMessage]);
 
     try {
-      // Always send via HTTP API so backend can save and broadcast via WebSocket
-
       // Build request based on conversation type
-      let request: any = {
-        message: messageText,
-        type: 'TEXT',
+      let request: SendMessageRequest = {
+        message: displayMessage,
+        type: messageType,
+        resourceUrls: resourceUrls,
       };
+
+      // Debug log for media messages
+      if (messageType !== 'TEXT') {
+        console.log('[ChatWindow] Sending media message:', { messageType, resourceUrls, request });
+      }
 
       if (conversation.type === 'private') {
         // For private chat: send receiverId (the other user's ID)
@@ -301,13 +315,10 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
           chatId: sentMessage.conversationId || conversation.conversationId,
           conversationId: sentMessage.conversationId || conversation.conversationId,
           senderId: user?.userId,
-          message: messageText,
+          message: displayMessage,
           sentAt: sentMessage.createdAt || new Date().toISOString(),
         }
       }));
-
-      // Backend will broadcast this message via WebSocket to all users
-      // including the sender, so we'll receive it via onMessage callback
 
       setError(null);
     } catch (err: any) {
@@ -321,6 +332,11 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
       setSending(false);
       inputRef.current?.focus();
     }
+  };
+
+  // Handle media upload
+  const handleMediaUpload = (urls: string[], type: MessageType) => {
+    handleSendMessage(type, urls);
   };
 
   const scrollToBottom = () => {
@@ -448,7 +464,12 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
                             ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
                             : 'bg-white text-slate-900 border border-slate-100'
                             }`}>
-                            <p className="text-sm">{message.message}</p>
+                            <ChatMessageContent
+                              message={message.message}
+                              type={message.type}
+                              resourceUrls={message.resourceUrls}
+                              isMine={isMine}
+                            />
                           </div>
                         </div>
                       </div>
@@ -462,7 +483,10 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
         </ScrollArea>
 
         <div className="p-4 border-t border-slate-100 bg-white">
-          <div className="flex gap-3">
+          <div className="flex items-center gap-3">
+            {/* Media upload buttons */}
+            <ChatMediaUpload onUpload={handleMediaUpload} disabled={sending} />
+
             <Input
               ref={inputRef}
               value={newMessage}
@@ -473,7 +497,7 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
               className="flex-1 h-11 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
             />
             <Button
-              onClick={handleSendMessage}
+              onClick={() => handleSendMessage()}
               disabled={!newMessage.trim() || sending}
               className="h-11 px-5 gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg shadow-blue-500/25 transition-all"
             >

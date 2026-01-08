@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, Plus, Loader2, Users, Filter } from 'lucide-react';
+import { Search, Plus, Loader2, Filter, FolderOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -25,8 +25,10 @@ import GroupCard from './GroupCard';
 import { Group, GroupVisibility, CreateGroupRequest } from '@/interfaces/group.types';
 import { GroupService } from '../services/group.service';
 import { toast } from 'sonner';
+import { useAuthStore } from '@/store/useStore';
 
 export default function GroupsPage() {
+  const isAdmin = useAuthStore((s) => s.isAdmin);
   const [allGroups, setAllGroups] = useState<Group[]>([]);
   const [myGroups, setMyGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,7 +62,7 @@ export default function GroupsPage() {
       setAllGroups(response.data || []);
     } catch (error: any) {
       console.error('Failed to load groups:', error);
-      toast.error(error.message || 'Không thể tải danh sách nhóm');
+      toast.error(error.message || 'Không thể tải danh sách danh mục');
     } finally {
       setLoading(false);
     }
@@ -77,7 +79,7 @@ export default function GroupsPage() {
 
   const handleCreateGroup = async () => {
     if (!newGroupName.trim()) {
-      toast.error('Vui lòng nhập tên nhóm');
+      toast.error('Vui lòng nhập tên danh mục');
       return;
     }
 
@@ -88,21 +90,21 @@ export default function GroupsPage() {
         description: newGroupDescription,
         visibility: newGroupVisibility,
       };
-      
+
       await GroupService.createGroup(request);
-      toast.success('Tạo nhóm thành công!');
-      
+      toast.success('Tạo danh mục thành công!');
+
       // Reset form
       setNewGroupName('');
       setNewGroupDescription('');
       setNewGroupVisibility(GroupVisibility.PUBLIC);
       setCreateDialogOpen(false);
-      
+
       // Reload groups
       loadGroups();
       loadMyGroups();
     } catch (error: any) {
-      toast.error(error.message || 'Không thể tạo nhóm');
+      toast.error(error.message || 'Không thể tạo danh mục');
     } finally {
       setCreating(false);
     }
@@ -115,93 +117,95 @@ export default function GroupsPage() {
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold">Nhóm</h1>
+          <h1 className="text-2xl font-bold">Danh mục bài viết</h1>
           <p className="text-sm text-slate-500 mt-1">
-            Tìm kiếm và tham gia nhóm cộng đồng
+            Tìm kiếm và tham gia các danh mục bài viết
           </p>
         </div>
 
-        <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-purple-600 hover:bg-purple-700">
-              <Plus className="w-4 h-4 mr-2" />
-              Tạo nhóm
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Tạo nhóm mới</DialogTitle>
-              <DialogDescription>
-                Tạo một nhóm để kết nối với những người có cùng sở thích
-              </DialogDescription>
-            </DialogHeader>
-            <div className="space-y-4 py-4">
-              <div className="space-y-2">
-                <Label htmlFor="groupName">Tên nhóm *</Label>
-                <Input
-                  id="groupName"
-                  placeholder="Nhập tên nhóm"
-                  value={newGroupName}
-                  onChange={(e) => setNewGroupName(e.target.value)}
-                />
+        {isAdmin && (
+          <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+            <DialogTrigger asChild>
+              <Button className="bg-purple-600 hover:bg-purple-700">
+                <Plus className="w-4 h-4 mr-2" />
+                Tạo danh mục
+              </Button>
+            </DialogTrigger>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Tạo danh mục mới</DialogTitle>
+                <DialogDescription>
+                  Tạo danh mục để phân loại các bài viết theo chủ đề
+                </DialogDescription>
+              </DialogHeader>
+              <div className="space-y-4 py-4">
+                <div className="space-y-2">
+                  <Label htmlFor="groupName">Tên danh mục *</Label>
+                  <Input
+                    id="groupName"
+                    placeholder="Nhập tên danh mục"
+                    value={newGroupName}
+                    onChange={(e) => setNewGroupName(e.target.value)}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="description">Mô tả</Label>
+                  <Textarea
+                    id="description"
+                    placeholder="Mô tả về danh mục"
+                    value={newGroupDescription}
+                    onChange={(e) => setNewGroupDescription(e.target.value)}
+                    rows={3}
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="visibility">Quyền riêng tư</Label>
+                  <Select
+                    value={newGroupVisibility}
+                    onValueChange={(value) =>
+                      setNewGroupVisibility(value as GroupVisibility)
+                    }
+                  >
+                    <SelectTrigger>
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value={GroupVisibility.PUBLIC}>
+                        Công khai - Ai cũng có thể tham gia
+                      </SelectItem>
+                      <SelectItem value={GroupVisibility.PRIVATE}>
+                        Riêng tư - Chỉ tham gia khi được mời
+                      </SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="description">Mô tả</Label>
-                <Textarea
-                  id="description"
-                  placeholder="Mô tả về nhóm của bạn"
-                  value={newGroupDescription}
-                  onChange={(e) => setNewGroupDescription(e.target.value)}
-                  rows={3}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="visibility">Quyền riêng tư</Label>
-                <Select
-                  value={newGroupVisibility}
-                  onValueChange={(value) =>
-                    setNewGroupVisibility(value as GroupVisibility)
-                  }
+              <DialogFooter>
+                <Button
+                  variant="outline"
+                  onClick={() => setCreateDialogOpen(false)}
+                  disabled={creating}
                 >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value={GroupVisibility.PUBLIC}>
-                      Công khai - Ai cũng có thể tham gia
-                    </SelectItem>
-                    <SelectItem value={GroupVisibility.PRIVATE}>
-                      Riêng tư - Chỉ tham gia khi được mời
-                    </SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            <DialogFooter>
-              <Button
-                variant="outline"
-                onClick={() => setCreateDialogOpen(false)}
-                disabled={creating}
-              >
-                Hủy
-              </Button>
-              <Button
-                onClick={handleCreateGroup}
-                disabled={creating}
-                className="bg-purple-600 hover:bg-purple-700"
-              >
-                {creating ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Đang tạo...
-                  </>
-                ) : (
-                  'Tạo nhóm'
-                )}
-              </Button>
-            </DialogFooter>
-          </DialogContent>
-        </Dialog>
+                  Hủy
+                </Button>
+                <Button
+                  onClick={handleCreateGroup}
+                  disabled={creating}
+                  className="bg-purple-600 hover:bg-purple-700"
+                >
+                  {creating ? (
+                    <>
+                      <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                      Đang tạo...
+                    </>
+                  ) : (
+                    'Tạo danh mục'
+                  )}
+                </Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       {/* Search */}
@@ -209,7 +213,7 @@ export default function GroupsPage() {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
           <Input
-            placeholder="Tìm kiếm nhóm..."
+            placeholder="Tìm kiếm danh mục..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -221,12 +225,12 @@ export default function GroupsPage() {
       <Tabs defaultValue="all" className="w-full">
         <TabsList className="grid w-full grid-cols-2 mb-6">
           <TabsTrigger value="all">
-            <Users className="w-4 h-4 mr-2" />
-            Tất cả nhóm
+            <FolderOpen className="w-4 h-4 mr-2" />
+            Tất cả danh mục
           </TabsTrigger>
           <TabsTrigger value="my-groups">
             <Filter className="w-4 h-4 mr-2" />
-            Nhóm của tôi ({myGroups.length})
+            Danh mục của tôi ({myGroups.length})
           </TabsTrigger>
         </TabsList>
 
@@ -238,8 +242,8 @@ export default function GroupsPage() {
           ) : allGroups.length === 0 ? (
             <div className="text-center py-12 text-slate-500">
               {searchQuery
-                ? 'Không tìm thấy nhóm nào'
-                : 'Chưa có nhóm nào'}
+                ? 'Không tìm thấy danh mục nào'
+                : 'Chưa có danh mục nào'}
             </div>
           ) : (
             allGroups.map((group) => (
@@ -263,7 +267,7 @@ export default function GroupsPage() {
         <TabsContent value="my-groups" className="space-y-3">
           {myGroups.length === 0 ? (
             <div className="text-center py-12 text-slate-500">
-              Bạn chưa tham gia nhóm nào
+              Bạn chưa tham gia danh mục nào
             </div>
           ) : (
             myGroups.map((group) => (

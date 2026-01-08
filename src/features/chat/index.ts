@@ -16,6 +16,8 @@ export { default as NewMessageDialog } from './components/NewMessageDialog';
 export { default as StartChatButton } from './components/StartChatButton';
 export { default as ChatContainer } from './components/ChatContainer';
 export { default as FriendsList } from './components/FriendsList';
+export { default as ChatMediaUpload } from './components/ChatMediaUpload';
+export { default as ChatMessageContent } from './components/ChatMessageContent';
 
 // Services
 export { ChatService } from './services/chat.service';

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { UserPlus, UserMinus, Clock, Check, X, Ban, Loader2 } from 'lucide-react';
+import { UserPlus, UserMinus, Clock, Check, X, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   DropdownMenu,
@@ -60,7 +60,7 @@ export default function FriendButton({ userId, onStatusChange, size = 'default' 
     if (!status?.friendshipId) return;
     try {
       setProcessing(true);
-      await FriendshipService.rejectFriendRequest(status.friendshipId);
+      await FriendshipService.cancelFriendRequest(status.friendshipId);
       toast.success('Đã hủy lời mời kết bạn');
       setStatus((prev) =>
         prev ? { ...prev, status: FriendshipStatus.NOT_FRIENDS, friendshipId: undefined } : null
@@ -123,37 +123,7 @@ export default function FriendButton({ userId, onStatusChange, size = 'default' 
     }
   };
 
-  const handleBlock = async () => {
-    try {
-      setProcessing(true);
-      await FriendshipService.blockUser(userId);
-      toast.success('Đã chặn người dùng');
-      setStatus((prev) =>
-        prev ? { ...prev, status: FriendshipStatus.BLOCKED_BY_ME } : null
-      );
-      onStatusChange?.(FriendshipStatus.BLOCKED_BY_ME);
-    } catch (error: any) {
-      toast.error(error.message || 'Không thể chặn người dùng');
-    } finally {
-      setProcessing(false);
-    }
-  };
 
-  const handleUnblock = async () => {
-    try {
-      setProcessing(true);
-      await FriendshipService.unblockUser(userId);
-      toast.success('Đã bỏ chặn người dùng');
-      setStatus((prev) =>
-        prev ? { ...prev, status: FriendshipStatus.NOT_FRIENDS, friendshipId: undefined } : null
-      );
-      onStatusChange?.(FriendshipStatus.NOT_FRIENDS);
-    } catch (error: any) {
-      toast.error(error.message || 'Không thể bỏ chặn người dùng');
-    } finally {
-      setProcessing(false);
-    }
-  };
 
   if (loading) {
     return (
@@ -167,28 +137,9 @@ export default function FriendButton({ userId, onStatusChange, size = 'default' 
 
   const isProcessing = processing;
 
-  // Blocked by them - show nothing or disabled state
-  if (status.status === FriendshipStatus.BLOCKED_BY_THEM) {
+  // Blocked status - show nothing
+  if (status.status === FriendshipStatus.BLOCKED_BY_THEM || status.status === FriendshipStatus.BLOCKED_BY_ME) {
     return null;
-  }
-
-  // Blocked by me - show unblock button
-  if (status.status === FriendshipStatus.BLOCKED_BY_ME) {
-    return (
-      <Button
-        variant="outline"
-        size={size}
-        onClick={handleUnblock}
-        disabled={isProcessing}
-      >
-        {isProcessing ? (
-          <Loader2 className="h-4 w-4 animate-spin mr-1" />
-        ) : (
-          <Ban className="h-4 w-4 mr-1" />
-        )}
-        Bỏ chặn
-      </Button>
-    );
   }
 
   // Not friends - show add friend button
@@ -280,13 +231,6 @@ export default function FriendButton({ userId, onStatusChange, size = 'default' 
           >
             <UserMinus className="h-4 w-4 mr-2" />
             Hủy kết bạn
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            onClick={handleBlock}
-            className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
-          >
-            <Ban className="h-4 w-4 mr-2" />
-            Chặn
           </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>

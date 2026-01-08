@@ -94,6 +94,16 @@ export class FileUploadService {
   }
 
   /**
+   * Upload a video
+   * Note: Backend stores videos in the same bucket as images since there's no separate video endpoint
+   */
+  static async uploadVideo(file: File, onProgress?: (progress: number) => void): Promise<string> {
+    // Use 'image' endpoint as backend stores all media in the same bucket
+    // Alternatively, update backend to add /upload/video endpoint
+    return this.uploadFile(file, 'image', onProgress);
+  }
+
+  /**
    * Delete a file using its public URL
    */
   static async deleteFile(publicUrl: string): Promise<void> {
@@ -121,6 +131,7 @@ export class FileUploadService {
     const allowedTypes: Record<FileUploadType, string[]> = {
       avatar: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'],
       image: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'],
+      video: ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-msvideo'],
       document: [
         'application/pdf',
         'application/msword',

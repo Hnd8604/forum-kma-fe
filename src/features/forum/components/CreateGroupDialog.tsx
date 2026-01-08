@@ -38,7 +38,7 @@ export default function CreateGroupDialog({ isOpen, onClose, onGroupCreated }: C
     e.preventDefault();
 
     if (!name.trim()) {
-      setError('Tên nhóm không được để trống');
+      setError('Tên danh mục không được để trống');
       return;
     }
 
@@ -56,7 +56,7 @@ export default function CreateGroupDialog({ isOpen, onClose, onGroupCreated }: C
       onClose();
     } catch (err: any) {
       console.error('Failed to create group:', err);
-      setError(err.message || 'Không thể tạo nhóm');
+      setError(err.message || 'Không thể tạo danh mục');
     } finally {
       setLoading(false);
     }
@@ -72,7 +72,7 @@ export default function CreateGroupDialog({ isOpen, onClose, onGroupCreated }: C
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[500px] p-0 gap-0 overflow-hidden bg-white border-0 shadow-2xl">
         <DialogHeader className="p-4 border-b border-slate-100">
-          <DialogTitle className="text-xl font-bold text-slate-800">Tạo nhóm mới</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-slate-800">Tạo danh mục mới</DialogTitle>
         </DialogHeader>
 
         <div className="p-6">
@@ -86,13 +86,13 @@ export default function CreateGroupDialog({ isOpen, onClose, onGroupCreated }: C
             {/* Group Name */}
             <div className="space-y-1.5">
               <label className="block text-sm font-semibold text-slate-700">
-                Tên nhóm <span className="text-red-500">*</span>
+                Tên danh mục <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                placeholder="Nhập tên nhóm..."
+                placeholder="Nhập tên danh mục..."
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
                 maxLength={100}
                 autoFocus
@@ -107,7 +107,7 @@ export default function CreateGroupDialog({ isOpen, onClose, onGroupCreated }: C
               <textarea
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                placeholder="Mô tả về nhóm của bạn..."
+                placeholder="Mô tả về danh mục..."
                 rows={3}
                 className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none text-sm"
                 maxLength={500}
@@ -124,8 +124,8 @@ export default function CreateGroupDialog({ isOpen, onClose, onGroupCreated }: C
                   type="button"
                   onClick={() => setPrivacy('PUBLIC')}
                   className={`flex flex-col items-start gap-2 p-3 rounded-xl border-2 transition-all ${privacy === 'PUBLIC'
-                      ? 'border-blue-500 bg-blue-50/50'
-                      : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                    ? 'border-blue-500 bg-blue-50/50'
+                    : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                     }`}
                 >
                   <div className={`p-2 rounded-full ${privacy === 'PUBLIC' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500'
@@ -143,8 +143,8 @@ export default function CreateGroupDialog({ isOpen, onClose, onGroupCreated }: C
                   type="button"
                   onClick={() => setPrivacy('PRIVATE')}
                   className={`flex flex-col items-start gap-2 p-3 rounded-xl border-2 transition-all ${privacy === 'PRIVATE'
-                      ? 'border-blue-500 bg-blue-50/50'
-                      : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
+                    ? 'border-blue-500 bg-blue-50/50'
+                    : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                     }`}
                 >
                   <div className={`p-2 rounded-full ${privacy === 'PRIVATE' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500'
@@ -181,7 +181,7 @@ export default function CreateGroupDialog({ isOpen, onClose, onGroupCreated }: C
                     Đang tạo...
                   </>
                 ) : (
-                  'Tạo nhóm'
+                  'Tạo danh mục'
                 )}
               </Button>
             </DialogFooter>

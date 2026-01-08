@@ -50,11 +50,11 @@ export class ChatService {
   static async getConversationById(conversationId: string): Promise<Conversation> {
     const conversations = await this.getConversations();
     const conversation = conversations.find(c => c.conversationId === conversationId);
-    
+
     if (!conversation) {
       throw new Error('Conversation not found');
     }
-    
+
     return conversation;
   }
 
@@ -155,5 +155,51 @@ export class ChatService {
       {},
       true
     );
+  }
+
+  /**
+   * Cập nhật thông tin nhóm (tên, mô tả, avatar)
+   */
+  static async updateGroup(groupId: string, data: { name?: string; description?: string; avatarUrl?: string }): Promise<any> {
+    const response = await ApiService.put<any>(
+      `${CHAT_SERVICE_BASE}/groups/${groupId}`,
+      data,
+      true
+    );
+    return response;
+  }
+
+  /**
+   * Xóa nhóm (chỉ OWNER)
+   */
+  static async deleteGroup(groupId: string): Promise<void> {
+    await ApiService.delete<void>(
+      `${CHAT_SERVICE_BASE}/groups/${groupId}`,
+      true
+    );
+  }
+
+  /**
+   * Cập nhật vai trò thành viên (chỉ OWNER)
+   */
+  static async updateMemberRole(groupId: string, userId: string, role: 'ADMIN' | 'MEMBER'): Promise<any> {
+    const response = await ApiService.put<any>(
+      `${CHAT_SERVICE_BASE}/groups/members/role`,
+      { groupId, userId, role },
+      true
+    );
+    return response;
+  }
+
+  /**
+   * Chuyển quyền sở hữu nhóm (chỉ OWNER)
+   */
+  static async transferOwnership(groupId: string, newOwnerId: string): Promise<any> {
+    const response = await ApiService.post<any>(
+      `${CHAT_SERVICE_BASE}/groups/${groupId}/transfer-ownership?newOwnerId=${newOwnerId}`,
+      {},
+      true
+    );
+    return response;
   }
 }

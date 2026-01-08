@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { GroupService } from '../services/group.service';
 import CreateGroupDialog from './CreateGroupDialog';
 import type { Group } from '@/interfaces/post.types';
+import { useAuthStore } from '@/store/useStore';
 
 const feedOptions = [
   { id: 'home', name: 'Trang chủ', icon: Home },
@@ -21,6 +22,7 @@ const communityColors = [
 
 export default function Sidebar() {
   const navigate = useNavigate();
+  const isAdmin = useAuthStore((s) => s.isAdmin);
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(false);
   const [showCommunities, setShowCommunities] = useState(true);
@@ -47,11 +49,19 @@ export default function Sidebar() {
 
   const loadSuggestedGroups = async () => {
     try {
-      // Fetch more groups to ensure we have enough after filtering
-      const response = await GroupService.getAllGroups({ limit: 20 });
-      setSuggestedGroups(response.content || []);
+      // Use the new backend API for group suggestions
+      // This returns random public groups that user is not a member of
+      const suggestedGroupsList = await GroupService.getSuggestedGroups(5);
+      setSuggestedGroups(suggestedGroupsList || []);
     } catch (err) {
       console.error('Failed to load suggested groups:', err);
+      // Fallback to fetching all groups if the new endpoint fails
+      try {
+        const response = await GroupService.getAllGroups({ limit: 20 });
+        setSuggestedGroups(response.content || []);
+      } catch (fallbackErr) {
+        console.error('Fallback also failed:', fallbackErr);
+      }
     }
   };
 
@@ -96,11 +106,8 @@ export default function Sidebar() {
     }
   };
 
-  // Filter out groups the user is already a member of
-  const myGroupIds = new Set(groups.map(g => g.groupId));
-  const filteredSuggestedGroups = suggestedGroups
-    .filter(g => !myGroupIds.has(g.groupId))
-    .slice(0, 5);
+  // Backend API /groups/suggestions already returns groups user is not a member of
+  // No need for client-side filtering anymore
 
   return (
     <>
@@ -137,21 +144,21 @@ export default function Sidebar() {
 
           <div className="border-t border-[#EDEFF1] my-3"></div>
 
-          {/* Suggested Groups */}
+          {/* Suggested Categories */}
           <div className="mb-4 bg-white rounded-2xl border border-slate-200 p-2 shadow-sm">
             <button
               onClick={() => setShowRecent(!showRecent)}
               className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500 hover:bg-slate-100 rounded-lg transition-all"
             >
-              <span>Gợi ý tham gia nhóm</span>
+              <span>Gợi ý danh mục</span>
               {showRecent ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
 
             {showRecent && (
               <div className="space-y-1 mt-1">
-                {filteredSuggestedGroups.length > 0 ? (
-                  filteredSuggestedGroups.map((group, index) => {
-                    const groupName = group.name || group.groupName || 'Nhóm';
+                {suggestedGroups.length > 0 ? (
+                  suggestedGroups.map((group: Group, index: number) => {
+                    const categoryName = group.name || group.groupName || 'Danh mục';
                     const color = getRandomColor(index);
                     const isJoining = joiningGroupId === group.groupId;
 
@@ -166,9 +173,9 @@ export default function Sidebar() {
                             className="w-6 h-6 mr-3 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold shadow-sm"
                             style={{ backgroundColor: color }}
                           >
-                            {groupName[0]?.toUpperCase()}
+                            {categoryName[0]?.toUpperCase()}
                           </div>
-                          <span className="truncate">{groupName}</span>
+                          <span className="truncate">{categoryName}</span>
                         </Button>
 
                         <Button
@@ -177,7 +184,7 @@ export default function Sidebar() {
                           onClick={(e: React.MouseEvent) => handleJoinGroup(e, group.groupId)}
                           disabled={isJoining}
                           className="h-8 w-8 rounded-full hover:bg-blue-50 text-slate-400 hover:text-blue-600 opacity-0 group-hover/item:opacity-100 transition-all"
-                          title="Tham gia nhóm"
+                          title="Tham gia danh mục"
                         >
                           {isJoining ? (
                             <Loader2 className="w-4 h-4 animate-spin" />
@@ -197,29 +204,31 @@ export default function Sidebar() {
             )}
           </div>
 
-          {/* Communities */}
+          {/* My Categories */}
           <div className="mb-4 bg-white rounded-2xl border border-slate-200 p-2 shadow-sm">
             <button
               onClick={() => setShowCommunities(!showCommunities)}
               className="w-full flex items-center justify-between px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500 hover:bg-slate-100 rounded-lg transition-all"
             >
-              <span>Cộng đồng của bạn</span>
+              <span>Danh mục của bạn</span>
               {showCommunities ? <ChevronUp className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
             </button>
 
             {showCommunities && (
               <div className="space-y-1 mt-1">
-                {/* Create Community Button */}
-                <Button
-                  variant="ghost"
-                  onClick={() => setShowCreateGroup(true)}
-                  className="w-full justify-start h-11 px-3 rounded-xl hover:bg-blue-50 text-sm font-medium text-blue-600 transition-all"
-                >
-                  <div className="w-6 h-6 mr-3 rounded-full border-2 border-dashed border-blue-400 flex items-center justify-center">
-                    <Plus className="w-3 h-3 text-blue-500" />
-                  </div>
-                  Tạo cộng đồng
-                </Button>
+                {/* Create Category Button - Only visible for Admin */}
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    onClick={() => setShowCreateGroup(true)}
+                    className="w-full justify-start h-11 px-3 rounded-xl hover:bg-blue-50 text-sm font-medium text-blue-600 transition-all"
+                  >
+                    <div className="w-6 h-6 mr-3 rounded-full border-2 border-dashed border-blue-400 flex items-center justify-center">
+                      <Plus className="w-3 h-3 text-blue-500" />
+                    </div>
+                    Tạo danh mục
+                  </Button>
+                )}
 
                 {loading ? (
                   <div className="flex items-center justify-center py-4">
@@ -227,7 +236,7 @@ export default function Sidebar() {
                   </div>
                 ) : groups.length > 0 ? (
                   groups.map((group, index) => {
-                    const groupName = group.groupName || group.name || 'Nhóm';
+                    const categoryName = group.groupName || group.name || 'Danh mục';
                     const color = getRandomColor(index);
 
                     return (
@@ -241,15 +250,15 @@ export default function Sidebar() {
                           className="w-6 h-6 mr-3 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm"
                           style={{ backgroundColor: color }}
                         >
-                          {groupName[0]?.toUpperCase()}
+                          {categoryName[0]?.toUpperCase()}
                         </div>
-                        <span className="truncate">{groupName}</span>
+                        <span className="truncate">{categoryName}</span>
                       </Button>
                     );
                   })
                 ) : (
                   <div className="text-center py-4 px-3 text-sm text-slate-500">
-                    Bạn chưa tham gia cộng đồng nào
+                    Bạn chưa tham gia danh mục nào
                   </div>
                 )}
               </div>

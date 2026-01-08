@@ -10,7 +10,7 @@ export interface ApiResponse<T> {
   success?: boolean;
 }
 
-export type FileUploadType = 'avatar' | 'image' | 'document';
+export type FileUploadType = 'avatar' | 'image' | 'document' | 'video';
 
 export interface FileUploadOptions {
   type: FileUploadType;

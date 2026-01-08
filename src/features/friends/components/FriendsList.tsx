@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Users, UserMinus, Ban, MoreVertical, Search, UserX } from 'lucide-react';
+import { Users, UserMinus, MoreVertical, Search, UserX } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -36,11 +36,9 @@ export default function FriendsList({ onStartChat: _onStartChat }: FriendsListPr
   const [searchQuery, setSearchQuery] = useState('');
   const [confirmDialog, setConfirmDialog] = useState<{
     isOpen: boolean;
-    type: 'unfriend' | 'block';
     friend: FriendshipResponse | null;
   }>({
     isOpen: false,
-    type: 'unfriend',
     friend: null,
   });
 
@@ -86,34 +84,22 @@ export default function FriendsList({ onStartChat: _onStartChat }: FriendsListPr
     } catch (error: any) {
       toast.error(error.message || 'Không thể hủy kết bạn');
     } finally {
-      setConfirmDialog({ isOpen: false, type: 'unfriend', friend: null });
+      setConfirmDialog({ isOpen: false, friend: null });
     }
   };
 
-  const handleBlock = async () => {
-    if (!confirmDialog.friend) return;
 
-    try {
-      await FriendshipService.blockUser(confirmDialog.friend.userId);
-      toast.success('Đã chặn người dùng');
-      setFriends((prev) => prev.filter((f) => f.userId !== confirmDialog.friend?.userId));
-    } catch (error: any) {
-      toast.error(error.message || 'Không thể chặn người dùng');
-    } finally {
-      setConfirmDialog({ isOpen: false, type: 'block', friend: null });
-    }
-  };
 
   const getInitials = (friend: FriendshipResponse) => {
-    if (friend.firstName && friend.lastName) {
-      return `${friend.firstName[0]}${friend.lastName[0]}`.toUpperCase();
+    if (friend.lastName && friend.firstName) {
+      return `${friend.lastName[0]}${friend.firstName[0]}`.toUpperCase();
     }
     return friend.username.substring(0, 2).toUpperCase();
   };
 
   const getDisplayName = (friend: FriendshipResponse) => {
-    if (friend.firstName && friend.lastName) {
-      return `${friend.firstName} ${friend.lastName}`;
+    if (friend.lastName && friend.firstName) {
+      return `${friend.lastName} ${friend.firstName}`;
     }
     return friend.username;
   };
@@ -200,21 +186,12 @@ export default function FriendsList({ onStartChat: _onStartChat }: FriendsListPr
                   <DropdownMenuContent align="end" className="w-48 bg-white shadow-lg border-slate-200">
                     <DropdownMenuItem
                       onClick={() =>
-                        setConfirmDialog({ isOpen: true, type: 'unfriend', friend })
+                        setConfirmDialog({ isOpen: true, friend })
                       }
                       className="text-orange-600 focus:text-orange-600 focus:bg-orange-50"
                     >
                       <UserMinus className="h-4 w-4 mr-2" />
                       Hủy kết bạn
-                    </DropdownMenuItem>
-                    <DropdownMenuItem
-                      onClick={() =>
-                        setConfirmDialog({ isOpen: true, type: 'block', friend })
-                      }
-                      className="text-red-600 focus:text-red-600 focus:bg-red-50"
-                    >
-                      <Ban className="h-4 w-4 mr-2" />
-                      Chặn người này
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
@@ -248,30 +225,23 @@ export default function FriendsList({ onStartChat: _onStartChat }: FriendsListPr
       <AlertDialog
         open={confirmDialog.isOpen}
         onOpenChange={(open: boolean) =>
-          !open && setConfirmDialog({ isOpen: false, type: 'unfriend', friend: null })
+          !open && setConfirmDialog({ isOpen: false, friend: null })
         }
       >
         <AlertDialogContent className="rounded-2xl bg-white shadow-2xl border-slate-100 p-6 sm:max-w-[400px]">
           <AlertDialogHeader>
-            <AlertDialogTitle>
-              {confirmDialog.type === 'unfriend' ? 'Hủy kết bạn' : 'Chặn người dùng'}
-            </AlertDialogTitle>
+            <AlertDialogTitle>Hủy kết bạn</AlertDialogTitle>
             <AlertDialogDescription>
-              {confirmDialog.type === 'unfriend'
-                ? `Bạn có chắc muốn hủy kết bạn với ${confirmDialog.friend?.username}?`
-                : `Bạn có chắc muốn chặn ${confirmDialog.friend?.username}? Họ sẽ không thể gửi lời mời kết bạn hoặc nhắn tin cho bạn.`}
+              Bạn có chắc muốn hủy kết bạn với {confirmDialog.friend?.username}?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel className="rounded-xl">Hủy</AlertDialogCancel>
             <AlertDialogAction
-              onClick={confirmDialog.type === 'unfriend' ? handleUnfriend : handleBlock}
-              className={`rounded-xl ${confirmDialog.type === 'block'
-                ? 'bg-red-600 hover:bg-red-700'
-                : 'bg-orange-600 hover:bg-orange-700'
-                }`}
+              onClick={handleUnfriend}
+              className="rounded-xl bg-orange-600 hover:bg-orange-700"
             >
-              {confirmDialog.type === 'unfriend' ? 'Hủy kết bạn' : 'Chặn'}
+              Hủy kết bạn
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

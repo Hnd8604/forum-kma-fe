@@ -8,9 +8,9 @@ export interface Message {
   toUserId?: string | null; // null for group messages
   groupId?: string | null; // null for private messages
   conversationId: string;
-  message: string; // Text content or URL for media
+  message: string; // Text content or caption for media
   type: MessageType;
-  resourceUrl?: string; // URL to media file (for IMAGE, VIDEO, FILE)
+  resourceUrls?: string[]; // URLs to media files in MinIO (for IMAGE, VIDEO, FILE)
   createdAt: string; // ISO timestamp
 }
 
@@ -31,8 +31,9 @@ export interface SendMessageRequest {
   conversationId?: string; // For existing conversations
   receiverId?: string; // For new private chat (backend expects receiverId, not toUserId)
   groupId?: string; // For group chat
-  message: string; // Required
+  message: string; // Required - text content or caption for media
   type?: MessageType; // Optional, defaults to TEXT
+  resourceUrls?: string[]; // URLs to uploaded media files (for IMAGE, VIDEO, FILE types)
 }
 
 // Request to create a group
@@ -60,7 +61,7 @@ export interface CreateGroupResponse {
   };
   createdAt: string;
   updatedAt?: string;
-  
+
   // Conversation info
   conversationId: string;
   conversationType: string;

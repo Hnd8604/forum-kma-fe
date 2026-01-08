@@ -50,12 +50,12 @@ export default function CreateGroupDialog({
       try {
         const response = await AuthService.getAllUsers(0, 50);
         const query = searchQuery.toLowerCase().trim();
-        
+
         const filtered = response.content.filter(user => {
-          const fullName = `${user.firstName || ''} ${user.lastName || ''}`.toLowerCase();
+          const fullName = `${user.lastName || ''} ${user.firstName || ''}`.toLowerCase();
           const username = (user.username || '').toLowerCase();
           const email = (user.email || '').toLowerCase();
-          
+
           return fullName.includes(query) || username.includes(query) || email.includes(query);
         });
 
@@ -85,7 +85,7 @@ export default function CreateGroupDialog({
 
   const handleToggleMember = (user: User) => {
     const isSelected = selectedMembers.some(m => m.userId === user.userId);
-    
+
     if (isSelected) {
       setSelectedMembers(selectedMembers.filter(m => m.userId !== user.userId));
     } else {
@@ -170,12 +170,12 @@ export default function CreateGroupDialog({
 
           <div className="space-y-2">
             <Label>Thành viên ({selectedMembers.length})</Label>
-            
+
             {/* Selected Members */}
             {selectedMembers.length > 0 && (
               <div className="flex flex-wrap gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
                 {selectedMembers.map((member) => {
-                  const displayName = `${member.firstName || ''} ${member.lastName || ''}`.trim() || member.username;
+                  const displayName = `${member.lastName || ''} ${member.firstName || ''}`.trim() || member.username;
                   return (
                     <div
                       key={member.userId}
@@ -228,18 +228,17 @@ export default function CreateGroupDialog({
                 ) : (
                   <div className="p-2">
                     {searchResults.map((user) => {
-                      const displayName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username;
+                      const displayName = `${user.lastName || ''} ${user.firstName || ''}`.trim() || user.username;
                       const isSelected = isUserSelected(user.userId);
-                      
+
                       return (
                         <div
                           key={user.userId}
                           onClick={() => handleToggleMember(user)}
-                          className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${
-                            isSelected 
-                              ? 'bg-blue-50 border border-blue-300' 
+                          className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${isSelected
+                              ? 'bg-blue-50 border border-blue-300'
                               : 'hover:bg-gray-50 border border-transparent'
-                          }`}
+                            }`}
                         >
                           <Avatar className="h-10 w-10">
                             <AvatarImage src={user.avatarUrl} alt={displayName} />
@@ -265,7 +264,7 @@ export default function CreateGroupDialog({
                 )}
               </ScrollArea>
             )}
-            
+
             <p className="text-xs text-gray-500">Bạn sẽ tự động được thêm vào nhóm</p>
           </div>
         </div>

@@ -66,7 +66,7 @@ export default function AdminGroupManagement() {
       toast({
         variant: 'destructive',
         title: 'Lỗi',
-        description: 'Không thể tải danh sách nhóm',
+        description: 'Không thể tải danh sách danh mục',
       });
     } finally {
       setLoading(false);
@@ -91,7 +91,7 @@ export default function AdminGroupManagement() {
       await AdminService.deleteGroup(selectedGroup.id);
       toast({
         title: 'Thành công',
-        description: `Đã xóa nhóm ${selectedGroup.name}`,
+        description: `Đã xóa danh mục ${selectedGroup.name}`,
       });
       fetchGroups();
     } catch (error) {
@@ -99,7 +99,7 @@ export default function AdminGroupManagement() {
       toast({
         variant: 'destructive',
         title: 'Lỗi',
-        description: 'Xóa nhóm thất bại',
+        description: 'Xóa danh mục thất bại',
       });
     } finally {
       setDeleteLoading(false);
@@ -146,8 +146,8 @@ export default function AdminGroupManagement() {
             <UsersRound className="h-5 w-5 text-white" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-800">Quản Lý Nhóm</h1>
-            <p className="text-sm text-slate-500">{totalElements} nhóm</p>
+            <h1 className="text-xl font-bold text-slate-800">Quản Lý Danh Mục Bài Viết</h1>
+            <p className="text-sm text-slate-500">{totalElements} danh mục</p>
           </div>
         </div>
         <Button variant="outline" onClick={fetchGroups} disabled={loading} className="border-slate-300">
@@ -163,7 +163,7 @@ export default function AdminGroupManagement() {
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
-                placeholder="Tìm kiếm nhóm..."
+                placeholder="Tìm kiếm danh mục..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 className="pl-10 border-slate-300"
@@ -180,10 +180,10 @@ export default function AdminGroupManagement() {
           <Table>
             <TableHeader>
               <TableRow className="bg-slate-50 hover:bg-slate-50">
-                <TableHead className="font-semibold text-slate-700">Tên nhóm</TableHead>
+                <TableHead className="font-semibold text-slate-700">Tên danh mục</TableHead>
                 <TableHead className="font-semibold text-slate-700">Mô tả</TableHead>
-                <TableHead className="font-semibold text-slate-700">Chủ sở hữu</TableHead>
-                <TableHead className="font-semibold text-slate-700">Thành viên</TableHead>
+                <TableHead className="font-semibold text-slate-700">Người tạo</TableHead>
+                <TableHead className="font-semibold text-slate-700">Tham gia</TableHead>
                 <TableHead className="font-semibold text-slate-700">Bài viết</TableHead>
                 <TableHead className="font-semibold text-slate-700">Hiển thị</TableHead>
                 <TableHead className="font-semibold text-slate-700">Ngày tạo</TableHead>
@@ -201,7 +201,7 @@ export default function AdminGroupManagement() {
               ) : filteredGroups.length === 0 ? (
                 <TableRow>
                   <TableCell colSpan={8} className="text-center py-12 text-slate-500">
-                    Không tìm thấy nhóm nào
+                    Không tìm thấy danh mục nào
                   </TableCell>
                 </TableRow>
               ) : (
@@ -238,7 +238,7 @@ export default function AdminGroupManagement() {
                           variant="ghost"
                           size="icon"
                           onClick={() => window.open(`/forum/group/${group.id}`, '_blank')}
-                          title="Xem nhóm"
+                          title="Xem danh mục"
                           className="h-8 w-8 hover:bg-slate-100"
                         >
                           <Eye className="h-4 w-4 text-slate-600" />
@@ -250,7 +250,7 @@ export default function AdminGroupManagement() {
                             setSelectedGroup(group);
                             setShowDeleteDialog(true);
                           }}
-                          title="Xóa nhóm"
+                          title="Xóa danh mục"
                           className="h-8 w-8 hover:bg-red-50"
                         >
                           <Trash2 className="h-4 w-4 text-red-600" />
@@ -298,10 +298,10 @@ export default function AdminGroupManagement() {
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent className="bg-white">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-slate-800">Xóa nhóm</AlertDialogTitle>
+            <AlertDialogTitle className="text-slate-800">Xóa danh mục</AlertDialogTitle>
             <AlertDialogDescription>
-              Bạn có chắc chắn muốn xóa nhóm <strong>{selectedGroup?.name}</strong>?
-              Tất cả bài viết và thành viên trong nhóm sẽ bị xóa. Hành động này không thể hoàn tác.
+              Bạn có chắc chắn muốn xóa danh mục <strong>{selectedGroup?.name}</strong>?
+              Tất cả bài viết và người tham gia trong danh mục sẽ bị xóa. Hành động này không thể hoàn tác.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>

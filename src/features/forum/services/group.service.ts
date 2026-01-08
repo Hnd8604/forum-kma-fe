@@ -158,4 +158,13 @@ export class GroupService {
       true
     );
   }
+
+  /**
+   * Get suggested groups to join
+   * Returns random public groups that user is not a member of
+   * @param limit - Maximum number of suggestions (default: 5)
+   */
+  static async getSuggestedGroups(limit: number = 5): Promise<Group[]> {
+    return ApiService.get<Group[]>(`/groups/suggestions?limit=${limit}`, true);
+  }
 }

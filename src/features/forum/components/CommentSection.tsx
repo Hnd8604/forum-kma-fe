@@ -94,7 +94,7 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
       // Use current user info if backend doesn't return full author info
       const authorName = created.authorName && created.authorName !== created.authorId
         ? created.authorName
-        : `${currentUser?.firstName || ''} ${currentUser?.lastName || ''}`.trim() || currentUser?.username || created.authorId;
+        : `${currentUser?.lastName || ''} ${currentUser?.firstName || ''}`.trim() || currentUser?.username || created.authorId;
 
       const authorAvatarUrl = created.authorAvatarUrl || currentUser?.avatarUrl;
 

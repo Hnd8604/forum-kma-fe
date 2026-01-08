@@ -78,9 +78,9 @@ export default function ProfilePage() {
 
     setPostsLoading(true);
     try {
-      const response = await PostService.getPostsByAuthor(targetUserId, { 
-        limit: 20, 
-        sort: 'createdAt,DESC' 
+      const response = await PostService.getPostsByAuthor(targetUserId, {
+        limit: 20,
+        sort: 'createdAt,DESC'
       });
       // Sắp xếp bài viết theo thứ tự mới nhất (createdAt giảm dần)
       const sortedPosts = (response.content || []).sort((a, b) => {
@@ -127,16 +127,16 @@ export default function ProfilePage() {
 
   const getDisplayName = () => {
     if (!profileUser) return '';
-    if (profileUser.firstName && profileUser.lastName) {
-      return `${profileUser.firstName} ${profileUser.lastName}`;
+    if (profileUser.lastName && profileUser.firstName) {
+      return `${profileUser.lastName} ${profileUser.firstName}`;
     }
     return profileUser.username;
   };
 
   const getInitials = () => {
     if (!profileUser) return '';
-    if (profileUser.firstName && profileUser.lastName) {
-      return `${profileUser.firstName[0]}${profileUser.lastName[0]}`.toUpperCase();
+    if (profileUser.lastName && profileUser.firstName) {
+      return `${profileUser.lastName[0]}${profileUser.firstName[0]}`.toUpperCase();
     }
     return profileUser.username?.substring(0, 2).toUpperCase() || 'U';
   };
@@ -422,8 +422,8 @@ function PostsSection({
         const hydratedPost = { ...post };
         if (user) {
           if (!hydratedPost.authorName || hydratedPost.authorName === post.authorId) {
-            hydratedPost.authorName = user.firstName && user.lastName
-              ? `${user.firstName} ${user.lastName}`
+            hydratedPost.authorName = user.lastName && user.firstName
+              ? `${user.lastName} ${user.firstName}`
               : user.username;
           }
           if (!hydratedPost.authorAvatarUrl) {
@@ -474,8 +474,8 @@ function FriendsSection({ friends }: { friends: FriendshipResponse[] }) {
               </Avatar>
               <div className="flex-1 min-w-0">
                 <p className="font-semibold text-gray-900 dark:text-white truncate hover:underline">
-                  {friend.firstName && friend.lastName
-                    ? `${friend.firstName} ${friend.lastName}`
+                  {friend.lastName && friend.firstName
+                    ? `${friend.lastName} ${friend.firstName}`
                     : friend.username}
                 </p>
                 <p className="text-sm text-gray-500 dark:text-gray-400">@{friend.username}</p>

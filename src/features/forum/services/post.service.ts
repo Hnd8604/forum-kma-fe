@@ -159,46 +159,54 @@ export class PostService {
     };
   }
 
+  // ============================================================================
+  // DEPRECATED: Approval endpoints - Posts are now auto-published
+  // Backend has disabled these endpoints, keeping for future report/moderation feature
+  // ============================================================================
+
+  /*
   /**
    * Approve a post (Admin)
    */
-  static async approvePost(postId: string): Promise<ApiPost> {
-    return ApiService.put<ApiPost>(`/posts/approve/${postId}`, {}, true);
-  }
+  // static async approvePost(postId: string): Promise<ApiPost> {
+  //   return ApiService.put<ApiPost>(`/posts/approve/${postId}`, {}, true);
+  // }
 
+  /*
   /**
    * Get pending posts (Admin)
    */
-  static async getPendingPosts(params: GetPostsParams = {}): Promise<PaginatedResponse<ApiPost>> {
-    const { page = 0, limit = 10 } = params;
-    const queryParams = new URLSearchParams({
-      page: page.toString(),
-      limit: limit.toString(),
-    });
+  // static async getPendingPosts(params: GetPostsParams = {}): Promise<PaginatedResponse<ApiPost>> {
+  //   const { page = 0, limit = 10 } = params;
+  //   const queryParams = new URLSearchParams({
+  //     page: page.toString(),
+  //     limit: limit.toString(),
+  //   });
+  //
+  //   return ApiService.get<PaginatedResponse<ApiPost>>(
+  //     `/posts/admin/pending?${queryParams}`,
+  //     true
+  //   );
+  // }
 
-    return ApiService.get<PaginatedResponse<ApiPost>>(
-      `/posts/admin/pending?${queryParams}`,
-      true
-    );
-  }
-
+  /*
   /**
    * Get group pending posts (Admin)
    */
-  static async getGroupPendingPosts(
-    groupId: string,
-    params: { page?: number; limit?: number; type?: PostType } = {}
-  ): Promise<PaginatedResponse<ApiPost>> {
-    const { page = 0, limit = 10, type } = params;
-    const queryParams = new URLSearchParams({
-      page: page.toString(),
-      limit: limit.toString(),
-    });
-    if (type) queryParams.append('type', type);
-
-    return ApiService.get<PaginatedResponse<ApiPost>>(
-      `/posts/admin/group/${groupId}/pending?${queryParams}`,
-      true
-    );
-  }
+  // static async getGroupPendingPosts(
+  //   groupId: string,
+  //   params: { page?: number; limit?: number; type?: PostType } = {}
+  // ): Promise<PaginatedResponse<ApiPost>> {
+  //   const { page = 0, limit = 10, type } = params;
+  //   const queryParams = new URLSearchParams({
+  //     page: page.toString(),
+  //     limit: limit.toString(),
+  //   });
+  //   if (type) queryParams.append('type', type);
+  //
+  //   return ApiService.get<PaginatedResponse<ApiPost>>(
+  //     `/posts/admin/group/${groupId}/pending?${queryParams}`,
+  //     true
+  //   );
+  // }
 }

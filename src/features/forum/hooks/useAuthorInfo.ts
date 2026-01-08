@@ -54,7 +54,7 @@ export function useAuthorInfo({
 
                 if (isMounted) {
                     const name =
-                        `${user.firstName || ''} ${user.lastName || ''}`.trim() ||
+                        `${user.lastName || ''} ${user.firstName || ''}`.trim() ||
                         user.username ||
                         authorId.substring(0, 8);
                     setAuthorName(name);

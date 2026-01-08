@@ -77,7 +77,8 @@ export default function FriendRequests({ onRequestHandled }: FriendRequestsProps
   const handleCancelRequest = async (request: FriendshipResponse) => {
     try {
       setProcessingIds((prev) => new Set(prev).add(request.id));
-      await FriendshipService.unfriend(request.userId);
+      // Use cancelFriendRequest with friendshipId (request.id) instead of unfriend
+      await FriendshipService.cancelFriendRequest(request.id);
       toast.success('Đã hủy lời mời kết bạn');
       setSentRequests((prev) => prev.filter((r) => r.id !== request.id));
     } catch (error: any) {
@@ -92,15 +93,15 @@ export default function FriendRequests({ onRequestHandled }: FriendRequestsProps
   };
 
   const getInitials = (request: FriendshipResponse) => {
-    if (request.firstName && request.lastName) {
-      return `${request.firstName[0]}${request.lastName[0]}`.toUpperCase();
+    if (request.lastName && request.firstName) {
+      return `${request.lastName[0]}${request.firstName[0]}`.toUpperCase();
     }
     return request.username.substring(0, 2).toUpperCase();
   };
 
   const getDisplayName = (request: FriendshipResponse) => {
-    if (request.firstName && request.lastName) {
-      return `${request.firstName} ${request.lastName}`;
+    if (request.lastName && request.firstName) {
+      return `${request.lastName} ${request.firstName}`;
     }
     return request.username;
   };

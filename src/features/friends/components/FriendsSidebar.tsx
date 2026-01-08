@@ -98,15 +98,15 @@ export default function FriendsSidebar({ onStartChat: _onStartChat }: FriendsSid
 
   // Hỗ trợ FriendSuggestion (firstName/lastName có thể undefined)
   const getInitials = (item: { username: string; firstName?: string; lastName?: string }) => {
-    if (item.firstName && item.lastName) {
-      return `${item.firstName[0]}${item.lastName[0]}`.toUpperCase();
+    if (item.lastName && item.firstName) {
+      return `${item.lastName[0]}${item.firstName[0]}`.toUpperCase();
     }
     return item.username.substring(0, 2).toUpperCase();
   };
 
   const getDisplayName = (item: { username: string; firstName?: string; lastName?: string }) => {
-    if (item.firstName && item.lastName) {
-      return `${item.firstName} ${item.lastName}`;
+    if (item.lastName && item.firstName) {
+      return `${item.lastName} ${item.firstName}`;
     }
     return item.username;
   };

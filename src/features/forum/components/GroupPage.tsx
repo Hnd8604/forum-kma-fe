@@ -10,10 +10,12 @@ import { PostService } from '../services/post.service';
 import PostCard from './PostCard';
 import CreatePost from './CreatePost';
 import type { Group, GroupMember, GroupMemberCheck, ApiPost } from '@/interfaces/post.types';
+import { useAuthStore } from '@/store/useStore';
 
 export default function GroupPage() {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
+  const isAdmin = useAuthStore((s) => s.isAdmin);
 
   const [group, setGroup] = useState<Group | null>(null);
   const [membership, setMembership] = useState<GroupMemberCheck | null>(null);
@@ -68,7 +70,7 @@ export default function GroupPage() {
       setMembership(membershipData);
     } catch (err: any) {
       console.error('Failed to load group:', err);
-      setError(err.message || 'Không thể tải thông tin nhóm');
+      setError(err.message || 'Không thể tải thông tin danh mục');
     } finally {
       setLoading(false);
     }
@@ -137,29 +139,6 @@ export default function GroupPage() {
       await loadGroupData();
     } catch (err: any) {
       console.error('Failed to leave group:', err);
-    }
-  };
-
-  const handleRemoveMember = async (userId: string) => {
-    if (!groupId || !membership?.canManageMembers) return;
-
-    try {
-      await GroupService.removeMember(groupId, userId);
-      await loadMembers();
-      await loadGroupData();
-    } catch (err: any) {
-      console.error('Failed to remove member:', err);
-    }
-  };
-
-  const handleUpdateRole = async (userId: string, role: 'ADMIN' | 'MEMBER') => {
-    if (!groupId || !membership?.canManageMembers) return;
-
-    try {
-      await GroupService.updateMemberRole(groupId, { userId, role });
-      await loadMembers();
-    } catch (err: any) {
-      console.error('Failed to update role:', err);
     }
   };
 
@@ -245,9 +224,9 @@ export default function GroupPage() {
   const getRoleBadge = (role: string) => {
     switch (role) {
       case 'OWNER':
-        return <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full font-medium">Chủ nhóm</span>;
+        return <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full font-medium">Quản trị viên</span>;
       case 'ADMIN':
-        return <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">Quản trị viên</span>;
+        return <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">Quản trị</span>;
       default:
         return <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-full font-medium">Thành viên</span>;
     }
@@ -264,13 +243,13 @@ export default function GroupPage() {
   if (error || !group) {
     return (
       <div className="text-center py-16">
-        <p className="text-red-500 mb-4">{error || 'Không tìm thấy nhóm'}</p>
+        <p className="text-red-500 mb-4">{error || 'Không tìm thấy danh mục'}</p>
         <Button onClick={() => navigate('/forum')}>Quay lại</Button>
       </div>
     );
   }
 
-  const groupName = group.groupName || group.name || 'Nhóm';
+  const categoryName = group.groupName || group.name || 'Danh mục';
   const isPublic = group.visibility === 'PUBLIC' || group.privacy === 'PUBLIC';
 
   return (
@@ -286,7 +265,7 @@ export default function GroupPage() {
             Quay lại
           </button>
 
-          {membership?.isOwner && (
+          {isAdmin && (
             <div className="relative" ref={settingsRef}>
               <Button
                 variant="outline"
@@ -312,7 +291,7 @@ export default function GroupPage() {
                     className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors"
                   >
                     <Trash2 className="w-4 h-4" />
-                    Xóa nhóm
+                    Xóa danh mục
                   </button>
                 </div>
               )}
@@ -322,12 +301,12 @@ export default function GroupPage() {
 
         <div className="flex items-center gap-4">
           <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
-            {groupName[0]?.toUpperCase()}
+            {categoryName[0]?.toUpperCase()}
           </div>
 
           <div className="flex-1">
             <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-slate-900">{groupName}</h1>
+              <h1 className="text-2xl font-bold text-slate-900">{categoryName}</h1>
               {isPublic ? (
                 <span title="Công khai">
                   <Globe className="w-5 h-5 text-green-500" />
@@ -342,24 +321,17 @@ export default function GroupPage() {
             <div className="flex items-center gap-4 mt-2 text-sm text-slate-500">
               <span className="flex items-center gap-1">
                 <Users className="w-4 h-4" />
-                {group.memberCount} thành viên
+                {group.memberCount} người tham gia
               </span>
             </div>
           </div>
 
           <div>
             {membership?.isMember ? (
-              membership.isOwner ? (
-                <div className="inline-flex items-center justify-center h-10 px-4 py-2 bg-amber-50 border border-amber-200 rounded-lg shadow-sm cursor-default">
-                  <Crown className="w-4 h-4 mr-2 text-amber-600" />
-                  <span className="text-sm font-bold text-amber-800">Chủ nhóm</span>
-                </div>
-              ) : (
-                <Button variant="outline" onClick={handleLeaveGroup}>
-                  <UserMinus className="w-4 h-4 mr-2" />
-                  Rời nhóm
-                </Button>
-              )
+              <Button variant="outline" onClick={handleLeaveGroup}>
+                <UserMinus className="w-4 h-4 mr-2" />
+                Rời danh mục
+              </Button>
             ) : (
               <Button onClick={handleJoinGroup}>
                 <UserPlus className="w-4 h-4 mr-2" />
@@ -389,7 +361,7 @@ export default function GroupPage() {
               : 'text-slate-500 hover:text-slate-700'
               }`}
           >
-            Thành viên ({group.memberCount})
+            Người tham gia ({group.memberCount})
           </button>
         </div>
       </div>
@@ -407,7 +379,7 @@ export default function GroupPage() {
             </div>
           ) : posts.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-2xl border border-slate-200">
-              <p className="text-slate-500">Chưa có bài viết nào trong nhóm này</p>
+              <p className="text-slate-500">Chưa có bài viết nào trong danh mục này</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -469,38 +441,6 @@ export default function GroupPage() {
                       </div>
                     </div>
                   </div>
-
-                  {membership?.canManageMembers && member.role !== 'OWNER' && (
-                    <div className="flex items-center gap-2">
-                      {membership.isOwner && member.role === 'MEMBER' && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleUpdateRole(member.userId, 'ADMIN')}
-                        >
-                          <Shield className="w-4 h-4 mr-1" />
-                          Thăng Admin
-                        </Button>
-                      )}
-                      {membership.isOwner && member.role === 'ADMIN' && (
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => handleUpdateRole(member.userId, 'MEMBER')}
-                        >
-                          Hạ thành viên
-                        </Button>
-                      )}
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-500 hover:text-red-700 hover:bg-red-50"
-                        onClick={() => handleRemoveMember(member.userId)}
-                      >
-                        <UserMinus className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  )}
                 </div>
               ))}
             </div>
@@ -517,7 +457,7 @@ export default function GroupPage() {
           />
           <div className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white rounded-2xl shadow-xl z-50 p-6 animate-in fade-in zoom-in-95 duration-200">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-slate-900">Chỉnh sửa thông tin nhóm</h2>
+              <h2 className="text-xl font-bold text-slate-900">Chỉnh sửa thông tin danh mục</h2>
               <button
                 onClick={() => setShowEditModal(false)}
                 className="p-2 hover:bg-slate-100 rounded-full transition-colors"
@@ -529,14 +469,14 @@ export default function GroupPage() {
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1">
-                  Tên nhóm <span className="text-red-500">*</span>
+                  Tên danh mục <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="Nhập tên nhóm"
+                  placeholder="Nhập tên danh mục"
                 />
               </div>
 
@@ -548,7 +488,7 @@ export default function GroupPage() {
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
                   className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[100px] resize-none"
-                  placeholder="Mô tả về nhóm của bạn..."
+                  placeholder="Mô tả về danh mục..."
                 />
               </div>
 
@@ -623,7 +563,7 @@ export default function GroupPage() {
               <div className="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center mb-4">
                 <Trash2 className="w-6 h-6 text-red-600" />
               </div>
-              <h2 className="text-xl font-bold text-slate-900 mb-2">Xóa nhóm này?</h2>
+              <h2 className="text-xl font-bold text-slate-900 mb-2">Xóa danh mục này?</h2>
               <p className="text-slate-500 text-sm">
                 Hành động này không thể hoàn tác. Tất cả bài viết và thành viên sẽ bị xóa vĩnh viễn.
               </p>
@@ -650,7 +590,7 @@ export default function GroupPage() {
                     Đang xóa...
                   </>
                 ) : (
-                  'Xóa nhóm'
+                  'Xóa danh mục'
                 )}
               </Button>
             </div>

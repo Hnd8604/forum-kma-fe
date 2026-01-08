@@ -68,7 +68,7 @@ export default function SearchDropdown({ searchQuery, onClose, isOpen, inputRef 
                 try {
                     const usersResponse = await AuthService.getAllUsers(0, 50);
                     const filteredUsers = usersResponse.content.filter(user => {
-                        const fullName = `${user.firstName || ''} ${user.lastName || ''}`.toLowerCase();
+                        const fullName = `${user.lastName || ''} ${user.firstName || ''}`.toLowerCase();
                         const username = (user.username || '').toLowerCase();
                         return fullName.includes(query) || username.includes(query);
                     });
@@ -154,7 +154,7 @@ export default function SearchDropdown({ searchQuery, onClose, isOpen, inputRef 
                                 </span>
                             </div>
                             {users.map((user) => {
-                                const displayName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || 'Người dùng';
+                                const displayName = `${user.lastName || ''} ${user.firstName || ''}`.trim() || user.username || 'Người dùng';
                                 return (
                                     <div
                                         key={user.userId}

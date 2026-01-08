@@ -56,6 +56,18 @@ export interface GroupMember {
   joinedAt: string;
 }
 
+export interface AdminComment {
+  id: string;
+  postId: string;
+  authorId: string;
+  authorName: string;
+  content: string;
+  parentId?: string;
+  reactionCount: number;
+  createdAt: string;
+  updatedAt: string;
+}
+
 export interface AdminStats {
   totalUsers: number;
   activeUsers: number;
@@ -134,6 +146,24 @@ export class AdminService {
       endpoints.ADMIN_ENDPOINTS.DELETE_USER(userId),
       true
     );
+  }
+
+  /**
+   * Create new user (admin)
+   */
+  static async createUser(data: {
+    username: string;
+    email: string;
+    password: string;
+    firstName: string;
+    lastName: string;
+  }): Promise<User> {
+    const response = await ApiService.post<any>(
+      endpoints.ADMIN_ENDPOINTS.CREATE_USER,
+      data,
+      true
+    );
+    return response.result || response;
   }
 
   // ============= ROLE MANAGEMENT =============
@@ -240,11 +270,12 @@ export class AdminService {
   /**
    * Get all groups with pagination
    */
-  static async getAllGroups(page = 0, size = 10): Promise<PaginatedResponse<AdminGroup>> {
-    const response = await ApiService.get<any>(
-      `${endpoints.ADMIN_ENDPOINTS.GET_ALL_GROUPS}?page=${page}&size=${size}`,
-      true
-    );
+  static async getAllGroups(page = 0, size = 10, search = ''): Promise<PaginatedResponse<AdminGroup>> {
+    let url = `${endpoints.ADMIN_ENDPOINTS.GET_ALL_GROUPS}?page=${page}&limit=${size}`;
+    if (search) {
+      url += `&search=${encodeURIComponent(search)}`;
+    }
+    const response = await ApiService.get<any>(url, true);
     return response.result || response;
   }
 
@@ -270,11 +301,11 @@ export class AdminService {
   }
 
   /**
-   * Get group members
+   * Get group members with pagination
    */
-  static async getGroupMembers(groupId: string): Promise<GroupMember[]> {
+  static async getGroupMembers(groupId: string, page = 0, limit = 20): Promise<PaginatedResponse<GroupMember>> {
     const response = await ApiService.get<any>(
-      endpoints.ADMIN_ENDPOINTS.GET_GROUP_MEMBERS(groupId),
+      `${endpoints.ADMIN_ENDPOINTS.GET_GROUP_MEMBERS(groupId)}?page=${page}&limit=${limit}`,
       true
     );
     return response.result || response;
@@ -309,6 +340,17 @@ export class AdminService {
   // ============= COMMENT MANAGEMENT =============
 
   /**
+   * Get comments by post with pagination
+   */
+  static async getCommentsByPost(postId: string, page = 0, size = 10): Promise<AdminComment[]> {
+    const response = await ApiService.get<any>(
+      `/comments/post?postId=${postId}&page=${page}&size=${size}`,
+      true
+    );
+    return response.result || response || [];
+  }
+
+  /**
    * Delete comment
    */
   static async deleteComment(commentId: string): Promise<void> {
@@ -322,17 +364,31 @@ export class AdminService {
 
   /**
    * Get admin dashboard statistics
-   * Note: This is a placeholder - the actual endpoint may not exist yet
+   * Aggregates data from multiple endpoints
    */
   static async getStats(): Promise<AdminStats> {
     try {
-      const response = await ApiService.get<any>(
-        endpoints.ADMIN_ENDPOINTS.GET_STATS,
-        true
-      );
-      return response.result || response;
+      // Fetch data from multiple endpoints in parallel
+      const [usersResponse, postsResponse, groupsResponse] = await Promise.allSettled([
+        this.getAllUsers(0, 1),
+        this.getAllPosts(0, 1),
+        this.getAllGroups(0, 1),
+      ]);
+
+      const totalUsers = usersResponse.status === 'fulfilled' ? usersResponse.value.totalElements : 0;
+      const totalPosts = postsResponse.status === 'fulfilled' ? postsResponse.value.totalElements : 0;
+      const totalGroups = groupsResponse.status === 'fulfilled' ? groupsResponse.value.totalElements : 0;
+
+      return {
+        totalUsers,
+        activeUsers: totalUsers,
+        bannedUsers: 0,
+        totalPosts,
+        totalGroups,
+        totalComments: 0,
+        pendingReports: 0,
+      };
     } catch {
-      // Return mock data if endpoint doesn't exist
       return {
         totalUsers: 0,
         activeUsers: 0,
@@ -345,3 +401,4 @@ export class AdminService {
     }
   }
 }
+

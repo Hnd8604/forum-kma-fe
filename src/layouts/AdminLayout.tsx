@@ -29,7 +29,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { icon: LayoutDashboard, label: 'Dashboard', path: '/admin' },
     { icon: Users, label: 'Người Dùng', path: '/admin/users' },
     { icon: FileText, label: 'Bài Viết', path: '/admin/posts' },
-    { icon: UsersRound, label: 'Nhóm', path: '/admin/groups' },
+    { icon: UsersRound, label: 'Danh Mục', path: '/admin/groups' },
     { icon: Shield, label: 'Vai Trò', path: '/admin/roles' },
     { icon: MessageSquare, label: 'Báo Cáo', path: '/admin/reports' },
     { icon: Settings, label: 'Cài Đặt', path: '/admin/settings' },
@@ -45,8 +45,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
   };
 
   const getInitials = () => {
-    if (user?.firstName && user?.lastName) {
-      return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
+    if (user?.lastName && user?.firstName) {
+      return `${user.lastName[0]}${user.firstName[0]}`.toUpperCase();
     }
     return 'AD';
   };
@@ -79,8 +79,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive
-                    ? 'bg-blue-600 text-white'
-                    : 'text-slate-400 hover:bg-slate-700 hover:text-white'
+                  ? 'bg-blue-600 text-white'
+                  : 'text-slate-400 hover:bg-slate-700 hover:text-white'
                   }`}
                 title={!sidebarOpen ? item.label : undefined}
               >
@@ -102,7 +102,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
             {sidebarOpen && (
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">
-                  {user?.firstName} {user?.lastName}
+                  {user?.lastName} {user?.firstName}
                 </p>
                 <p className="text-xs text-slate-400 truncate">
                   {user?.roleName || 'Admin'}

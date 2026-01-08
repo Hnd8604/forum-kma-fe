@@ -157,8 +157,8 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
   };
 
   const getUserInitials = () => {
-    if (currentUser?.firstName && currentUser?.lastName) {
-      return `${currentUser.firstName[0]}${currentUser.lastName[0]}`.toUpperCase();
+    if (currentUser?.lastName && currentUser?.firstName) {
+      return `${currentUser.lastName[0]}${currentUser.firstName[0]}`.toUpperCase();
     }
     if (currentUser?.username) {
       return currentUser.username.substring(0, 2).toUpperCase();

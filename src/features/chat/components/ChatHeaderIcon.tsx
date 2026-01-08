@@ -87,7 +87,7 @@ export default function ChatHeaderIcon({ onOpenMiniChat: _onOpenMiniChat }: Chat
       if (partnerId) {
         try {
           const user = await AuthService.getUserById(partnerId);
-          const displayName = `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username;
+          const displayName = `${user.lastName || ''} ${user.firstName || ''}`.trim() || user.username;
           startChatWithUser(partnerId, displayName, user.avatarUrl);
         } catch {
           // Fallback to just opening with ID

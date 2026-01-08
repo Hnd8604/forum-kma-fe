@@ -141,7 +141,7 @@ export default function ChatDropdown({
               const u = await AuthService.getUserById(id);
               return {
                 id,
-                name: `${u.firstName || u.username || ''} ${u.lastName || ''}`.trim() || u.username || id,
+                name: `${u.lastName || ''} ${u.firstName || u.username || ''}`.trim() || u.username || id,
                 avatarUrl: u.avatarUrl || ''
               };
             } catch (err) {

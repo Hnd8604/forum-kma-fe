@@ -35,14 +35,14 @@ export default function ForumHeader({
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
 
-  const displayName = user ? `${user.firstName || ''} ${user.lastName || ''}`.trim() || user.username || 'User' : 'User';
+  const displayName = user ? `${user.lastName || ''} ${user.firstName || ''}`.trim() || user.username || 'User' : 'User';
   const displayEmail = user?.email || 'student@university.edu';
   const displayPostCount = user?.totalPosts ?? user?.postCount ?? 0;
   const avatarUrl = user?.avatarUrl;
 
   const getInitials = () => {
-    if (user?.firstName && user?.lastName) {
-      return `${user.firstName[0]}${user.lastName[0]}`.toUpperCase();
+    if (user?.lastName && user?.firstName) {
+      return `${user.lastName[0]}${user.firstName[0]}`.toUpperCase();
     }
     if (user?.username) {
       return user.username.substring(0, 2).toUpperCase();

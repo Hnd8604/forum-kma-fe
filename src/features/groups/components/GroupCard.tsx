@@ -27,13 +27,13 @@ export default function GroupCard({
     try {
       setProcessing(true);
       await GroupService.joinGroup(group.groupId);
-      toast.success(`Đã tham gia nhóm ${group.groupName}`);
+      toast.success(`Đã tham gia danh mục ${group.groupName}`);
       setMemberStatus(true);
       // Dispatch event to notify sidebar to refresh
       window.dispatchEvent(new CustomEvent('groupMembershipChanged'));
       onJoinSuccess?.();
     } catch (error: any) {
-      toast.error(error.message || 'Không thể tham gia nhóm');
+      toast.error(error.message || 'Không thể tham gia danh mục');
     } finally {
       setProcessing(false);
     }
@@ -43,13 +43,13 @@ export default function GroupCard({
     try {
       setProcessing(true);
       await GroupService.leaveGroup(group.groupId);
-      toast.success(`Đã rời khỏi nhóm ${group.groupName}`);
+      toast.success(`Đã rời khỏi danh mục ${group.groupName}`);
       setMemberStatus(false);
       // Dispatch event to notify sidebar to refresh
       window.dispatchEvent(new CustomEvent('groupMembershipChanged'));
       onLeaveSuccess?.();
     } catch (error: any) {
-      toast.error(error.message || 'Không thể rời nhóm');
+      toast.error(error.message || 'Không thể rời danh mục');
     } finally {
       setProcessing(false);
     }
@@ -90,7 +90,7 @@ export default function GroupCard({
                     )}
                   </Badge>
                   <span className="text-xs text-slate-500">
-                    {group.memberCount || 0} thành viên
+                    {group.memberCount || 0} người tham gia
                   </span>
                 </div>
               </div>
