@@ -8,7 +8,7 @@ import { Input } from '@/components/ui/input';
 import { X, Send, Users, MoreVertical, Trash2, Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/store/useStore';
 import { formatMessageTime } from '../utils/timeFormat';
-import ChatMediaUpload from './ChatMediaUpload';
+import ChatMediaUpload, { type PendingMedia, type ChatMediaUploadRef } from './ChatMediaUpload';
 import ChatMessageContent from './ChatMessageContent';
 import {
   DropdownMenu,
@@ -63,6 +63,8 @@ export default function MiniChatWindow({
   const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
+  const [pendingMedia, setPendingMedia] = useState<PendingMedia | null>(null);
+  const mediaUploadRef = useRef<ChatMediaUploadRef>(null);
 
   useEffect(() => {
     loadMessages();
@@ -226,22 +228,32 @@ export default function MiniChatWindow({
     }
   };
 
-  const handleSendMessage = async (messageType: MessageType = 'TEXT', resourceUrls?: string[]) => {
+  const handleSendMessage = async () => {
     const messageText = newMessage.trim();
+    const media = pendingMedia;
 
-    // For TEXT messages, require text content
-    // For media messages, text is optional (caption)
-    if (messageType === 'TEXT' && !messageText) return;
-    if (messageType !== 'TEXT' && (!resourceUrls || resourceUrls.length === 0)) return;
+    // Require text OR media
+    if (!messageText && !media) return;
     if (sending) return;
 
+    // Clear inputs first
     setNewMessage('');
+    setPendingMedia(null);
+    mediaUploadRef.current?.clearPendingMedia();
     setSending(true);
 
     try {
+      // Determine message type and content
+      const messageType: MessageType = media?.type || 'TEXT';
+      const resourceUrls = media?.urls;
+      const displayText = messageText ||
+        (messageType === 'IMAGE' ? '📷 Hình ảnh' :
+          messageType === 'VIDEO' ? '🎬 Video' :
+            messageType === 'FILE' ? '📎 Tệp đính kèm' : '');
+
       // Build request
       let request: SendMessageRequest = {
-        message: messageText || (messageType === 'IMAGE' ? '📷 Hình ảnh' : messageType === 'VIDEO' ? '🎬 Video' : '📎 Tệp đính kèm'),
+        message: displayText,
         type: messageType,
         resourceUrls: resourceUrls,
       };
@@ -297,9 +309,9 @@ export default function MiniChatWindow({
     }
   };
 
-  // Handle media upload
-  const handleMediaUpload = (urls: string[], type: MessageType) => {
-    handleSendMessage(type, urls);
+  // Handle pending media change from ChatMediaUpload
+  const handlePendingMediaChange = (media: PendingMedia | null) => {
+    setPendingMedia(media);
   };
 
   const scrollToBottom = () => {
@@ -491,19 +503,23 @@ export default function MiniChatWindow({
       <div className="p-3 border-t border-slate-200 bg-white">
         <div className="flex items-center gap-2">
           {/* Media upload buttons */}
-          <ChatMediaUpload onUpload={handleMediaUpload} disabled={sending} />
+          <ChatMediaUpload
+            ref={mediaUploadRef}
+            onPendingMediaChange={handlePendingMediaChange}
+            disabled={sending}
+          />
 
           <Input
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-            placeholder="Aa"
+            placeholder={pendingMedia ? 'Nhập chú thích...' : 'Aa'}
             disabled={sending}
             className="flex-1 h-10 text-sm rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
           />
           <Button
-            onClick={() => handleSendMessage()}
-            disabled={!newMessage.trim() || sending}
+            onClick={handleSendMessage}
+            disabled={(!newMessage.trim() && !pendingMedia) || sending}
             size="sm"
             className="h-10 w-10 p-0 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 shadow-lg shadow-blue-500/25"
           >

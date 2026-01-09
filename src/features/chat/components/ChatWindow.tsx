@@ -9,7 +9,7 @@ import { Send, ArrowLeft, Users, MessageCircle, Settings2, MoreVertical, Trash2,
 import { useAuthStore } from '@/store/useStore';
 import { AuthService } from '../../auth/services/auth.service';
 import GroupMembersDialog from './GroupMembersDialog';
-import ChatMediaUpload from './ChatMediaUpload';
+import ChatMediaUpload, { type PendingMedia, type ChatMediaUploadRef } from './ChatMediaUpload';
 import ChatMessageContent from './ChatMessageContent';
 import {
   DropdownMenu,
@@ -104,6 +104,8 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
   const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
+  const [pendingMedia, setPendingMedia] = useState<PendingMedia | null>(null);
+  const mediaUploadRef = useRef<ChatMediaUploadRef>(null);
 
   // Use ref to track current conversation ID to avoid stale closure
   const currentConversationIdRef = useRef(conversation.conversationId);
@@ -279,21 +281,30 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
     }
   };
 
-  const handleSendMessage = async (messageType: MessageType = 'TEXT', resourceUrls?: string[]) => {
+  const handleSendMessage = async () => {
     const messageText = newMessage.trim();
+    const media = pendingMedia;
 
-    // For TEXT messages, require text content
-    // For media messages, text is optional (caption)
-    if (messageType === 'TEXT' && !messageText) return;
-    if (messageType !== 'TEXT' && (!resourceUrls || resourceUrls.length === 0)) return;
+    // Require text OR media
+    if (!messageText && !media) return;
     if (sending) return;
 
+    // Clear inputs first
     setNewMessage('');
+    setPendingMedia(null);
+    mediaUploadRef.current?.clearPendingMedia();
     setSending(true);
+
+    // Determine message type and content
+    const messageType: MessageType = media?.type || 'TEXT';
+    const resourceUrls = media?.urls;
+    const displayMessage = messageText ||
+      (messageType === 'IMAGE' ? '📷 Hình ảnh' :
+        messageType === 'VIDEO' ? '🎬 Video' :
+          messageType === 'FILE' ? '📎 Tệp đính kèm' : '');
 
     // Optimistic update - add message to UI immediately
     const tempId = `temp-${Date.now()}`;
-    const displayMessage = messageText || (messageType === 'IMAGE' ? '📷 Hình ảnh' : messageType === 'VIDEO' ? '🎬 Video' : '📎 Tệp đính kèm');
     const optimisticMessage: Message = {
       id: tempId,
       fromUserId: user?.userId || '',
@@ -312,11 +323,6 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
         type: messageType,
         resourceUrls: resourceUrls,
       };
-
-      // Debug log for media messages
-      if (messageType !== 'TEXT') {
-        console.log('[ChatWindow] Sending media message:', { messageType, resourceUrls, request });
-      }
 
       if (conversation.type === 'private') {
         // For private chat: send receiverId (the other user's ID)
@@ -365,9 +371,9 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
     }
   };
 
-  // Handle media upload
-  const handleMediaUpload = (urls: string[], type: MessageType) => {
-    handleSendMessage(type, urls);
+  // Handle pending media change from ChatMediaUpload
+  const handlePendingMediaChange = (media: PendingMedia | null) => {
+    setPendingMedia(media);
   };
 
   const scrollToBottom = () => {
@@ -583,20 +589,24 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
         <div className="p-4 border-t border-slate-100 bg-white">
           <div className="flex items-center gap-3">
             {/* Media upload buttons */}
-            <ChatMediaUpload onUpload={handleMediaUpload} disabled={sending} />
+            <ChatMediaUpload
+              ref={mediaUploadRef}
+              onPendingMediaChange={handlePendingMediaChange}
+              disabled={sending}
+            />
 
             <Input
               ref={inputRef}
               value={newMessage}
               onChange={(e) => setNewMessage(e.target.value)}
               onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
-              placeholder="Nhập tin nhắn..."
+              placeholder={pendingMedia ? 'Nhập chú thích...' : 'Nhập tin nhắn...'}
               disabled={sending}
               className="flex-1 h-11 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
             />
             <Button
-              onClick={() => handleSendMessage()}
-              disabled={!newMessage.trim() || sending}
+              onClick={handleSendMessage}
+              disabled={(!newMessage.trim() && !pendingMedia) || sending}
               className="h-11 px-5 gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg shadow-blue-500/25 transition-all"
             >
               <Send className="w-4 h-4" />
