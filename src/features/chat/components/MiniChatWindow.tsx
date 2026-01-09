@@ -246,10 +246,7 @@ export default function MiniChatWindow({
       // Determine message type and content
       const messageType: MessageType = media?.type || 'TEXT';
       const resourceUrls = media?.urls;
-      const displayText = messageText ||
-        (messageType === 'IMAGE' ? '📷 Hình ảnh' :
-          messageType === 'VIDEO' ? '🎬 Video' :
-            messageType === 'FILE' ? '📎 Tệp đính kèm' : '');
+      const displayText = messageText; // Only use user-entered text, no default labels for media
 
       // Build request
       let request: SendMessageRequest = {

@@ -298,10 +298,7 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
     // Determine message type and content
     const messageType: MessageType = media?.type || 'TEXT';
     const resourceUrls = media?.urls;
-    const displayMessage = messageText ||
-      (messageType === 'IMAGE' ? '📷 Hình ảnh' :
-        messageType === 'VIDEO' ? '🎬 Video' :
-          messageType === 'FILE' ? '📎 Tệp đính kèm' : '');
+    const displayMessage = messageText; // Only use user-entered text, no default labels for media
 
     // Optimistic update - add message to UI immediately
     const tempId = `temp-${Date.now()}`;
