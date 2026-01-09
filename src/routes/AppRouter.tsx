@@ -25,12 +25,12 @@ import {
 
 function LoginWrapper() {
     const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
-    const isAdmin = useAuthStore((s) => s.isAdmin);
+    const isAdmin = useAuthStore((s) => s.isAdmin());
     const navigate = useNavigate();
 
     if (isLoggedIn) {
         // Redirect admin users to admin dashboard
-        if (isAdmin()) {
+        if (isAdmin) {
             return <Navigate to="/admin" replace />;
         }
         return <Navigate to="/forum" replace />;
@@ -56,12 +56,12 @@ function LoginWrapper() {
 
 function RegisterWrapper() {
     const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
-    const isAdmin = useAuthStore((s) => s.isAdmin);
+    const isAdmin = useAuthStore((s) => s.isAdmin());
     const navigate = useNavigate();
 
     if (isLoggedIn) {
         // Check if user is admin and redirect accordingly
-        return <Navigate to={isAdmin() ? '/admin' : '/forum'} replace />;
+        return <Navigate to={isAdmin ? '/admin' : '/forum'} replace />;
     }
 
     return <RegisterPage
@@ -172,10 +172,10 @@ function SimplePageWrapper({ children }: { children: React.ReactNode }) {
 // Admin Wrapper - Protected route for admin users only
 function AdminWrapper({ children }: { children?: React.ReactNode }) {
     const isLoggedIn = useAuthStore((s) => s.isLoggedIn);
-    const isAdmin = useAuthStore((s) => s.isAdmin);
+    const isAdmin = useAuthStore((s) => s.isAdmin());
 
     if (!isLoggedIn) return <Navigate to="/login" replace />;
-    if (!isAdmin()) return <Navigate to="/forum" replace />;
+    if (!isAdmin) return <Navigate to="/forum" replace />;
 
     return (
         <>

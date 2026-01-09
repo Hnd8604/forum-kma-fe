@@ -22,7 +22,7 @@ const communityColors = [
 
 export default function Sidebar() {
   const navigate = useNavigate();
-  const isAdmin = useAuthStore((s) => s.isAdmin);
+  const isAdmin = useAuthStore((s) => s.isAdmin());
   const [groups, setGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(false);
   const [showCommunities, setShowCommunities] = useState(true);
@@ -105,9 +105,6 @@ export default function Sidebar() {
       setJoiningGroupId(null);
     }
   };
-
-  // Backend API /groups/suggestions already returns groups user is not a member of
-  // No need for client-side filtering anymore
 
   return (
     <>

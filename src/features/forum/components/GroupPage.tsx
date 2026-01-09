@@ -15,7 +15,7 @@ import { useAuthStore } from '@/store/useStore';
 export default function GroupPage() {
   const { groupId } = useParams<{ groupId: string }>();
   const navigate = useNavigate();
-  const isAdmin = useAuthStore((s) => s.isAdmin);
+  const isAdmin = useAuthStore((s) => s.isAdmin());
 
   const [group, setGroup] = useState<Group | null>(null);
   const [membership, setMembership] = useState<GroupMemberCheck | null>(null);
@@ -354,15 +354,18 @@ export default function GroupPage() {
           >
             Bài viết
           </button>
-          <button
-            onClick={() => setActiveTab('members')}
-            className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'members'
-              ? 'text-blue-600 border-b-2 border-blue-600'
-              : 'text-slate-500 hover:text-slate-700'
-              }`}
-          >
-            Người tham gia ({group.memberCount})
-          </button>
+          {/* Chỉ admin mới có thể xem danh sách người tham gia */}
+          {isAdmin && (
+            <button
+              onClick={() => setActiveTab('members')}
+              className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'members'
+                ? 'text-blue-600 border-b-2 border-blue-600'
+                : 'text-slate-500 hover:text-slate-700'
+                }`}
+            >
+              Người tham gia ({group.memberCount})
+            </button>
+          )}
         </div>
       </div>
 
@@ -410,7 +413,7 @@ export default function GroupPage() {
         </div>
       )}
 
-      {activeTab === 'members' && (
+      {activeTab === 'members' && isAdmin && (
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
           {loadingMembers ? (
             <div className="flex items-center justify-center py-16">

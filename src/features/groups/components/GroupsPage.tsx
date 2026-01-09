@@ -28,7 +28,7 @@ import { toast } from 'sonner';
 import { useAuthStore } from '@/store/useStore';
 
 export default function GroupsPage() {
-  const isAdmin = useAuthStore((s) => s.isAdmin);
+  const isAdmin = useAuthStore((s) => s.isAdmin());
   const [allGroups, setAllGroups] = useState<Group[]>([]);
   const [myGroups, setMyGroups] = useState<Group[]>([]);
   const [loading, setLoading] = useState(true);

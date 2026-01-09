@@ -111,7 +111,7 @@ export default function ForumHeader({
             <Input
               ref={searchInputRef}
               type="text"
-              placeholder="Tìm kiếm bài viết, chủ đề..."
+              placeholder="Tìm kiếm bài viết, danh mục, người dùng..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               onFocus={() => setIsSearchFocused(true)}

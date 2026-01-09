@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, FolderOpen } from 'lucide-react';
 import { PostService } from '../services/post.service';
+import { GroupService } from '../services/group.service';
 import { AuthService } from '../../auth/services/auth.service';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import type { ApiPost } from '@/interfaces/post.types';
+import type { ApiPost, Group } from '@/interfaces/post.types';
 import type { User } from '@/interfaces/auth.types';
 
 interface SearchDropdownProps {
@@ -15,10 +16,17 @@ interface SearchDropdownProps {
     inputRef?: React.RefObject<HTMLInputElement>;
 }
 
+// Generate colors for categories
+const categoryColors = [
+    '#1e3a5f', '#2d5a87', '#3d7ab5', '#1a5f7a', '#2e8b57',
+    '#4682b4', '#5f9ea0', '#6b8e9f', '#708090', '#4a6fa5',
+];
+
 export default function SearchDropdown({ searchQuery, onClose, isOpen, inputRef }: SearchDropdownProps) {
     const navigate = useNavigate();
     const [posts, setPosts] = useState<ApiPost[]>([]);
     const [users, setUsers] = useState<User[]>([]);
+    const [groups, setGroups] = useState<Group[]>([]);
     const [loading, setLoading] = useState(false);
     const dropdownRef = useRef<HTMLDivElement>(null);
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 });
@@ -35,12 +43,13 @@ export default function SearchDropdown({ searchQuery, onClose, isOpen, inputRef 
         }
     }, [isOpen, inputRef]);
 
-    // Search posts and users when query changes
+    // Search posts, users, and groups when query changes
     useEffect(() => {
         const search = async () => {
             if (!searchQuery.trim()) {
                 setPosts([]);
                 setUsers([]);
+                setGroups([]);
                 return;
             }
 
@@ -76,6 +85,24 @@ export default function SearchDropdown({ searchQuery, onClose, isOpen, inputRef 
                 } catch (error) {
                     console.error('User search failed:', error);
                     setUsers([]);
+                }
+
+                // Search groups/categories
+                try {
+                    const groupsResponse = await GroupService.getAllGroups({
+                        page: 0,
+                        limit: 20,
+                        search: searchQuery.trim()
+                    });
+                    const filteredGroups = groupsResponse.content.filter(group => {
+                        const name = (group.groupName || group.name || '').toLowerCase();
+                        const description = (group.description || '').toLowerCase();
+                        return name.includes(query) || description.includes(query);
+                    });
+                    setGroups(filteredGroups.slice(0, 5));
+                } catch (error) {
+                    console.error('Group search failed:', error);
+                    setGroups([]);
                 }
             } catch (error) {
                 console.error('Search failed:', error);
@@ -118,11 +145,20 @@ export default function SearchDropdown({ searchQuery, onClose, isOpen, inputRef 
         navigate(`/profile/${userId}`);
     };
 
+    const handleGroupClick = (groupId: string) => {
+        onClose();
+        navigate(`/forum/group/${groupId}`);
+    };
+
+    const getGroupColor = (index: number) => {
+        return categoryColors[index % categoryColors.length];
+    };
+
     if (!isOpen || !searchQuery.trim()) {
         return null;
     }
 
-    const hasResults = posts.length > 0 || users.length > 0;
+    const hasResults = posts.length > 0 || users.length > 0 || groups.length > 0;
 
     const dropdownContent = (
         <div
@@ -145,9 +181,52 @@ export default function SearchDropdown({ searchQuery, onClose, isOpen, inputRef 
             {/* Results */}
             {!loading && hasResults && (
                 <div className="max-h-96 overflow-y-auto">
+                    {/* Groups/Categories Section */}
+                    {groups.length > 0 && (
+                        <div className="py-2">
+                            <div className="px-4 py-2">
+                                <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide flex items-center gap-2">
+                                    <FolderOpen className="w-3.5 h-3.5" />
+                                    DANH MỤC
+                                </span>
+                            </div>
+                            {groups.map((group, index) => {
+                                const groupName = group.groupName || group.name || 'Danh mục';
+                                const color = getGroupColor(index);
+                                return (
+                                    <div
+                                        key={group.groupId}
+                                        onClick={() => handleGroupClick(group.groupId)}
+                                        className="flex items-center gap-3 px-4 py-3 hover:bg-slate-800/60 cursor-pointer transition-colors"
+                                    >
+                                        <div
+                                            className="w-10 h-10 rounded-xl flex-shrink-0 flex items-center justify-center text-white text-sm font-bold shadow-lg"
+                                            style={{ backgroundColor: color }}
+                                        >
+                                            {groupName.charAt(0).toUpperCase()}
+                                        </div>
+                                        <div className="flex-1 min-w-0">
+                                            <p className="text-white font-medium text-sm line-clamp-1">
+                                                {highlightMatch(groupName, searchQuery)}
+                                            </p>
+                                            {group.description && (
+                                                <p className="text-slate-400 text-xs mt-0.5 line-clamp-1">
+                                                    {highlightMatch(group.description, searchQuery)}
+                                                </p>
+                                            )}
+                                            <p className="text-slate-500 text-xs mt-0.5">
+                                                {group.memberCount || 0} người tham gia
+                                            </p>
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    )}
+
                     {/* Users Section */}
                     {users.length > 0 && (
-                        <div className="py-2">
+                        <div className={`py-2 ${groups.length > 0 ? 'border-t border-slate-700/50' : ''}`}>
                             <div className="px-4 py-2">
                                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
                                     NGƯỜI DÙNG
@@ -185,7 +264,7 @@ export default function SearchDropdown({ searchQuery, onClose, isOpen, inputRef 
 
                     {/* Posts Section */}
                     {posts.length > 0 && (
-                        <div className="py-2 border-t border-slate-700/50">
+                        <div className={`py-2 ${(groups.length > 0 || users.length > 0) ? 'border-t border-slate-700/50' : ''}`}>
                             <div className="px-4 py-2">
                                 <span className="text-xs font-semibold text-slate-400 uppercase tracking-wide">
                                     BÀI VIẾT
@@ -278,3 +357,4 @@ function highlightMatch(text: string, query: string): React.ReactNode {
 function escapeRegExp(string: string): string {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 }
+
