@@ -5,12 +5,29 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Send, ArrowLeft, Users, MessageCircle, Settings2 } from 'lucide-react';
+import { Send, ArrowLeft, Users, MessageCircle, Settings2, MoreVertical, Trash2, Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/store/useStore';
 import { AuthService } from '../../auth/services/auth.service';
 import GroupMembersDialog from './GroupMembersDialog';
 import ChatMediaUpload from './ChatMediaUpload';
 import ChatMessageContent from './ChatMessageContent';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 
 // Check if should show time between messages (5+ minutes gap or different sender)
 const shouldShowTime = (currentMsg: Message, prevMsg: Message | null): boolean => {
@@ -84,6 +101,9 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const [showMembersDialog, setShowMembersDialog] = useState(false);
+  const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
 
   // Use ref to track current conversation ID to avoid stale closure
   const currentConversationIdRef = useRef(conversation.conversationId);
@@ -128,8 +148,19 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
 
     window.addEventListener('chat-message-received', wrappedHandler);
 
+    // Listen for message deletion from other windows
+    const handleMessageDeleted = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { messageId, conversationId } = customEvent.detail;
+      if (conversationId === currentConversationIdRef.current) {
+        setMessages((prev) => prev.filter((m) => m.id !== messageId));
+      }
+    };
+    window.addEventListener('chat-message-deleted', handleMessageDeleted);
+
     return () => {
       window.removeEventListener('chat-message-received', wrappedHandler);
+      window.removeEventListener('chat-message-deleted', handleMessageDeleted);
     };
   }, [handleWsMessage]);
 
@@ -347,6 +378,41 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
     return message.fromUserId === user?.userId;
   };
 
+  // Handle delete message
+  const handleDeleteMessage = async () => {
+    if (!messageToDelete) return;
+
+    setDeletingMessageId(messageToDelete);
+    try {
+      await ChatService.deleteMessage(messageToDelete);
+
+      // Remove message from local state
+      setMessages((prev) => prev.filter((m) => m.id !== messageToDelete));
+
+      // Dispatch event to sync with other chat windows (MiniChatWindow)
+      window.dispatchEvent(new CustomEvent('chat-message-deleted', {
+        detail: {
+          messageId: messageToDelete,
+          conversationId: conversation.conversationId,
+        }
+      }));
+
+      toast.success('Đã xóa tin nhắn');
+    } catch (err: any) {
+      console.error('Failed to delete message:', err);
+      toast.error(err.message || 'Không thể xóa tin nhắn');
+    } finally {
+      setDeletingMessageId(null);
+      setShowDeleteDialog(false);
+      setMessageToDelete(null);
+    }
+  };
+
+  const confirmDeleteMessage = (messageId: string) => {
+    setMessageToDelete(messageId);
+    setShowDeleteDialog(true);
+  };
+
   return (
     <>
       <Card className="h-full flex flex-col border-0 rounded-none bg-white">
@@ -446,7 +512,7 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
                         </div>
                       )}
 
-                      <div className={`flex ${isMine ? 'justify-end' : 'justify-start'} gap-2 ${isLastInGroup ? 'mb-1' : 'mb-0.5'}`}>
+                      <div className={`flex ${isMine ? 'justify-end' : 'justify-start'} gap-2 ${isLastInGroup ? 'mb-1' : 'mb-0.5'} group/message`}>
                         {!isMine && (
                           <div className={`w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center flex-shrink-0 text-xs text-white font-semibold overflow-hidden shadow-sm ${!isLastInGroup ? 'invisible' : ''}`}>
                             {senderAvatar ? (
@@ -456,6 +522,38 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
                             )}
                           </div>
                         )}
+
+                        {/* Delete button for own messages - appears on hover */}
+                        {isMine && (
+                          <div className="flex items-center opacity-0 group-hover/message:opacity-100 transition-opacity">
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-7 w-7 rounded-full hover:bg-slate-100"
+                                  disabled={deletingMessageId === message.id}
+                                >
+                                  {deletingMessageId === message.id ? (
+                                    <Loader2 className="w-4 h-4 animate-spin text-slate-400" />
+                                  ) : (
+                                    <MoreVertical className="w-4 h-4 text-slate-400" />
+                                  )}
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent align="end" className="bg-white">
+                                <DropdownMenuItem
+                                  className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
+                                  onClick={() => confirmDeleteMessage(message.id)}
+                                >
+                                  <Trash2 className="w-4 h-4 mr-2" />
+                                  Xóa tin nhắn
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
+                          </div>
+                        )}
+
                         <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
                           {!isMine && conversation.type === 'group' && showTime && (
                             <p className="text-xs font-semibold mb-1 text-blue-600 px-1">{senderName || 'Người dùng'}</p>
@@ -509,19 +607,38 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
       </Card>
 
       {/* Group Members Dialog */}
-      {
-        conversation.type === 'group' && conversation.groupId && (
-          <GroupMembersDialog
-            isOpen={showMembersDialog}
-            onClose={() => setShowMembersDialog(false)}
-            groupId={conversation.groupId}
-            groupName={displayName}
-            onMemberChange={() => {
-              // Reload conversation data if needed
-            }}
-          />
-        )
-      }
+      {conversation.type === 'group' && conversation.groupId && (
+        <GroupMembersDialog
+          isOpen={showMembersDialog}
+          onClose={() => setShowMembersDialog(false)}
+          groupId={conversation.groupId}
+          groupName={displayName}
+          onMemberChange={() => {
+            // Reload conversation data if needed
+          }}
+        />
+      )}
+
+      {/* Delete Message Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent className="bg-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xóa tin nhắn?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tin nhắn sẽ bị xóa vĩnh viễn và không thể khôi phục.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setMessageToDelete(null)}>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteMessage}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Xóa tin nhắn
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 }

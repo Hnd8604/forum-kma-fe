@@ -178,6 +178,7 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
           groupName={groupName}
           timeAgo={timeAgo}
           postType={post.type}
+          resourceUrls={post.resourceUrls}
         />
 
         {/* Post Title */}
@@ -201,6 +202,16 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
           <PostImageGallery
             images={post.resourceUrls || []}
             title={post.title}
+            isVideo={false}
+          />
+        )}
+
+        {/* Post Video Gallery */}
+        {post.type === 'VIDEO' && (
+          <PostImageGallery
+            images={post.resourceUrls || []}
+            title={post.title}
+            isVideo={true}
           />
         )}
 

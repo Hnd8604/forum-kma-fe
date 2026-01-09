@@ -1,6 +1,6 @@
 // Post types
 export type PostStatus = 'PUBLISHED' | 'PENDING' | 'REJECTED';
-export type PostType = 'TEXT' | 'IMAGE' | 'DOC';
+export type PostType = 'TEXT' | 'IMAGE' | 'DOC' | 'VIDEO';
 export type ReactionType = 'LIKE' | 'LOVE' | 'HAHA' | 'WOW' | 'SAD' | 'ANGRY';
 export type GroupPrivacy = 'PUBLIC' | 'PRIVATE';
 
@@ -52,6 +52,8 @@ export interface UpdatePostRequest {
 }
 
 // Comment types
+export type CommentType = 'TEXT' | 'IMAGE' | 'VIDEO' | 'DOC';
+
 export interface Comment {
   commentId: string;
   postId: string;
@@ -60,6 +62,8 @@ export interface Comment {
   authorAvatarUrl?: string;
   content: string;
   parentCommentId?: string;
+  type?: CommentType;           // TEXT, IMAGE, VIDEO, DOC
+  resourceUrls?: string[];       // URLs of images/videos/docs
   replyCount?: number;
   reactionCount: number;
   myReaction?: ReactionType | null;
@@ -71,10 +75,15 @@ export interface CreateCommentRequest {
   postId: string;
   content: string;
   parentCommentId?: string;
+  senderName?: string;          // Current user's full name
+  type?: CommentType;           // TEXT, IMAGE, VIDEO, DOC
+  urls?: string[];              // URLs of uploaded files
 }
 
 export interface UpdateCommentRequest {
   content: string;
+  type?: CommentType;
+  urls?: string[];
 }
 
 // Interaction types

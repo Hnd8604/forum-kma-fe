@@ -29,16 +29,24 @@ export class FileUploadService {
 
   /**
    * Upload a file to the server
+   * @param file - The file to upload
+   * @param type - The type of file (avatar, image, video, document)
+   * @param onProgress - Optional callback for upload progress
+   * @param timeoutMs - Optional timeout in milliseconds (default: 60s, video: 300s)
    */
   static async uploadFile(
     file: File,
     type: FileUploadType = 'image',
-    onProgress?: (progress: number) => void
+    onProgress?: (progress: number) => void,
+    timeoutMs?: number
   ): Promise<string> {
     const formData = new FormData();
     formData.append('file', file);
 
     const token = this.getAuthToken();
+
+    // Use longer timeout for video uploads (5 minutes for 100MB max)
+    const timeout = timeoutMs ?? (type === 'video' ? 300000 : 60000);
 
     try {
       const response = await uploadAxios.post<ApiUploadResponse>(
@@ -46,6 +54,7 @@ export class FileUploadService {
         formData,
         {
           headers: token ? { 'Authorization': `Bearer ${token}` } : undefined,
+          timeout,
           onUploadProgress: onProgress ? (progressEvent) => {
             if (progressEvent.total) {
               const progress = Math.round((progressEvent.loaded * 100) / progressEvent.total);
@@ -95,12 +104,10 @@ export class FileUploadService {
 
   /**
    * Upload a video
-   * Note: Backend stores videos in the same bucket as images since there's no separate video endpoint
+   * Max size: 100MB (as configured in backend)
    */
   static async uploadVideo(file: File, onProgress?: (progress: number) => void): Promise<string> {
-    // Use 'image' endpoint as backend stores all media in the same bucket
-    // Alternatively, update backend to add /upload/video endpoint
-    return this.uploadFile(file, 'image', onProgress);
+    return this.uploadFile(file, 'video', onProgress);
   }
 
   /**
@@ -117,21 +124,34 @@ export class FileUploadService {
 
   /**
    * Validate file before upload
+   * @param file - The file to validate
+   * @param type - The type of file
+   * @param maxSizeMB - Optional max size in MB (default: 10MB for images/docs, 100MB for videos)
    */
   static validateFile(
     file: File,
     type: FileUploadType,
-    maxSizeMB: number = 10
+    maxSizeMB?: number
   ): { valid: boolean; error?: string } {
-    const maxSizeBytes = maxSizeMB * 1024 * 1024;
+    // Use type-specific max sizes if not provided
+    const defaultMaxSizes: Record<FileUploadType, number> = {
+      avatar: 5,      // 5MB for avatars
+      image: 10,      // 10MB for images
+      video: 100,     // 100MB for videos (matches backend config)
+      document: 20,   // 20MB for documents
+    };
+
+    const effectiveMaxSize = maxSizeMB ?? defaultMaxSizes[type];
+    const maxSizeBytes = effectiveMaxSize * 1024 * 1024;
+
     if (file.size > maxSizeBytes) {
-      return { valid: false, error: `File size must be less than ${maxSizeMB}MB` };
+      return { valid: false, error: `File size must be less than ${effectiveMaxSize}MB` };
     }
 
     const allowedTypes: Record<FileUploadType, string[]> = {
       avatar: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp'],
       image: ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp', 'image/svg+xml'],
-      video: ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-msvideo'],
+      video: ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime', 'video/x-msvideo', 'video/x-matroska'],
       document: [
         'application/pdf',
         'application/msword',

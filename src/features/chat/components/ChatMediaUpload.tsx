@@ -32,10 +32,22 @@ export default function ChatMediaUpload({ onUpload, disabled }: ChatMediaUploadP
         if (!files || files.length === 0) return;
 
         const fileArray = Array.from(files);
+
+        // Validate files before upload
+        const fileUploadType = type === 'file' ? 'document' : type;
+        for (const file of fileArray) {
+            const validation = FileUploadService.validateFile(file, fileUploadType);
+            if (!validation.valid) {
+                toast.error(validation.error || `File không hợp lệ: ${file.name}`);
+                return;
+            }
+        }
+
         const newUploadingFiles: UploadingFile[] = fileArray.map((file) => ({
             id: `${Date.now()}-${Math.random()}`,
             file,
-            preview: type === 'image' ? URL.createObjectURL(file) : undefined,
+            preview: type === 'image' ? URL.createObjectURL(file) :
+                type === 'video' ? URL.createObjectURL(file) : undefined,
             progress: 0,
             type,
         }));
@@ -137,6 +149,20 @@ export default function ChatMediaUpload({ onUpload, disabled }: ChatMediaUploadP
                                         />
                                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                                             <span className="text-white text-xs font-medium">
+                                                {file.progress}%
+                                            </span>
+                                        </div>
+                                    </div>
+                                ) : file.type === 'video' && file.preview ? (
+                                    <div className="w-16 h-16 rounded-lg overflow-hidden bg-slate-100 relative">
+                                        <video
+                                            src={file.preview}
+                                            className="w-full h-full object-cover"
+                                            muted
+                                        />
+                                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                                            <Film className="w-4 h-4 text-white mb-1" />
+                                            <span className="text-white text-xs font-medium absolute bottom-1">
                                                 {file.progress}%
                                             </span>
                                         </div>

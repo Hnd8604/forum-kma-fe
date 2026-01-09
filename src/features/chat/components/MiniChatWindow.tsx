@@ -5,11 +5,28 @@ import type { Conversation, Message, MessageType, SendMessageRequest } from '@/i
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { X, Send, Users } from 'lucide-react';
+import { X, Send, Users, MoreVertical, Trash2, Loader2 } from 'lucide-react';
 import { useAuthStore } from '@/store/useStore';
 import { formatMessageTime } from '../utils/timeFormat';
 import ChatMediaUpload from './ChatMediaUpload';
 import ChatMessageContent from './ChatMessageContent';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
+import { toast } from 'sonner';
 
 // Check if should show time between messages (5+ minutes gap or different sender)
 const shouldShowTime = (currentMsg: Message, prevMsg: Message | null): boolean => {
@@ -43,6 +60,9 @@ export default function MiniChatWindow({
   const [userNames, setUserNames] = useState<Record<string, string>>({});
   const [userAvatars, setUserAvatars] = useState<Record<string, string>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
 
   useEffect(() => {
     loadMessages();
@@ -133,8 +153,19 @@ export default function MiniChatWindow({
 
     window.addEventListener('chat-message-received', handleNewMessage as EventListener);
 
+    // Listen for message deletion from other windows (ChatWindow)
+    const handleMessageDeleted = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const { messageId, conversationId } = customEvent.detail;
+      if (conversationId === conversation.conversationId) {
+        setMessages((prev) => prev.filter((m) => m.id !== messageId));
+      }
+    };
+    window.addEventListener('chat-message-deleted', handleMessageDeleted);
+
     return () => {
       window.removeEventListener('chat-message-received', handleNewMessage as EventListener);
+      window.removeEventListener('chat-message-deleted', handleMessageDeleted);
     };
   }, [conversation.conversationId, user?.userId]);
 
@@ -281,6 +312,41 @@ export default function MiniChatWindow({
     return message.fromUserId === user?.userId;
   };
 
+  // Handle delete message
+  const handleDeleteMessage = async () => {
+    if (!messageToDelete) return;
+
+    setDeletingMessageId(messageToDelete);
+    try {
+      await ChatService.deleteMessage(messageToDelete);
+
+      // Remove message from local state
+      setMessages((prev) => prev.filter((m) => m.id !== messageToDelete));
+
+      // Dispatch event to sync with other chat windows (ChatWindow)
+      window.dispatchEvent(new CustomEvent('chat-message-deleted', {
+        detail: {
+          messageId: messageToDelete,
+          conversationId: conversation.conversationId,
+        }
+      }));
+
+      toast.success('Đã xóa tin nhắn');
+    } catch (err: any) {
+      console.error('Failed to delete message:', err);
+      toast.error(err.message || 'Không thể xóa tin nhắn');
+    } finally {
+      setDeletingMessageId(null);
+      setShowDeleteDialog(false);
+      setMessageToDelete(null);
+    }
+  };
+
+  const confirmDeleteMessage = (messageId: string) => {
+    setMessageToDelete(messageId);
+    setShowDeleteDialog(true);
+  };
+
   // Calculate position from right
   const rightOffset = 20 + position * 340; // 320px width + 20px gap
 
@@ -349,7 +415,7 @@ export default function MiniChatWindow({
                     </div>
                   )}
 
-                  <div className={`flex ${isMine ? 'justify-end' : 'justify-start'} gap-2 ${isLastInGroup ? 'mb-1' : ''}`}>
+                  <div className={`flex ${isMine ? 'justify-end' : 'justify-start'} gap-2 ${isLastInGroup ? 'mb-1' : ''} group/message`}>
                     {!isMine && (
                       <div className={`w-7 h-7 flex-shrink-0 ${isLastInGroup ? '' : 'opacity-0'}`}>
                         {isLastInGroup && (
@@ -363,6 +429,38 @@ export default function MiniChatWindow({
                         )}
                       </div>
                     )}
+
+                    {/* Delete button for own messages - appears on hover */}
+                    {isMine && (
+                      <div className="flex items-center opacity-0 group-hover/message:opacity-100 transition-opacity">
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-6 w-6 rounded-full hover:bg-slate-100"
+                              disabled={deletingMessageId === message.id}
+                            >
+                              {deletingMessageId === message.id ? (
+                                <Loader2 className="w-3 h-3 animate-spin text-slate-400" />
+                              ) : (
+                                <MoreVertical className="w-3 h-3 text-slate-400" />
+                              )}
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="bg-white">
+                            <DropdownMenuItem
+                              className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
+                              onClick={() => confirmDeleteMessage(message.id)}
+                            >
+                              <Trash2 className="w-4 h-4 mr-2" />
+                              Xóa tin nhắn
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
+                    )}
+
                     <div className={`flex flex-col max-w-[70%] min-w-0 ${isMine ? 'items-end' : 'items-start'}`}>
                       {!isMine && showTime && (
                         <p className="text-xs font-semibold mb-1 text-blue-600 px-1">
@@ -414,6 +512,26 @@ export default function MiniChatWindow({
         </div>
       </div>
 
+      {/* Delete Message Confirmation Dialog */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent className="bg-white">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Xóa tin nhắn?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Tin nhắn sẽ bị xóa vĩnh viễn và không thể khôi phục.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel onClick={() => setMessageToDelete(null)}>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteMessage}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              Xóa tin nhắn
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   );
 }

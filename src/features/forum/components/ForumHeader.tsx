@@ -1,12 +1,13 @@
 import { Link } from 'react-router-dom';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Search, User, LogOut, Settings, ChevronDown, UserPlus, Users, Shield } from 'lucide-react';
+import { Search, User, LogOut, Settings, ChevronDown, UserPlus, Users, Shield, Bell } from 'lucide-react';
 import { ChatHeaderIcon } from '../../chat';
 import SearchDropdown from './SearchDropdown';
 import { useAuthStore } from '@/store/useStore';
+import { NotificationService } from '../../notifications/services/notification.service';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -28,12 +29,14 @@ export default function ForumHeader({
   searchQuery,
   onSearchChange,
   onLogout,
+  onOpenNotifications,
   onOpenMiniChat,
   onOpenFriendsList: _onOpenFriendsList,
 }: ForumHeaderProps) {
   const user = useAuthStore((s) => s.user);
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const [unreadNotificationCount, setUnreadNotificationCount] = useState(0);
 
   const displayName = user ? `${user.lastName || ''} ${user.firstName || ''}`.trim() || user.username || 'User' : 'User';
   const displayEmail = user?.email || 'student@university.edu';
@@ -49,6 +52,39 @@ export default function ForumHeader({
     }
     return 'U';
   };
+
+  // Fetch unread notification count
+  useEffect(() => {
+    const fetchUnreadCount = async () => {
+      if (!user?.userId) return;
+      try {
+        const count = await NotificationService.getUnreadCount(user.userId);
+        setUnreadNotificationCount(count);
+      } catch (error) {
+        console.error('Failed to fetch unread count:', error);
+      }
+    };
+
+    fetchUnreadCount();
+
+    // Listen for notification events
+    const handleNotificationReceived = () => {
+      setUnreadNotificationCount((prev) => prev + 1);
+    };
+
+    const handleNotificationRead = () => {
+      // Refetch count when notifications are read
+      fetchUnreadCount();
+    };
+
+    window.addEventListener('notification-received', handleNotificationReceived);
+    window.addEventListener('notification-unread-count-changed', handleNotificationRead);
+
+    return () => {
+      window.removeEventListener('notification-received', handleNotificationReceived);
+      window.removeEventListener('notification-unread-count-changed', handleNotificationRead);
+    };
+  }, [user?.userId]);
 
   return (
     <header className="bg-white/80 backdrop-blur-md h-16 border-b border-slate-200/80">
@@ -95,6 +131,21 @@ export default function ForumHeader({
         {/* Right Actions */}
         <div className="flex items-center space-x-1">
           <ChatHeaderIcon onOpenMiniChat={onOpenMiniChat} />
+
+          {/* Notifications Icon */}
+          <Button
+            variant="ghost"
+            size="icon"
+            className="relative hover:bg-blue-50 rounded-xl transition-colors"
+            onClick={onOpenNotifications}
+          >
+            <Bell className="w-5 h-5 text-gray-700" />
+            {unreadNotificationCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-gradient-to-r from-red-500 to-rose-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1 shadow-lg">
+                {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
+              </span>
+            )}
+          </Button>
 
           {/* Friends Icon */}
           <Link to="/friends">

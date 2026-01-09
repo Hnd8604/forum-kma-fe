@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Image, X, Loader2, FileText, Upload, File } from 'lucide-react';
+import { Image, X, Loader2, FileText, Upload, File, Film } from 'lucide-react';
 import { useAuthStore } from '@/store/useStore';
 import { PostService } from '../services/post.service';
 import { GroupService } from '../services/group.service';
@@ -84,8 +84,9 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
         id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
       };
 
-      // Create preview URL for images
-      if (postType === 'IMAGE' && file.type.startsWith('image/')) {
+      // Create preview URL for images and videos
+      if ((postType === 'IMAGE' && file.type.startsWith('image/')) ||
+        (postType === 'VIDEO' && file.type.startsWith('video/'))) {
         fileWithPreview.preview = URL.createObjectURL(file);
       }
 
@@ -143,11 +144,17 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
       if (selectedFiles.length > 0 && postType !== 'TEXT') {
         setUploading(true);
         try {
-          const uploadEndpoint = postType === 'IMAGE'
-            ? '/files/upload/image'
-            : '/files/upload/document';
-
           for (const fileItem of selectedFiles) {
+            // Determine upload endpoint based on post type
+            let uploadEndpoint: string;
+            if (postType === 'IMAGE') {
+              uploadEndpoint = '/files/upload/image';
+            } else if (postType === 'VIDEO') {
+              uploadEndpoint = '/files/upload/video';
+            } else {
+              uploadEndpoint = '/files/upload/document';
+            }
+
             const uploadResult = await ApiService.uploadFile<{
               resourceUrl: string;
             }>(
@@ -240,6 +247,16 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
           </Button>
           <Button
             variant="ghost"
+            className="flex items-center gap-2 px-3 py-2 text-slate-500 hover:bg-purple-50 hover:text-purple-600 rounded-xl transition-colors"
+            onClick={() => {
+              setPostType('VIDEO');
+              setIsExpanded(true);
+            }}
+          >
+            <Film className="w-5 h-5" />
+          </Button>
+          <Button
+            variant="ghost"
             className="flex items-center gap-2 px-3 py-2 text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
             onClick={() => {
               setPostType('DOC');
@@ -307,6 +324,19 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
             </button>
             <button
               onClick={() => {
+                setPostType('VIDEO');
+                clearAllFiles();
+              }}
+              className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${postType === 'VIDEO'
+                ? 'bg-white text-purple-600 shadow-sm'
+                : 'text-slate-500 hover:text-slate-700'
+                }`}
+            >
+              <Film className="w-4 h-4" />
+              Video
+            </button>
+            <button
+              onClick={() => {
                 setPostType('DOC');
                 clearAllFiles();
               }}
@@ -316,7 +346,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
                 }`}
             >
               <File className="w-4 h-4" />
-              Document
+              Tài liệu
             </button>
           </div>
 
@@ -379,7 +409,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
                       <span className="text-blue-600 font-semibold">chọn ảnh</span>
                     </p>
                     <p className="text-xs text-slate-400 mt-1">
-                      Có thể chọn nhiều ảnh cùng lúc
+                      JPG, PNG, GIF, WebP (tối đa 10MB)
                     </p>
                   </div>
                 </label>
@@ -447,6 +477,99 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
                 className="min-h-[100px] border-slate-200 resize-none rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 mt-4 transition-all"
+              />
+            </div>
+          )}
+
+          {/* VIDEO Upload Section */}
+          {postType === 'VIDEO' && (
+            <div className="mb-5">
+              {/* File Upload Zone */}
+              <div className="border-2 border-dashed border-slate-200 rounded-xl p-6 hover:border-purple-400 hover:bg-purple-50/50 transition-all">
+                <label htmlFor="video-upload" className="cursor-pointer">
+                  <div className="flex flex-col items-center justify-center">
+                    <div className="w-14 h-14 bg-purple-100 rounded-full flex items-center justify-center mb-3">
+                      <Film className="w-6 h-6 text-purple-600" />
+                    </div>
+                    <p className="text-sm text-slate-600">
+                      Kéo thả hoặc{' '}
+                      <span className="text-purple-600 font-semibold">chọn video</span>
+                    </p>
+                    <p className="text-xs text-slate-400 mt-1">
+                      MP4, WebM, OGG (tối đa 100MB)
+                    </p>
+                  </div>
+                </label>
+                <input
+                  id="video-upload"
+                  type="file"
+                  accept="video/*"
+                  multiple
+                  onChange={(e) => handleFilesSelect(e.target.files)}
+                  className="hidden"
+                />
+              </div>
+
+              {/* Video Previews */}
+              {selectedFiles.length > 0 && (
+                <div className="mt-4">
+                  <div className="flex items-center justify-between mb-3">
+                    <p className="text-sm font-medium text-slate-700">
+                      Đã chọn {selectedFiles.length} video
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={clearAllFiles}
+                      className="text-red-500 hover:bg-red-50 hover:text-red-600"
+                    >
+                      <X className="w-4 h-4 mr-1" />
+                      Xóa tất cả
+                    </Button>
+                  </div>
+                  <div className="grid grid-cols-2 gap-3">
+                    {selectedFiles.map((fileItem) => (
+                      <div
+                        key={fileItem.id}
+                        className="relative aspect-video rounded-xl overflow-hidden bg-slate-900 group"
+                      >
+                        {fileItem.preview && (
+                          <>
+                            <video
+                              src={fileItem.preview}
+                              className="w-full h-full object-cover"
+                              muted
+                            />
+                            <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                              <Film className="w-3 h-3" />
+                              Video
+                            </div>
+                          </>
+                        )}
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => removeFile(fileItem.id)}
+                            className="h-8 w-8 bg-white/90 hover:bg-white text-red-500 rounded-full"
+                          >
+                            <X className="w-4 h-4" />
+                          </Button>
+                        </div>
+                        <p className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs px-2 py-1 truncate">
+                          {fileItem.file.name}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              <Textarea
+                placeholder="Mô tả (không bắt buộc)"
+                value={content}
+                onChange={(e) => setContent(e.target.value)}
+                className="min-h-[100px] border-slate-200 resize-none rounded-xl text-sm focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 mt-4 transition-all"
               />
             </div>
           )}

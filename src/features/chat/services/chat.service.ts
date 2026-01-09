@@ -202,4 +202,15 @@ export class ChatService {
     );
     return response;
   }
+
+  /**
+   * Xóa tin nhắn
+   * Chỉ chủ tin nhắn hoặc chủ cuộc hội thoại mới có thể xóa
+   */
+  static async deleteMessage(messageId: string): Promise<void> {
+    await ApiService.delete<void>(
+      `${CHAT_SERVICE_BASE}/messages/${messageId}`,
+      true
+    );
+  }
 }

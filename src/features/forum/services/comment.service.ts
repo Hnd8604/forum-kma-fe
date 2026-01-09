@@ -21,6 +21,8 @@ interface CommentApiResponse {
   authorAvatarUrl: string | null;
   content: string;
   parentCommentId: string | null;
+  type: string | null;           // TEXT, IMAGE, VIDEO, DOC
+  resourceUrls: string[] | null; // URLs of images/videos/docs
   replyCount: number;
   createdAt: string;
   updatedAt: string | null;
@@ -38,6 +40,8 @@ function mapApiResponseToComment(apiResponse: CommentApiResponse): Comment {
     authorAvatarUrl: apiResponse.authorAvatarUrl || undefined,
     content: apiResponse.content,
     parentCommentId: apiResponse.parentCommentId || undefined,
+    type: (apiResponse.type as Comment['type']) || 'TEXT',
+    resourceUrls: apiResponse.resourceUrls || undefined,
     replyCount: apiResponse.replyCount,
     reactionCount: apiResponse.reactionCount,
     myReaction: apiResponse.userReactionType as ReactionType | null,

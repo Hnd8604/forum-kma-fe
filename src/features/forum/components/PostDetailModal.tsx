@@ -1,10 +1,17 @@
 import { useState } from 'react';
-import { X, MessageCircle, ChevronLeft, ChevronRight, FileText, ExternalLink, ThumbsUp } from 'lucide-react';
+import { X, MessageCircle, ChevronLeft, ChevronRight, FileText, ExternalLink, ThumbsUp, Film, Play } from 'lucide-react';
 import { ApiPost, ReactionType } from '@/interfaces/post.types';
 import { formatTimeAgo } from '@/lib/date.utils';
 import ReactionPicker from './ReactionPicker';
 import CommentSection from './CommentSection';
 import { useAuthorInfo, useGroupInfo } from '../hooks';
+
+// Helper function to check if URL is a video
+const isVideoUrl = (url: string): boolean => {
+  const videoExtensions = ['.mp4', '.webm', '.ogg', '.mov', '.avi', '.mkv'];
+  const lowerUrl = url.toLowerCase();
+  return videoExtensions.some(ext => lowerUrl.includes(ext));
+};
 
 interface PostDetailModalProps {
   post: ApiPost;
@@ -136,47 +143,82 @@ export default function PostDetailModal({
               </p>
             </div>
 
-            {/* Images if available */}
-            {post.type === 'IMAGE' && post.resourceUrls && post.resourceUrls.length > 0 && (
+            {/* Media (Images/Videos) if available */}
+            {(post.type === 'IMAGE' || post.type === 'VIDEO') && post.resourceUrls && post.resourceUrls.length > 0 && (
               <div className="bg-gradient-to-br from-slate-900 to-slate-800 relative">
                 {post.resourceUrls.length === 1 ? (
                   <div className="relative border-t border-b border-slate-700">
-                    <img
-                      src={post.resourceUrls[0]}
-                      alt={post.title}
-                      className="w-full max-h-[600px] object-contain cursor-pointer"
-                      onClick={() => handleImageClick(0)}
-                    />
+                    {post.type === 'VIDEO' || isVideoUrl(post.resourceUrls[0]) ? (
+                      <video
+                        src={post.resourceUrls[0]}
+                        className="w-full max-h-[600px] object-contain"
+                        controls
+                        preload="metadata"
+                      />
+                    ) : (
+                      <img
+                        src={post.resourceUrls[0]}
+                        alt={post.title}
+                        className="w-full max-h-[600px] object-contain cursor-pointer"
+                        onClick={() => handleImageClick(0)}
+                      />
+                    )}
                   </div>
                 ) : (
                   <div className={`grid ${post.resourceUrls.length === 2 ? 'grid-cols-2' : 'grid-cols-2'} gap-1 p-1`}>
-                    {post.resourceUrls.slice(0, 4).map((url, index) => (
-                      <div
-                        key={index}
-                        className={`relative overflow-hidden rounded-lg border border-slate-700 ${post.resourceUrls!.length === 3 && index === 0 ? 'col-span-2' : ''
-                          }`}
-                        style={{
-                          aspectRatio: post.resourceUrls!.length === 3 && index === 0 ? '16/9' : '1/1'
-                        }}
-                      >
-                        <img
-                          src={url}
-                          alt={`${post.title} - ${index + 1}`}
-                          className="w-full h-full object-cover cursor-pointer"
-                          onClick={() => handleImageClick(index)}
-                        />
-                        {index === 3 && post.resourceUrls!.length > 4 && (
-                          <div
-                            className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center cursor-pointer hover:bg-black/80 transition-all duration-300"
-                            onClick={() => handleImageClick(index)}
-                          >
-                            <span className="text-white text-4xl font-bold drop-shadow-lg">
-                              +{post.resourceUrls!.length - 4}
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    ))}
+                    {post.resourceUrls.slice(0, 4).map((url, index) => {
+                      const isVideo = post.type === 'VIDEO' || isVideoUrl(url);
+                      return (
+                        <div
+                          key={index}
+                          className={`relative overflow-hidden rounded-lg border border-slate-700 ${post.resourceUrls!.length === 3 && index === 0 ? 'col-span-2' : ''
+                            }`}
+                          style={{
+                            aspectRatio: post.resourceUrls!.length === 3 && index === 0 ? '16/9' : '1/1'
+                          }}
+                        >
+                          {isVideo ? (
+                            <>
+                              <video
+                                src={url}
+                                className="w-full h-full object-cover"
+                                muted
+                                preload="metadata"
+                              />
+                              <div
+                                className="absolute inset-0 flex items-center justify-center cursor-pointer bg-black/20 hover:bg-black/30 transition-colors"
+                                onClick={() => handleImageClick(index)}
+                              >
+                                <div className="w-12 h-12 bg-white/90 rounded-full flex items-center justify-center shadow-lg">
+                                  <Play className="w-6 h-6 text-slate-800 ml-0.5" fill="currentColor" />
+                                </div>
+                              </div>
+                              <div className="absolute top-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                                <Film className="w-3 h-3" />
+                                Video
+                              </div>
+                            </>
+                          ) : (
+                            <img
+                              src={url}
+                              alt={`${post.title} - ${index + 1}`}
+                              className="w-full h-full object-cover cursor-pointer"
+                              onClick={() => handleImageClick(index)}
+                            />
+                          )}
+                          {index === 3 && post.resourceUrls!.length > 4 && (
+                            <div
+                              className="absolute inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center cursor-pointer hover:bg-black/80 transition-all duration-300"
+                              onClick={() => handleImageClick(index)}
+                            >
+                              <span className="text-white text-4xl font-bold drop-shadow-lg">
+                                +{post.resourceUrls!.length - 4}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>
@@ -304,55 +346,63 @@ export default function PostDetailModal({
         </div >
       </div >
 
-      {/* Image Lightbox */}
-      {
-        isImageExpanded && post.resourceUrls && (
-          <div
-            className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4"
+      {/* Media Lightbox */}
+      {isImageExpanded && post.resourceUrls && (
+        <div
+          className="fixed inset-0 z-[60] bg-black/95 backdrop-blur-xl flex items-center justify-center p-4"
+          onClick={() => setIsImageExpanded(false)}
+        >
+          <button
             onClick={() => setIsImageExpanded(false)}
+            className="absolute top-4 right-4 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-all duration-200 backdrop-blur-md"
           >
-            <button
-              onClick={() => setIsImageExpanded(false)}
-              className="absolute top-4 right-4 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 transition-all duration-200 backdrop-blur-md"
-            >
-              <X className="w-6 h-6 text-white" />
-            </button>
+            <X className="w-6 h-6 text-white" />
+          </button>
 
-            <div className="relative max-w-7xl max-h-full" onClick={(e) => e.stopPropagation()}>
+          <div className="relative max-w-7xl max-h-full" onClick={(e) => e.stopPropagation()}>
+            {post.type === 'VIDEO' || isVideoUrl(post.resourceUrls[currentImageIndex]) ? (
+              <video
+                src={post.resourceUrls[currentImageIndex]}
+                className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
+                controls
+                autoPlay
+              />
+            ) : (
               <img
                 src={post.resourceUrls[currentImageIndex]}
                 alt={`${post.title} - ${currentImageIndex + 1}`}
                 className="max-w-full max-h-[90vh] object-contain rounded-lg shadow-2xl"
               />
+            )}
 
-              {post.resourceUrls.length > 1 && (
-                <>
-                  {currentImageIndex > 0 && (
-                    <button
-                      onClick={handlePrevImage}
-                      className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all duration-200 hover:scale-110"
-                    >
-                      <ChevronLeft className="w-6 h-6 text-white" />
-                    </button>
-                  )}
+            {post.resourceUrls.length > 1 && (
+              <>
+                {currentImageIndex > 0 && (
+                  <button
+                    onClick={handlePrevImage}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all duration-200 hover:scale-110"
+                  >
+                    <ChevronLeft className="w-6 h-6 text-white" />
+                  </button>
+                )}
 
-                  {currentImageIndex < post.resourceUrls.length - 1 && (
-                    <button
-                      onClick={handleNextImage}
-                      className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all duration-200 hover:scale-110"
-                    >
-                      <ChevronRight className="w-6 h-6 text-white" />
-                    </button>
-                  )}
+                {currentImageIndex < post.resourceUrls.length - 1 && (
+                  <button
+                    onClick={handleNextImage}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 w-12 h-12 flex items-center justify-center rounded-full bg-white/10 hover:bg-white/20 backdrop-blur-md transition-all duration-200 hover:scale-110"
+                  >
+                    <ChevronRight className="w-6 h-6 text-white" />
+                  </button>
+                )}
 
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/50 backdrop-blur-md rounded-full text-white text-sm font-medium">
-                    {currentImageIndex + 1} / {post.resourceUrls.length}
-                  </div>
-                </>
-              )}
-            </div>
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 px-4 py-2 bg-black/50 backdrop-blur-md rounded-full text-white text-sm font-medium">
+                  {currentImageIndex + 1} / {post.resourceUrls.length}
+                </div>
+              </>
+            )}
           </div>
-        )
+        </div>
+      )
       }
     </>
   );

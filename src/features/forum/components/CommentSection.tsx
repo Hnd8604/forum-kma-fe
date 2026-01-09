@@ -1,10 +1,18 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
-import { Send, Loader2, MessageSquare } from 'lucide-react';
+import { Send, Loader2, MessageSquare, Image, Film, FileText, X } from 'lucide-react';
 import { CommentService } from '../services/comment.service';
-import type { Comment, ReactionType } from '@/interfaces/post.types';
+import { ApiService } from '@/api/api.service';
+import type { Comment, ReactionType, CommentType } from '@/interfaces/post.types';
 import CommentItem from './CommentItem';
 import { useAuthStore } from '@/store/useStore';
+import { toast } from 'sonner';
+
+interface SelectedFile {
+  file: File;
+  preview?: string;
+  id: string;
+}
 
 interface CommentSectionProps {
   postId: string;
@@ -21,7 +29,25 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Selected files for upload
+  const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
+  const [mediaType, setMediaType] = useState<CommentType>('TEXT');
+
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const videoInputRef = useRef<HTMLInputElement>(null);
+  const docInputRef = useRef<HTMLInputElement>(null);
+
   const currentUser = useAuthStore((s) => s.user);
+
+  // Cleanup previews on unmount
+  useEffect(() => {
+    return () => {
+      selectedFiles.forEach(f => {
+        if (f.preview) URL.revokeObjectURL(f.preview);
+      });
+    };
+  }, []);
 
   const loadComments = useCallback(async (pageNum: number = 0, append: boolean = false) => {
     if (!isOpen) return;
@@ -39,20 +65,15 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
         size: 10,
       });
 
-      // Backend now returns userReactionType directly, map to myReaction
       const commentsWithReactions = response.map((comment) => ({
         ...comment,
         myReaction: comment.myReaction || null,
       }));
 
       if (append) {
-        setComments((prev) => {
-          const newComments = [...prev, ...commentsWithReactions];
-          return newComments;
-        });
+        setComments((prev) => [...prev, ...commentsWithReactions]);
       } else {
         setComments(commentsWithReactions);
-        // Notify parent of initial count
         if (pageNum === 0) {
           onCommentCountChange?.(commentsWithReactions.length);
         }
@@ -81,20 +102,86 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
     }
   };
 
+  const handleFileSelect = (files: FileList | null, type: CommentType) => {
+    if (!files || files.length === 0) return;
+
+    // Clear previous files
+    selectedFiles.forEach(f => {
+      if (f.preview) URL.revokeObjectURL(f.preview);
+    });
+
+    const newFiles: SelectedFile[] = Array.from(files).map(file => ({
+      file,
+      id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+      preview: (type === 'IMAGE' || type === 'VIDEO') ? URL.createObjectURL(file) : undefined,
+    }));
+
+    setSelectedFiles(newFiles);
+    setMediaType(type);
+  };
+
+  const removeFile = (fileId: string) => {
+    setSelectedFiles(prev => {
+      const fileToRemove = prev.find(f => f.id === fileId);
+      if (fileToRemove?.preview) {
+        URL.revokeObjectURL(fileToRemove.preview);
+      }
+      const remaining = prev.filter(f => f.id !== fileId);
+      if (remaining.length === 0) {
+        setMediaType('TEXT');
+      }
+      return remaining;
+    });
+  };
+
+  const clearFiles = () => {
+    selectedFiles.forEach(f => {
+      if (f.preview) URL.revokeObjectURL(f.preview);
+    });
+    setSelectedFiles([]);
+    setMediaType('TEXT');
+  };
+
   const handleSubmitComment = async () => {
-    if (!newComment.trim() || submitting) return;
+    if ((!newComment.trim() && selectedFiles.length === 0) || submitting) return;
 
     setSubmitting(true);
     try {
+      let uploadedUrls: string[] = [];
+
+      // Upload files if any
+      if (selectedFiles.length > 0) {
+        for (const fileItem of selectedFiles) {
+          let uploadEndpoint: string;
+          if (mediaType === 'IMAGE') {
+            uploadEndpoint = '/files/upload/image';
+          } else if (mediaType === 'VIDEO') {
+            uploadEndpoint = '/files/upload/video';
+          } else {
+            uploadEndpoint = '/files/upload/document';
+          }
+
+          const result = await ApiService.uploadFile<{ resourceUrl: string }>(
+            uploadEndpoint,
+            fileItem.file
+          );
+          uploadedUrls.push(result.resourceUrl);
+        }
+      }
+
+      const senderName = `${currentUser?.lastName || ''} ${currentUser?.firstName || ''}`.trim() || currentUser?.username;
+
       const created = await CommentService.createComment({
         postId,
         content: newComment.trim(),
+        senderName,
+        type: selectedFiles.length > 0 ? mediaType : 'TEXT',
+        urls: uploadedUrls,
       });
 
-      // Use current user info if backend doesn't return full author info
       const authorName = created.authorName && created.authorName !== created.authorId
         ? created.authorName
-        : `${currentUser?.lastName || ''} ${currentUser?.firstName || ''}`.trim() || currentUser?.username || created.authorId;
+        : senderName || created.authorId;
 
       const authorAvatarUrl = created.authorAvatarUrl || currentUser?.avatarUrl;
 
@@ -108,9 +195,13 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
         onCommentCountChange?.(newComments.length);
         return newComments;
       });
+
       setNewComment('');
-    } catch (err) {
+      clearFiles();
+      toast.success('Đã gửi bình luận');
+    } catch (err: any) {
       console.error('Failed to create comment:', err);
+      toast.error(err?.message || 'Không thể gửi bình luận');
     } finally {
       setSubmitting(false);
     }
@@ -161,41 +252,207 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
             <img
               src={currentUser.avatarUrl}
               alt={currentUser.firstName || 'avatar'}
-              className="w-8 h-8 rounded-full object-cover flex-shrink-0"
+              className="w-9 h-9 rounded-full object-cover flex-shrink-0 ring-2 ring-white shadow-sm"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center flex-shrink-0">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
               <span className="text-white text-xs font-bold">
-                {currentUser?.firstName?.[0]?.toUpperCase() || 'U'}
+                {currentUser?.lastName?.[0]?.toUpperCase() || 'U'}
               </span>
             </div>
           )}
-          <div className="flex-1">
-            <textarea
-              value={newComment}
-              onChange={(e) => setNewComment(e.target.value)}
-              placeholder="Viết bình luận của bạn..."
-              className="w-full px-4 py-3 bg-white border border-slate-200 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all"
-              rows={2}
-              onKeyDown={(e) => {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                  e.preventDefault();
-                  handleSubmitComment();
-                }
-              }}
-            />
-            <div className="flex justify-end mt-2">
+
+          <div className="flex-1 space-y-3">
+            {/* Text Input */}
+            <div className="relative">
+              <textarea
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Viết bình luận của bạn..."
+                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all placeholder:text-slate-400"
+                rows={2}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSubmitComment();
+                  }
+                }}
+              />
+            </div>
+
+            {/* Selected Files Preview */}
+            {selectedFiles.length > 0 && (
+              <div className="bg-white border border-slate-200 rounded-xl p-3">
+                {/* Image Preview */}
+                {mediaType === 'IMAGE' && (
+                  <div className="grid grid-cols-4 gap-2">
+                    {selectedFiles.map((fileItem) => (
+                      <div key={fileItem.id} className="relative aspect-square rounded-lg overflow-hidden bg-slate-100 group">
+                        {fileItem.preview && (
+                          <img
+                            src={fileItem.preview}
+                            alt={fileItem.file.name}
+                            className="w-full h-full object-cover"
+                          />
+                        )}
+                        <button
+                          onClick={() => removeFile(fileItem.id)}
+                          className="absolute top-1 right-1 w-6 h-6 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center transition-colors"
+                        >
+                          <X className="w-3.5 h-3.5 text-white" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Video Preview */}
+                {mediaType === 'VIDEO' && (
+                  <div className="space-y-2">
+                    {selectedFiles.map((fileItem) => (
+                      <div key={fileItem.id} className="relative rounded-lg overflow-hidden bg-slate-900 group">
+                        {fileItem.preview && (
+                          <video
+                            src={fileItem.preview}
+                            className="w-full max-h-48 object-contain"
+                            muted
+                          />
+                        )}
+                        <div className="absolute top-2 left-2 bg-purple-600 text-white text-xs px-2 py-1 rounded-full flex items-center gap-1">
+                          <Film className="w-3 h-3" />
+                          Video
+                        </div>
+                        <button
+                          onClick={() => removeFile(fileItem.id)}
+                          className="absolute top-2 right-2 w-6 h-6 bg-black/60 hover:bg-black/80 rounded-full flex items-center justify-center transition-colors"
+                        >
+                          <X className="w-3.5 h-3.5 text-white" />
+                        </button>
+                        <p className="absolute bottom-0 left-0 right-0 bg-black/60 text-white text-xs px-2 py-1 truncate">
+                          {fileItem.file.name}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* Document Preview */}
+                {mediaType === 'DOC' && (
+                  <div className="space-y-2">
+                    {selectedFiles.map((fileItem) => (
+                      <div key={fileItem.id} className="flex items-center gap-3 p-2 bg-slate-50 rounded-lg group">
+                        <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <FileText className="w-5 h-5 text-indigo-600" />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-medium text-slate-700 truncate">{fileItem.file.name}</p>
+                          <p className="text-xs text-slate-400">{(fileItem.file.size / 1024).toFixed(1)} KB</p>
+                        </div>
+                        <button
+                          onClick={() => removeFile(fileItem.id)}
+                          className="w-7 h-7 hover:bg-red-50 rounded-full flex items-center justify-center transition-colors"
+                        >
+                          <X className="w-4 h-4 text-slate-400 hover:text-red-500" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Action Bar */}
+            <div className="flex items-center justify-between">
+              {/* Media Buttons */}
+              <div className="flex items-center gap-1">
+                <input
+                  ref={imageInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => handleFileSelect(e.target.files, 'IMAGE')}
+                  className="hidden"
+                />
+                <input
+                  ref={videoInputRef}
+                  type="file"
+                  accept="video/*"
+                  onChange={(e) => handleFileSelect(e.target.files, 'VIDEO')}
+                  className="hidden"
+                />
+                <input
+                  ref={docInputRef}
+                  type="file"
+                  accept=".pdf,.doc,.docx,.txt,.zip,.rar,.xls,.xlsx,.ppt,.pptx"
+                  multiple
+                  onChange={(e) => handleFileSelect(e.target.files, 'DOC')}
+                  className="hidden"
+                />
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => imageInputRef.current?.click()}
+                  disabled={submitting}
+                  className={`h-8 px-2.5 rounded-lg transition-all ${mediaType === 'IMAGE' && selectedFiles.length > 0
+                      ? 'bg-blue-50 text-blue-600'
+                      : 'text-slate-500 hover:text-blue-600 hover:bg-blue-50'
+                    }`}
+                  title="Thêm ảnh"
+                >
+                  <Image className="w-4 h-4 mr-1" />
+                  <span className="text-xs">Ảnh</span>
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => videoInputRef.current?.click()}
+                  disabled={submitting}
+                  className={`h-8 px-2.5 rounded-lg transition-all ${mediaType === 'VIDEO' && selectedFiles.length > 0
+                      ? 'bg-purple-50 text-purple-600'
+                      : 'text-slate-500 hover:text-purple-600 hover:bg-purple-50'
+                    }`}
+                  title="Thêm video"
+                >
+                  <Film className="w-4 h-4 mr-1" />
+                  <span className="text-xs">Video</span>
+                </Button>
+
+                <Button
+                  type="button"
+                  variant="ghost"
+                  size="sm"
+                  onClick={() => docInputRef.current?.click()}
+                  disabled={submitting}
+                  className={`h-8 px-2.5 rounded-lg transition-all ${mediaType === 'DOC' && selectedFiles.length > 0
+                      ? 'bg-indigo-50 text-indigo-600'
+                      : 'text-slate-500 hover:text-indigo-600 hover:bg-indigo-50'
+                    }`}
+                  title="Thêm tài liệu"
+                >
+                  <FileText className="w-4 h-4 mr-1" />
+                  <span className="text-xs">Tài liệu</span>
+                </Button>
+              </div>
+
+              {/* Submit Button */}
               <Button
                 onClick={handleSubmitComment}
-                disabled={!newComment.trim() || submitting}
+                disabled={(!newComment.trim() && selectedFiles.length === 0) || submitting}
                 size="sm"
-                className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg px-4 text-sm font-medium shadow-md shadow-blue-500/25 disabled:opacity-50"
+                className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl px-5 h-9 text-sm font-medium shadow-md shadow-blue-500/20 disabled:opacity-50 disabled:shadow-none transition-all"
               >
                 {submitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
+                  <>
+                    <Loader2 className="w-4 h-4 mr-1.5 animate-spin" />
+                    Đang gửi...
+                  </>
                 ) : (
                   <>
-                    <Send className="w-4 h-4 mr-1" />
+                    <Send className="w-4 h-4 mr-1.5" />
                     Gửi
                   </>
                 )}
