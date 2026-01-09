@@ -29,9 +29,7 @@ export default function ChatHeaderIcon({ onOpenMiniChat: _onOpenMiniChat }: Chat
   useEffect(() => {
     if (currentUser?.userId) {
       loadUnreadCount();
-      // Poll for updates every 30 seconds as backup
-      const interval = setInterval(loadUnreadCount, 30000);
-      return () => clearInterval(interval);
+      // WebSocket handles real-time updates, no polling needed
     }
   }, [currentUser?.userId]);
 

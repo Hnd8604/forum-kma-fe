@@ -24,9 +24,7 @@ export default function ChatIconButton({ onOpenFullChat, onOpenMiniChat }: ChatI
 
   useEffect(() => {
     loadUnreadCount();
-    // Poll for updates every 30 seconds as backup
-    const interval = setInterval(loadUnreadCount, 30000);
-    return () => clearInterval(interval);
+    // WebSocket handles real-time updates, no polling needed
   }, []);
 
   // Listen for WebSocket messages to update unread count in real-time
