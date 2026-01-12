@@ -3,8 +3,9 @@ import { Users, Globe, Lock, UserPlus, CheckCircle, Loader2 } from 'lucide-react
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Group, GroupVisibility } from '@/interfaces/group.types';
-import { GroupService } from '../services/group.service';
+import { Group } from '@/interfaces/post.types';
+import { GroupVisibility } from '@/interfaces/group.types';
+import { GroupService } from '@/features/forum/services/group.service';
 import { toast } from 'sonner';
 
 interface GroupCardProps {
@@ -26,7 +27,7 @@ export default function GroupCard({
   const handleJoinGroup = async () => {
     try {
       setProcessing(true);
-      await GroupService.joinGroup(group.groupId);
+      await GroupService.joinGroup({ groupId: group.groupId });
       toast.success(`Đã tham gia danh mục ${group.groupName}`);
       setMemberStatus(true);
       // Dispatch event to notify sidebar to refresh

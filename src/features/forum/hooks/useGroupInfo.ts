@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { GroupService } from '@/features/groups/services/group.service';
+import { GroupService } from '@/features/forum/services/group.service';
 
 interface GroupInfo {
     groupName: string;

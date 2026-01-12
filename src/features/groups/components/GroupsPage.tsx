@@ -22,8 +22,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import GroupCard from './GroupCard';
-import { Group, GroupVisibility, CreateGroupRequest } from '@/interfaces/group.types';
-import { GroupService } from '../services/group.service';
+import { Group, CreateGroupRequest } from '@/interfaces/post.types';
+import { GroupVisibility } from '@/interfaces/group.types';
+import { GroupService } from '@/features/forum/services/group.service';
 import { toast } from 'sonner';
 import { useAuthStore } from '@/store/useStore';
 
@@ -58,8 +59,8 @@ export default function GroupsPage() {
   const loadGroups = async () => {
     try {
       setLoading(true);
-      const response = await GroupService.getAllGroups(0, 50, searchQuery);
-      setAllGroups(response.data || []);
+      const response = await GroupService.getAllGroups({ page: 0, limit: 50, search: searchQuery });
+      setAllGroups(response.content || []);
     } catch (error: any) {
       console.error('Failed to load groups:', error);
       toast.error(error.message || 'Không thể tải danh sách danh mục');

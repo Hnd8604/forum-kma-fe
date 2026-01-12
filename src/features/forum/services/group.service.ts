@@ -75,7 +75,7 @@ export class GroupService {
    * Leave a group
    */
   static async leaveGroup(groupId: string): Promise<void> {
-    return ApiService.post<void>(`/groups/${groupId}/leave`, {}, true);
+    return ApiService.post<void>(`/groups/leave/${groupId}`, {}, true);
   }
 
   /**
