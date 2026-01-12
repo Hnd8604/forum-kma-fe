@@ -326,19 +326,22 @@ export default function GroupPage() {
             </div>
           </div>
 
-          <div>
-            {membership?.isMember ? (
-              <Button variant="outline" onClick={handleLeaveGroup}>
-                <UserMinus className="w-4 h-4 mr-2" />
-                Rời danh mục
-              </Button>
-            ) : (
-              <Button onClick={handleJoinGroup}>
-                <UserPlus className="w-4 h-4 mr-2" />
-                Tham gia
-              </Button>
-            )}
-          </div>
+          {/* Ẩn nút Rời danh mục/Tham gia với Admin */}
+          {!isAdmin && (
+            <div>
+              {membership?.isMember ? (
+                <Button variant="outline" onClick={handleLeaveGroup}>
+                  <UserMinus className="w-4 h-4 mr-2" />
+                  Rời danh mục
+                </Button>
+              ) : (
+                <Button onClick={handleJoinGroup}>
+                  <UserPlus className="w-4 h-4 mr-2" />
+                  Tham gia
+                </Button>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
