@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Group } from '@/interfaces/post.types';
 import { GroupVisibility } from '@/interfaces/group.types';
-import { GroupService } from '@/features/forum/services/group.service';
+import { GroupService } from '@/features/groups/services/group.service';
 import { toast } from 'sonner';
 
 interface GroupCardProps {

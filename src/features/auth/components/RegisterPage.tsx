@@ -119,11 +119,9 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
                 <div className="space-y-2">
                   <Label htmlFor="lastName" className="text-sm font-medium text-slate-700">Họ</Label>
                   <div className="relative group">
-                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                     <Input
                       id="lastName"
                       type="text"
-
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
                       className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
@@ -134,7 +132,6 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
                 <div className="space-y-2">
                   <Label htmlFor="firstName" className="text-sm font-medium text-slate-700">Tên</Label>
                   <div className="relative group">
-                    <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
                     <Input
                       id="firstName"
                       type="text"

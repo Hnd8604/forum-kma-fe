@@ -3,10 +3,9 @@ import { createBrowserRouter, RouterProvider, Navigate, useNavigate } from 'reac
 import LoginPage from '@/features/auth/components/LoginPage';
 import RegisterPage from '@/features/auth/components/RegisterPage';
 import SettingsPage from '@/features/auth/components/SettingsPage';
-import ProfilePage from '@/features/forum/components/ProfilePage';
-import MainForum from '@/features/forum/components/MainForum';
-import ForumHeader from '@/features/forum/components/ForumHeader';
-import GroupPage from '@/features/forum/components/GroupPage';
+import { ProfilePage } from '@/features/profile';
+import { MainForum, ForumHeader } from '@/layouts/forum';
+import { GroupPage } from '@/features/groups';
 import Notifications from '@/features/notifications/Notifications';
 import { ChatPage, ChatContainer } from '@/features/chat';
 import WebSocketManager from '@/common/WebSocketManager';
