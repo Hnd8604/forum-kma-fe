@@ -85,6 +85,7 @@ export default {
         GET_ALL: "/notifications",
         MARK_READ: (id: string) => `/notifications/${id}/read`,
         MARK_ALL_READ: "/notifications/read-all",
+        UNREAD_COUNT: "/notifications/unread-count",
     },
     ADMIN_ENDPOINTS: {
         // User Management

@@ -6,16 +6,32 @@ import { type Locale } from 'date-fns';
 /**
  * Parse LocalDateTime string from backend (ISO format without timezone)
  * Backend returns format like: "2025-12-30T17:34:54.423069972"
+ * OR as array: [2025, 12, 30, 17, 34, 54, 423069972]
  * 
  * The backend returns LocalDateTime in UTC timezone.
  * We need to parse it as UTC and then it will be displayed in user's local timezone.
  * 
- * This function properly parses the date string.
+ * This function properly parses the date string or array.
  */
-export function parseLocalDateTime(dateString: string | undefined | null): Date | null {
-    if (!dateString) return null;
+export function parseLocalDateTime(dateInput: string | number[] | undefined | null): Date | null {
+    if (!dateInput) return null;
 
     try {
+        // Handle array format from Java LocalDateTime serialization
+        // Format: [year, month, day, hour, minute, second, nanoseconds?]
+        if (Array.isArray(dateInput)) {
+            const [year, month, day, hour = 0, minute = 0, second = 0] = dateInput;
+            // month in Date is 0-indexed, but backend sends 1-indexed
+            const date = new Date(Date.UTC(year, month - 1, day, hour, minute, second));
+            if (isNaN(date.getTime())) {
+                return null;
+            }
+            return date;
+        }
+
+        // Handle string format
+        const dateString = dateInput;
+        
         // Remove nanoseconds if present (backend may return with nanoseconds)
         // "2025-12-30T17:34:54.423069972" -> "2025-12-30T17:34:54.423"
         let cleanedString = dateString;
@@ -51,9 +67,16 @@ export function parseLocalDateTime(dateString: string | undefined | null): Date 
 
 /**
  * Format a date as relative time in Facebook style (e.g., "5 phút", "2 giờ", "3 ngày", "31 tháng 12")
+ * Supports Date object, ISO string, or array format from Java LocalDateTime
  */
-export function formatTimeAgo(date: Date | string | undefined | null, _locale?: Locale): string {
-    const parsedDate = typeof date === 'string' ? parseLocalDateTime(date) : date;
+export function formatTimeAgo(date: Date | string | number[] | undefined | null, _locale?: Locale): string {
+    // Parse the date - handle string, array, or Date object
+    let parsedDate: Date | null;
+    if (date instanceof Date) {
+        parsedDate = date;
+    } else {
+        parsedDate = parseLocalDateTime(date as string | number[] | undefined | null);
+    }
 
     if (!parsedDate || isNaN(parsedDate.getTime())) {
         return 'Vừa xong';

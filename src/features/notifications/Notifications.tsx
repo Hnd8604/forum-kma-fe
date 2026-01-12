@@ -111,28 +111,24 @@ export default function Notifications({ isOpen: externalIsOpen, onOpenChange }: 
 
     // Navigate based on notification type
     switch (notification.type) {
-      case 'NEW_COMMENT':
-      case 'LIKE_POST':
-      case 'NEW_POST':
-      case 'MENTION':
-        if (notification.referenceId) {
-          navigate(`/forum/post/${notification.referenceId}`);
+      case 'POST':        // Bài đăng mới
+      case 'LIKE_POST':   // Like bài đăng
+      case 'LIKE_COMMENT':// Like comment
+      case 'COMMENT':     // Comment mới
+      case 'MENTION':     // Được mention
+        // Ưu tiên postId, sau đó referenceId
+        const postId = notification.postId || notification.referenceId;
+        if (postId) {
+          navigate(`/forum/post/${postId}`);
           handleOpenChange(false);
         }
         break;
-      case 'LIKE_COMMENT':
-        // Navigate to post with comment
-        if (notification.referenceId) {
-          navigate(`/forum/post/${notification.referenceId}`);
-          handleOpenChange(false);
-        }
-        break;
-      case 'NEW_CHAT_MESSAGE':
+      case 'CHAT':        // Tin nhắn chat
         navigate('/chat');
         handleOpenChange(false);
         break;
       case 'ADMIN':
-        // Admin notifications don't navigate anywhere specific
+        // Admin notifications - có thể navigate tới trang thông báo chi tiết
         break;
       default:
         break;
@@ -142,18 +138,18 @@ export default function Notifications({ isOpen: externalIsOpen, onOpenChange }: 
   // Get icon based on notification type
   const getNotificationIcon = (type: NotificationType) => {
     switch (type) {
-      case 'NEW_COMMENT':
+      case 'COMMENT':      // Comment mới
         return MessageSquare;
-      case 'LIKE_POST':
-      case 'LIKE_COMMENT':
+      case 'LIKE_POST':    // Like bài đăng
+      case 'LIKE_COMMENT': // Like comment
         return Heart;
-      case 'NEW_POST':
+      case 'POST':         // Bài đăng mới
         return Bell;
-      case 'NEW_CHAT_MESSAGE':
+      case 'CHAT':         // Tin nhắn chat
         return MessageSquare;
-      case 'MENTION':
+      case 'MENTION':      // Được mention
         return AtSign;
-      case 'ADMIN':
+      case 'ADMIN':        // Thông báo admin
         return Megaphone;
       default:
         return Bell;
@@ -163,18 +159,18 @@ export default function Notifications({ isOpen: externalIsOpen, onOpenChange }: 
   // Get icon color based on notification type
   const getIconColor = (type: NotificationType) => {
     switch (type) {
-      case 'NEW_COMMENT':
+      case 'COMMENT':      // Comment mới - màu xanh
         return 'from-blue-500 to-indigo-500';
-      case 'LIKE_POST':
-      case 'LIKE_COMMENT':
+      case 'LIKE_POST':    // Like bài đăng - màu hồng
+      case 'LIKE_COMMENT': // Like comment - màu hồng
         return 'from-rose-500 to-pink-500';
-      case 'NEW_POST':
+      case 'POST':         // Bài đăng mới - màu xanh lá
         return 'from-green-500 to-emerald-500';
-      case 'NEW_CHAT_MESSAGE':
+      case 'CHAT':         // Tin nhắn chat - màu tím
         return 'from-violet-500 to-purple-500';
-      case 'MENTION':
+      case 'MENTION':      // Được mention - màu cam
         return 'from-amber-500 to-orange-500';
-      case 'ADMIN':
+      case 'ADMIN':        // Thông báo admin - màu xám
         return 'from-slate-600 to-slate-700';
       default:
         return 'from-slate-500 to-slate-600';

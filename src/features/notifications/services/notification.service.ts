@@ -1,18 +1,25 @@
 import { ApiService } from '@/api/api.service';
 import type { Notification, NotificationListResponse } from '@/interfaces/notification.types';
+import axios from 'axios';
 
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://72.60.198.235:8080/api/v1';
 const NOTIFICATION_SERVICE_BASE = '/notifications';
 
 export class NotificationService {
     /**
      * Lấy danh sách thông báo của user hiện tại
+     * Gọi trực tiếp API để nhận đúng response structure
      */
     static async getNotifications(userId: string): Promise<NotificationListResponse> {
-        const response = await ApiService.get<NotificationListResponse>(
-            `${NOTIFICATION_SERVICE_BASE}?userId=${userId}`,
-            true
+        const token = localStorage.getItem('accessToken');
+        const response = await axios.get<NotificationListResponse>(
+            `${API_BASE_URL}${NOTIFICATION_SERVICE_BASE}?userId=${userId}`,
+            {
+                headers: token ? { 'Authorization': `Bearer ${token}` } : {},
+            }
         );
-        return response;
+        // Backend trả về trực tiếp { unreadCount, data }
+        return response.data;
     }
 
     /**
