@@ -1,8 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AdminService, PaginatedResponse } from '../services/admin.service';
 import { User } from '@/interfaces/auth.types';
 import { useToast } from '@/components/ui/use-toast';
+import { debounce } from '@/lib/utils';
 import {
   Table,
   TableBody,
@@ -54,15 +55,16 @@ export default function AdminUserManagement() {
   const [actionLoading, setActionLoading] = useState(false);
 
   const pageSize = 10;
+  const debouncedSearchRef = useRef<(query: string, pageNum: number) => void>();
 
-  const fetchUsers = useCallback(async () => {
+  const fetchUsers = useCallback(async (currentPage: number = 0, searchTerm: string = '') => {
     setLoading(true);
     try {
       let response: PaginatedResponse<User>;
-      if (searchQuery.trim()) {
-        response = await AdminService.searchUsers(searchQuery, page, pageSize);
+      if (searchTerm.trim()) {
+        response = await AdminService.searchUsers(searchTerm, currentPage, pageSize);
       } else {
-        response = await AdminService.getAllUsers(page, pageSize);
+        response = await AdminService.getAllUsers(currentPage, pageSize);
       }
       setUsers(response.content || []);
       setTotalPages(response.totalPages || 0);
@@ -77,20 +79,35 @@ export default function AdminUserManagement() {
     } finally {
       setLoading(false);
     }
-  }, [page, searchQuery, toast]);
+  }, [toast]);
 
+  // Initialize debounced search function
   useEffect(() => {
-    fetchUsers();
+    debouncedSearchRef.current = debounce((query: string, pageNum: number) => {
+      fetchUsers(pageNum, query);
+    }, 300); // 300ms delay
   }, [fetchUsers]);
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    setPage(0);
-    fetchUsers();
+  // Fetch users when page changes
+  useEffect(() => {
+    if (searchQuery.trim()) {
+      debouncedSearchRef.current?.(searchQuery, page);
+    } else {
+      fetchUsers(page, '');
+    }
+  }, [page, searchQuery, fetchUsers]);
+
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const query = e.target.value;
+    setSearchQuery(query);
+    setPage(0); // Reset to first page when search query changes
   };
 
   const handleAction = async () => {
     if (!selectedUser || !actionType) return;
+
+    console.log('Action:', actionType, 'User:', selectedUser);
+    console.log('User ID:', selectedUser.userId);
 
     setActionLoading(true);
     try {
@@ -118,12 +135,13 @@ export default function AdminUserManagement() {
           break;
       }
       fetchUsers();
-    } catch (error) {
+    } catch (error: any) {
       console.error('Action failed:', error);
+      const errorMessage = error?.message || 'Thao tác thất bại';
       toast({
         variant: 'destructive',
         title: 'Lỗi',
-        description: 'Thao tác thất bại',
+        description: errorMessage,
       });
     } finally {
       setActionLoading(false);
@@ -169,7 +187,7 @@ export default function AdminUserManagement() {
         </div>
         <Button
           variant="outline"
-          onClick={fetchUsers}
+          onClick={() => fetchUsers(page, searchQuery)}
           disabled={loading}
           className="border-slate-300"
         >
@@ -181,20 +199,29 @@ export default function AdminUserManagement() {
       {/* Search */}
       <Card className="border-slate-200">
         <CardContent className="p-4">
-          <form onSubmit={handleSearch} className="flex gap-3">
+          <div className="flex gap-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
                 placeholder="Tìm kiếm theo tên, email..."
                 value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
+                onChange={handleSearchChange}
                 className="pl-10 border-slate-300"
               />
             </div>
-            <Button type="submit" className="bg-slate-800 hover:bg-slate-900">
-              Tìm kiếm
-            </Button>
-          </form>
+            {searchQuery && (
+              <Button
+                variant="ghost"
+                onClick={() => {
+                  setSearchQuery('');
+                  setPage(0);
+                }}
+                className="text-slate-500 hover:text-slate-700"
+              >
+                Xóa bộ lọc
+              </Button>
+            )}
+          </div>
         </CardContent>
       </Card>
 
@@ -208,7 +235,7 @@ export default function AdminUserManagement() {
                 <TableHead className="font-semibold text-slate-700">Email</TableHead>
                 <TableHead className="font-semibold text-slate-700">Vai trò</TableHead>
                 <TableHead className="font-semibold text-slate-700">Trạng thái</TableHead>
-                <TableHead className="font-semibold text-slate-700">Ngày tạo</TableHead>
+                <TableHead className="font-semibold text-slate-700">Ngày sinh</TableHead>
                 <TableHead className="text-right font-semibold text-slate-700">Hành động</TableHead>
               </TableRow>
             </TableHeader>
@@ -249,9 +276,7 @@ export default function AdminUserManagement() {
                     <TableCell className="text-slate-600">{user.email}</TableCell>
                     <TableCell>{getRoleBadge(user)}</TableCell>
                     <TableCell>{getStatusBadge(user)}</TableCell>
-                    <TableCell className="text-slate-600">
-                      {user.createdAt ? new Date(user.createdAt).toLocaleDateString('vi-VN') : '-'}
-                    </TableCell>
+                    <TableCell className="text-slate-600">{user.dob ? new Date(user.dob).toLocaleDateString('vi-VN') : '-'}</TableCell>
                     <TableCell className="text-right">
                       <div className="flex items-center justify-end gap-1">
                         <Button

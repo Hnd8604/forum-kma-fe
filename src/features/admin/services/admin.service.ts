@@ -78,8 +78,51 @@ export interface AdminStats {
   pendingReports: number;
 }
 
+export interface ReportResponse {
+  reportId: string;
+  postId: string;
+  reportedById: string;
+  reportedByName: string;
+  reason: 'SPAM' | 'HARASSMENT' | 'OFFENSIVE_CONTENT' | 'MISINFORMATION' | 'COPYRIGHT' | 'ADULT_CONTENT' | 'VIOLENCE' | 'OTHER';
+  description: string;
+  status: 'PENDING' | 'RESOLVED' | 'REJECTED';
+  createdAt: string;
+  updatedAt: string;
+  resolvedBy?: string;
+  resolutionNotes?: string;
+  post?: AdminPost;
+}
+
+export interface PageResponse<T> {
+  content: T[];
+  pageNumber: number;
+  pageSize: number;
+  totalElements: number;
+  totalPages: number;
+}
 export class AdminService {
   // ============= USER MANAGEMENT =============
+
+  /**
+   * Transform API user response (uses 'id' field) to User interface (expects 'userId' field)
+   */
+  private static mapUserResponse(user: any): User {
+    return {
+      ...user,
+      userId: user.id || user.userId,
+    };
+  }
+
+  /**
+   * Transform API group response (uses 'groupId'/'groupName') to AdminGroup interface (expects 'id'/'name')
+   */
+  private static mapGroupResponse(group: any): AdminGroup {
+    return {
+      ...group,
+      id: group.groupId || group.id,
+      name: group.groupName || group.name,
+    };
+  }
 
   /**
    * Get all users with pagination
@@ -89,7 +132,11 @@ export class AdminService {
       `${endpoints.ADMIN_ENDPOINTS.GET_ALL_USERS}?page=${page}&size=${size}`,
       true
     );
-    return response.result || response;
+    // Map the response to transform 'id' to 'userId'
+    if (response && response.content) {
+      response.content = response.content.map((user: any) => this.mapUserResponse(user));
+    }
+    return response;
   }
 
   /**
@@ -100,7 +147,11 @@ export class AdminService {
       `${endpoints.ADMIN_ENDPOINTS.SEARCH_USERS}?keyword=${encodeURIComponent(keyword)}&page=${page}&size=${size}`,
       true
     );
-    return response.result || response;
+    // Map the response to transform 'id' to 'userId'
+    if (response && response.content) {
+      response.content = response.content.map((user: any) => this.mapUserResponse(user));
+    }
+    return response;
   }
 
   /**
@@ -111,7 +162,7 @@ export class AdminService {
       endpoints.ADMIN_ENDPOINTS.GET_USER_BY_ID(id),
       true
     );
-    return response.result || response;
+    return this.mapUserResponse(response);
   }
 
   /**
@@ -123,7 +174,7 @@ export class AdminService {
       {},
       true
     );
-    return response.result || response;
+    return this.mapUserResponse(response);
   }
 
   /**
@@ -135,7 +186,7 @@ export class AdminService {
       {},
       true
     );
-    return response.result || response;
+    return this.mapUserResponse(response);
   }
 
   /**
@@ -163,7 +214,7 @@ export class AdminService {
       data,
       true
     );
-    return response.result || response;
+    return this.mapUserResponse(response);
   }
 
   // ============= ROLE MANAGEMENT =============
@@ -176,7 +227,7 @@ export class AdminService {
       endpoints.ADMIN_ENDPOINTS.GET_ALL_ROLES,
       true
     );
-    return response.result || response;
+    return response;
   }
 
   /**
@@ -187,7 +238,7 @@ export class AdminService {
       endpoints.ADMIN_ENDPOINTS.GET_ROLE_BY_ID(id),
       true
     );
-    return response.result || response;
+    return response;
   }
 
   /**
@@ -199,7 +250,7 @@ export class AdminService {
       data,
       true
     );
-    return response.result || response;
+    return response;
   }
 
   /**
@@ -211,7 +262,7 @@ export class AdminService {
       data,
       true
     );
-    return response.result || response;
+    return response;
   }
 
   /**
@@ -235,7 +286,7 @@ export class AdminService {
       url += `&search=${encodeURIComponent(search)}`;
     }
     const response = await ApiService.get<any>(url, true);
-    return response.result || response;
+    return response;
   }
 
   /**
@@ -262,7 +313,7 @@ export class AdminService {
       url += `&status=${status}`;
     }
     const response = await ApiService.get<any>(url, true);
-    return response.result || response;
+    return response;
   }
 
   // ============= GROUP MANAGEMENT =============
@@ -276,7 +327,11 @@ export class AdminService {
       url += `&search=${encodeURIComponent(search)}`;
     }
     const response = await ApiService.get<any>(url, true);
-    return response.result || response;
+    // Map the response to transform 'groupId'/'groupName' to 'id'/'name'
+    if (response && response.content) {
+      response.content = response.content.map((group: any) => this.mapGroupResponse(group));
+    }
+    return response;
   }
 
   /**
@@ -287,7 +342,7 @@ export class AdminService {
       endpoints.ADMIN_ENDPOINTS.GET_GROUP_BY_ID(id),
       true
     );
-    return response.result || response;
+    return this.mapGroupResponse(response);
   }
 
   /**
@@ -308,7 +363,7 @@ export class AdminService {
       `${endpoints.ADMIN_ENDPOINTS.GET_GROUP_MEMBERS(groupId)}?page=${page}&limit=${limit}`,
       true
     );
-    return response.result || response;
+    return response;
   }
 
   /**
@@ -324,7 +379,7 @@ export class AdminService {
       { userId, role },
       true
     );
-    return response.result || response;
+    return response;
   }
 
   /**
@@ -347,7 +402,7 @@ export class AdminService {
       `/comments/post?postId=${postId}&page=${page}&size=${size}`,
       true
     );
-    return response.result || response || [];
+    return response || [];
   }
 
   /**
@@ -361,6 +416,20 @@ export class AdminService {
   }
 
   // ============= STATISTICS =============
+
+  /**
+   * Get admin dashboard statistics from post-service
+   * Returns aggregated system statistics in one API call
+   */
+  static async getDashboardStatistics(): Promise<any> {
+    const response = await ApiService.get<any>(
+      endpoints.ADMIN_ENDPOINTS.DASHBOARD_STATISTICS,
+      true
+    );
+    console.log('Dashboard statistics response:', response);
+    // Response is already extracted, no need to access .result or .data
+    return response || {};
+  }
 
   /**
    * Get admin dashboard statistics
@@ -400,5 +469,58 @@ export class AdminService {
       };
     }
   }
-}
 
+  // ============= REPORT MANAGEMENT =============
+
+  /**
+   * Get all reports with pagination
+   */
+  static async getAllReports(page = 0, limit = 10): Promise<PageResponse<ReportResponse>> {
+    const response = await ApiService.get<any>(
+      `${endpoints.ADMIN_ENDPOINTS.GET_ALL_REPORTS}?page=${page}&limit=${limit}`,
+      true
+    );
+    return response;
+  }
+
+  /**
+   * Get pending reports only
+   */
+  static async getPendingReports(page = 0, limit = 10): Promise<PageResponse<ReportResponse>> {
+    const response = await ApiService.get<any>(
+      `${endpoints.ADMIN_ENDPOINTS.GET_PENDING_REPORTS}?page=${page}&limit=${limit}`,
+      true
+    );
+    return response;
+  }
+
+  /**
+   * Get all reports for a specific post
+   */
+  static async getPostReports(postId: string, page = 0, limit = 10): Promise<PageResponse<ReportResponse>> {
+    const response = await ApiService.get<any>(
+      `${endpoints.ADMIN_ENDPOINTS.GET_POST_REPORTS(postId)}?page=${page}&limit=${limit}`,
+      true
+    );
+    return response;
+  }
+
+  /**
+   * Resolve all reports for a specific post
+   */
+  static async resolvePostReports(
+    postId: string,
+    decision: 'RESOLVED' | 'REJECTED',
+    reason: string
+  ): Promise<string> {
+    const response = await ApiService.post<any>(
+      endpoints.ADMIN_ENDPOINTS.RESOLVE_POST_REPORTS(postId),
+      {
+        decision,
+        reason,
+      },
+      true
+    );
+    return response;
+  }
+}

@@ -1,12 +1,14 @@
 import { useState, useEffect, useCallback } from 'react';
 import { InteractionService } from '@/features/reactions/services/interaction.service';
 import type { ReactionType } from '@/interfaces/post.types';
+import type { User } from '@/interfaces/auth.types';
 
 interface UseReactionParams {
     postId: string;
     commentId?: string;
     initialReaction?: ReactionType | null;
     initialCount: number;
+    currentUser?: User | null;
     onReactionChange?: (
         id: string,
         newCount: number,
@@ -30,6 +32,7 @@ export function useReaction({
     commentId,
     initialReaction,
     initialCount,
+    currentUser,
     onReactionChange,
 }: UseReactionParams): UseReactionReturn {
     const [currentReaction, setCurrentReaction] = useState<ReactionType | null>(
@@ -50,10 +53,15 @@ export function useReaction({
             setIsReacting(true);
 
             try {
+                const senderName = currentUser 
+                    ? `${currentUser.lastName || ''} ${currentUser.firstName || ''}`.trim() || currentUser.username
+                    : 'Unknown';
+
                 await InteractionService.createOrUpdateInteraction({
                     postId,
                     commentId,
                     type,
+                    senderName,
                 });
 
                 const isToggle = currentReaction === type;
@@ -83,7 +91,7 @@ export function useReaction({
                 setIsReacting(false);
             }
         },
-        [postId, commentId, currentReaction, reactionCount, isReacting, onReactionChange]
+        [postId, commentId, currentReaction, reactionCount, isReacting, currentUser, onReactionChange]
     );
 
     return {

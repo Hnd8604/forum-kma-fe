@@ -68,6 +68,7 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
     postId: post.postId,
     initialReaction: post.myReaction,
     initialCount: post.reactionCount,
+    currentUser,
     onReactionChange: (id, count, reaction) => {
       onReactionChange?.(id, count, reaction);
     },
@@ -149,9 +150,11 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
   };
 
   const handleCommentSubmit = async (content: string) => {
+    const senderName = `${currentUser?.lastName || ''} ${currentUser?.firstName || ''}`.trim() || currentUser?.username;
     await CommentService.createComment({
       postId: post.postId,
       content,
+      senderName,
     });
     setCommentCount(prev => prev + 1);
   };

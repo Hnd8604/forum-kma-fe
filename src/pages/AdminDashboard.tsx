@@ -15,27 +15,30 @@ export default function AdminDashboard() {
   const fetchStats = async () => {
     setLoading(true);
     try {
-      const [usersResponse, postsResponse, groupsResponse] = await Promise.allSettled([
-        AdminService.getAllUsers(0, 1),
-        AdminService.getAllPosts(0, 1),
-        AdminService.getAllGroups(0, 1),
-      ]);
-
-      const totalUsers = usersResponse.status === 'fulfilled' ? usersResponse.value.totalElements : 0;
-      const totalPosts = postsResponse.status === 'fulfilled' ? postsResponse.value.totalElements : 0;
-      const totalGroups = groupsResponse.status === 'fulfilled' ? groupsResponse.value.totalElements : 0;
+      // Call the new dashboard statistics API from post-service
+      const dashboardStats = await AdminService.getDashboardStatistics();
+      console.log('Admin Dashboard - Received stats:', dashboardStats);
 
       setStats({
-        totalUsers,
-        activeUsers: totalUsers,
+        totalUsers: dashboardStats.totalUsers,
+        activeUsers: dashboardStats.totalUsers,
         bannedUsers: 0,
-        totalPosts,
-        totalGroups,
+        totalPosts: dashboardStats.totalPosts,
+        totalGroups: dashboardStats.totalGroups,
         totalComments: 0,
-        pendingReports: 0,
+        pendingReports: dashboardStats.totalReports,
       });
     } catch (error) {
       console.error('Failed to fetch stats:', error);
+      setStats({
+        totalUsers: 0,
+        activeUsers: 0,
+        bannedUsers: 0,
+        totalPosts: 0,
+        totalGroups: 0,
+        totalComments: 0,
+        pendingReports: 0,
+      });
     } finally {
       setLoading(false);
     }

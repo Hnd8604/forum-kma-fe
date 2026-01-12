@@ -115,10 +115,12 @@ export default function CommentItem({
     if (reacting) return;
     setReacting(true);
     try {
+      const senderName = `${currentUser?.lastName || ''} ${currentUser?.firstName || ''}`.trim() || currentUser?.username;
       const result = await InteractionService.createOrUpdateInteraction({
         postId,
         commentId: comment.commentId,
         type,
+        senderName,
       });
       // If result is null, it means the reaction was removed (toggle)
       const newReaction = result?.type || null;

@@ -120,7 +120,14 @@ export default {
         // Comment Management
         DELETE_COMMENT: (id: string) => `/comments/${id}`,
 
+        // Report Management
+        GET_ALL_REPORTS: "/posts/reports",
+        GET_PENDING_REPORTS: "/posts/reports/pending",
+        GET_POST_REPORTS: (postId: string) => `/posts/reports/post/${postId}`,
+        RESOLVE_POST_REPORTS: (postId: string) => `/posts/reports/post/${postId}`,
+
         // Statistics
         GET_STATS: "/admin/stats",
+        DASHBOARD_STATISTICS: "/dashboard/statistics",
     },
 } as const;

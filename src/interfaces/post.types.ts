@@ -100,6 +100,7 @@ export interface CreateInteractionRequest {
   postId: string;
   commentId?: string;
   type: ReactionType;
+  senderName: string;           // Current user's full name
 }
 
 export interface InteractionCount {

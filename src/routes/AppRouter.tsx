@@ -20,6 +20,7 @@ import {
     AdminPostManagement,
     AdminGroupManagement,
     AdminRoleManagement,
+    AdminReportManagement,
 } from '@/features/admin';
 
 function LoginWrapper() {
@@ -258,7 +259,7 @@ export default function AppRouter() {
             { path: '/admin/posts', element: <AdminWrapper><AdminPostManagement /></AdminWrapper> },
             { path: '/admin/groups', element: <AdminWrapper><AdminGroupManagement /></AdminWrapper> },
             { path: '/admin/roles', element: <AdminWrapper><AdminRoleManagement /></AdminWrapper> },
-            { path: '/admin/reports', element: <AdminWrapper><div className="p-6"><h1 className="text-2xl font-bold">Báo Cáo Vi Phạm</h1><p className="text-muted-foreground mt-2">Tính năng đang phát triển...</p></div></AdminWrapper> },
+            { path: '/admin/reports', element: <AdminWrapper><AdminReportManagement /></AdminWrapper> },
             { path: '/admin/settings', element: <AdminWrapper><div className="p-6"><h1 className="text-2xl font-bold">Cài Đặt Hệ Thống</h1><p className="text-muted-foreground mt-2">Tính năng đang phát triển...</p></div></AdminWrapper> },
 
             // Forum routes

@@ -182,7 +182,6 @@ export default function AdminGroupManagement() {
               <TableRow className="bg-slate-50 hover:bg-slate-50">
                 <TableHead className="font-semibold text-slate-700">Tên danh mục</TableHead>
                 <TableHead className="font-semibold text-slate-700">Mô tả</TableHead>
-                <TableHead className="font-semibold text-slate-700">Người tạo</TableHead>
                 <TableHead className="font-semibold text-slate-700">Tham gia</TableHead>
                 <TableHead className="font-semibold text-slate-700">Bài viết</TableHead>
                 <TableHead className="font-semibold text-slate-700">Hiển thị</TableHead>
@@ -193,14 +192,14 @@ export default function AdminGroupManagement() {
             <TableBody>
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-12">
+                  <TableCell colSpan={7} className="text-center py-12">
                     <Loader2 className="h-6 w-6 animate-spin mx-auto text-slate-400" />
                     <p className="text-sm text-slate-500 mt-2">Đang tải...</p>
                   </TableCell>
                 </TableRow>
               ) : filteredGroups.length === 0 ? (
                 <TableRow>
-                  <TableCell colSpan={8} className="text-center py-12 text-slate-500">
+                  <TableCell colSpan={7} className="text-center py-12 text-slate-500">
                     Không tìm thấy danh mục nào
                   </TableCell>
                 </TableRow>
@@ -215,7 +214,6 @@ export default function AdminGroupManagement() {
                         {group.description || '-'}
                       </p>
                     </TableCell>
-                    <TableCell className="text-slate-600">{group.ownerName || group.ownerId}</TableCell>
                     <TableCell>
                       <div className="flex items-center gap-1.5 text-sm text-slate-600">
                         <Users className="h-4 w-4 text-slate-400" />
