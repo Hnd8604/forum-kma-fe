@@ -65,7 +65,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           </div>
           {sidebarOpen && (
             <span className="ml-3 text-lg font-semibold text-white">
-              Admin Panel
+              Admin Page
             </span>
           )}
         </div>

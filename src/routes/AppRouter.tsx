@@ -9,7 +9,7 @@ import ForumHeader from '@/features/forum/components/ForumHeader';
 import GroupPage from '@/features/forum/components/GroupPage';
 import Notifications from '@/features/notifications/Notifications';
 import { ChatPage, ChatContainer } from '@/features/chat';
-import WebSocketManager from '@/components/websocket/WebSocketManager';
+import WebSocketManager from '@/common/WebSocketManager';
 import { Toaster } from '@/components/ui/toaster';
 import { FriendsPage } from '@/features/friends';
 import { GroupsPage } from '@/features/groups';
