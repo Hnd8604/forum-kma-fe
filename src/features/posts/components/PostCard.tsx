@@ -86,13 +86,13 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
 
   const reportReasons = [
     { value: 'SPAM', label: 'Spam' },
-    { value: 'HARASSMENT', label: 'Quấy rối/Tấn công' },
-    { value: 'OFFENSIVE_CONTENT', label: 'Nội dung xúc phạm' },
-    { value: 'MISINFORMATION', label: 'Thông tin sai lệch' },
-    { value: 'COPYRIGHT', label: 'Vi phạm bản quyền' },
-    { value: 'ADULT_CONTENT', label: 'Nội dung người lớn' },
-    { value: 'VIOLENCE', label: 'Bạo lực' },
-    { value: 'OTHER', label: 'Khác' },
+    { value: 'HARASSMENT', label: 'Qu\u1EA5y r\u1ED1i/T\u1EA5n c\u00F4ng' },
+    { value: 'OFFENSIVE_CONTENT', label: 'N\u1ED9i dung x\u00FAc ph\u1EA1m' },
+    { value: 'MISINFORMATION', label: 'Th\u00F4ng tin sai l\u1EBCch' },
+    { value: 'COPYRIGHT', label: 'Vi ph\u1EA1m b\u1EA3n quy\u1EC1n' },
+    { value: 'ADULT_CONTENT', label: 'N\u1ED9i dung ng\u01B0\u1EDDi l\u1EDBn' },
+    { value: 'VIOLENCE', label: 'B\u1EA1o l\u1EF1c' },
+    { value: 'OTHER', label: 'Kh\u00E1c' },
   ];
 
   // Handle opening modal with URL change

@@ -132,13 +132,13 @@ export default function AdminReportManagement() {
 
     const reasonLabels: Record<string, string> = {
       'SPAM': 'Spam',
-      'HARASSMENT': 'Qu騷rào',
-      'OFFENSIVE_CONTENT': 'Nội dung x冒)',
-      'MISINFORMATION': 'Thông tin sai',
-      'COPYRIGHT': 'Vi phạm bản quyền',
-      'ADULT_CONTENT': 'Nội dung dành cho người lớn',
-      'VIOLENCE': 'Bạo lực',
-      'OTHER': 'Khác',
+      'HARASSMENT': 'Qu\u1EA5y r\u1ED1i/T\u1EA5n c\u00F4ng',
+      'OFFENSIVE_CONTENT': 'N\u1ED9i dung x\u00FAc ph\u1EA1m',
+      'MISINFORMATION': 'Th\u00F4ng tin sai l\u1EBCch',
+      'COPYRIGHT': 'Vi ph\u1EA1m b\u1EA3n quy\u1EC1n',
+      'ADULT_CONTENT': 'N\u1ED9i dung ng\u01B0\u1EDDi l\u1EDBn',
+      'VIOLENCE': 'B\u1EA1o l\u1EF1c',
+      'OTHER': 'Kh\u00E1c',
     };
 
     return (
