@@ -6,6 +6,9 @@ authors = ["KMA Students"]
 edition = "2021"
 rust-version = "1.60"
 
+[lib]
+crate-type = ["cdylib", "rlib"]
+
 [build-dependencies]
 tauri-build = { version = "2.5", features = [] }
 
