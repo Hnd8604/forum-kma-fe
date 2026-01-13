@@ -195,7 +195,7 @@ export default function AdminReportManagement() {
                 setFilterStatus('PENDING');
                 setPage(0);
               }}
-              className={filterStatus === 'PENDING' ? 'bg-slate-800 hover:bg-slate-900' : 'border-slate-300'}
+              className={filterStatus === 'PENDING' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-slate-300'}
             >
               Chờ xử lý
             </Button>
@@ -205,7 +205,7 @@ export default function AdminReportManagement() {
                 setFilterStatus('ALL');
                 setPage(0);
               }}
-              className={filterStatus === 'ALL' ? 'bg-slate-800 hover:bg-slate-900' : 'border-slate-300'}
+              className={filterStatus === 'ALL' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-slate-300'}
             >
               Tất cả
             </Button>
@@ -437,7 +437,7 @@ export default function AdminReportManagement() {
                   setResolutionNotes('');
                   setShowResolveDialog(true);
                 }}
-                className="bg-slate-800 hover:bg-slate-900"
+                className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 Xử lý báo cáo
               </Button>
@@ -472,7 +472,7 @@ export default function AdminReportManagement() {
                   <Button
                     variant={resolveDecision === 'REJECTED' ? 'default' : 'outline'}
                     onClick={() => setResolveDecision('REJECTED')}
-                    className={resolveDecision === 'REJECTED' ? 'bg-slate-800 hover:bg-slate-900' : 'border-slate-300'}
+                    className={resolveDecision === 'REJECTED' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-slate-300'}
                   >
                     <Check className="h-4 w-4 mr-2" />
                     Từ chối báo cáo
@@ -497,7 +497,7 @@ export default function AdminReportManagement() {
             <AlertDialogAction
               onClick={handleResolve}
               disabled={resolveLoading}
-              className={resolveDecision === 'RESOLVED' ? 'bg-red-600 hover:bg-red-700' : 'bg-slate-800 hover:bg-slate-900'}
+              className={resolveDecision === 'RESOLVED' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}
             >
               {resolveLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Xác nhận

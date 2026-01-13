@@ -115,7 +115,7 @@ export default function CommentItem({
     if (reacting) return;
     setReacting(true);
     try {
-      const senderName = `${currentUser?.lastName || ''} ${currentUser?.firstName || ''}`.trim() || currentUser?.username;
+      const senderName = `${currentUser?.lastName || ''} ${currentUser?.firstName || ''}`.trim() || currentUser?.username || '';
       const result = await InteractionService.createOrUpdateInteraction({
         postId,
         commentId: comment.commentId,
@@ -249,7 +249,7 @@ export default function CommentItem({
         }
       }
 
-      const senderName = `${currentUser?.lastName || ''} ${currentUser?.firstName || ''}`.trim() || currentUser?.username;
+      const senderName = `${currentUser?.lastName || ''} ${currentUser?.firstName || ''}`.trim() || currentUser?.username || '';
       const newReply = await CommentService.createComment({
         postId,
         content: replyContent.trim(),

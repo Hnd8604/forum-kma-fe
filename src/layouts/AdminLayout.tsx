@@ -96,16 +96,24 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
         {/* User Section */}
         <div className="p-3 border-t border-slate-700">
           <div className={`flex items-center gap-3 ${sidebarOpen ? '' : 'justify-center'}`}>
-            <div className="w-9 h-9 bg-slate-600 rounded-full flex items-center justify-center flex-shrink-0">
-              <span className="text-sm font-medium text-white">{getInitials()}</span>
-            </div>
+            {user?.avatarUrl ? (
+              <img
+                src={user.avatarUrl}
+                alt={`${user.lastName} ${user.firstName}`}
+                className="w-9 h-9 rounded-full object-cover ring-2 ring-slate-600 flex-shrink-0"
+              />
+            ) : (
+              <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center ring-2 ring-slate-600 flex-shrink-0">
+                <span className="text-sm font-bold text-white">{getInitials()}</span>
+              </div>
+            )}
             {sidebarOpen && (
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-white truncate">
                   {user?.lastName} {user?.firstName}
                 </p>
                 <p className="text-xs text-slate-400 truncate">
-                  {user?.roleName || 'Admin'}
+                  {user?.roleName || 'ADMIN'}
                 </p>
               </div>
             )}

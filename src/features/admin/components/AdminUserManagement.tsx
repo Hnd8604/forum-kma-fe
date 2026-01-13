@@ -395,7 +395,7 @@ export default function AdminUserManagement() {
             <AlertDialogAction
               onClick={handleAction}
               disabled={actionLoading}
-              className={actionType === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-slate-800 hover:bg-slate-900'}
+              className={actionType === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}
             >
               {actionLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Xác nhận

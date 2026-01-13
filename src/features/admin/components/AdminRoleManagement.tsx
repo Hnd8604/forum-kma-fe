@@ -230,7 +230,7 @@ export default function AdminRoleManagement() {
           <Button onClick={() => {
             setFormData({ name: '', permissions: [] });
             setShowCreateDialog(true);
-          }} className="bg-slate-800 hover:bg-slate-900">
+          }} className="bg-blue-600 hover:bg-blue-700 text-white">
             <Plus className="h-4 w-4 mr-2" />
             Tạo vai trò
           </Button>
@@ -397,7 +397,7 @@ export default function AdminRoleManagement() {
             <Button
               onClick={showCreateDialog ? handleCreate : handleEdit}
               disabled={saving}
-              className="bg-slate-800 hover:bg-slate-900"
+              className="bg-blue-600 hover:bg-blue-700 text-white"
             >
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {showCreateDialog ? 'Tạo' : 'Lưu'}

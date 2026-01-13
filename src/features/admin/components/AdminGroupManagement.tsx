@@ -169,7 +169,7 @@ export default function AdminGroupManagement() {
                 className="pl-10 border-slate-300"
               />
             </div>
-            <Button type="submit" className="bg-slate-800 hover:bg-slate-900">Tìm kiếm</Button>
+            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">Tìm kiếm</Button>
           </form>
         </CardContent>
       </Card>
