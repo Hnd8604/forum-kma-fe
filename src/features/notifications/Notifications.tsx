@@ -79,6 +79,9 @@ export default function Notifications({ isOpen: externalIsOpen, onOpenChange }: 
         prev.map((n) => (n.id === notificationId ? { ...n, isRead: true } : n))
       );
       setUnreadCount((prev) => Math.max(0, prev - 1));
+
+      // Dispatch event to sync with header
+      window.dispatchEvent(new CustomEvent('notification-marked-read'));
     } catch (error) {
       console.error('Failed to mark notification as read:', error);
     }
@@ -93,6 +96,10 @@ export default function Notifications({ isOpen: externalIsOpen, onOpenChange }: 
       await NotificationService.markAllAsRead(user.userId);
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: true })));
       setUnreadCount(0);
+
+      // Dispatch event to sync with header
+      window.dispatchEvent(new CustomEvent('notification-all-marked-read'));
+
       toast.success('Đã đánh dấu tất cả là đã đọc');
     } catch (error) {
       console.error('Failed to mark all as read:', error);

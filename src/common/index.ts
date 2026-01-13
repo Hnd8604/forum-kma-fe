@@ -2,4 +2,4 @@
 export { FileUpload } from './FileUpload';
 
 // WebSocket
-export { default as WebSocketManager } from '../common/WebSocketManager';
+export { default as WebSocketManager } from './WebSocketManager';

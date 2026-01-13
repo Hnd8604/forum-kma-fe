@@ -31,7 +31,7 @@ export function parseLocalDateTime(dateInput: string | number[] | undefined | nu
 
         // Handle string format
         const dateString = dateInput;
-        
+
         // Remove nanoseconds if present (backend may return with nanoseconds)
         // "2025-12-30T17:34:54.423069972" -> "2025-12-30T17:34:54.423"
         let cleanedString = dateString;

@@ -327,6 +327,7 @@ export class AdminService {
       url += `&search=${encodeURIComponent(search)}`;
     }
     const response = await ApiService.get<any>(url, true);
+
     // Map the response to transform 'groupId'/'groupName' to 'id'/'name'
     if (response && response.content) {
       response.content = response.content.map((group: any) => this.mapGroupResponse(group));

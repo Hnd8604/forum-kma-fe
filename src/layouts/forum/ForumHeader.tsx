@@ -77,12 +77,26 @@ export default function ForumHeader({
       fetchUnreadCount();
     };
 
+    // Handle single notification marked as read - decrement count
+    const handleNotificationMarkedRead = () => {
+      setUnreadNotificationCount((prev) => Math.max(0, prev - 1));
+    };
+
+    // Handle all notifications marked as read - set to 0
+    const handleAllNotificationsMarkedRead = () => {
+      setUnreadNotificationCount(0);
+    };
+
     window.addEventListener('notification-received', handleNotificationReceived);
     window.addEventListener('notification-unread-count-changed', handleNotificationRead);
+    window.addEventListener('notification-marked-read', handleNotificationMarkedRead);
+    window.addEventListener('notification-all-marked-read', handleAllNotificationsMarkedRead);
 
     return () => {
       window.removeEventListener('notification-received', handleNotificationReceived);
       window.removeEventListener('notification-unread-count-changed', handleNotificationRead);
+      window.removeEventListener('notification-marked-read', handleNotificationMarkedRead);
+      window.removeEventListener('notification-all-marked-read', handleAllNotificationsMarkedRead);
     };
   }, [user?.userId]);
 
