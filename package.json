@@ -1,6 +1,8 @@
 {
-    "name": "Student Forum Website Design",
+    "name": "forum-kma",
     "version": "0.1.0",
+    "description": "KMA Forum Application",
+    "author": "KMA Students",
     "private": true,
     "main": "electron-main.js",
     "homepage": "./",
@@ -58,7 +60,8 @@
         "tailwind-merge": "*",
         "tailwindcss": "^3.4.7",
         "vaul": "^1.1.2",
-        "zustand": "^5.0.8"
+        "zustand": "^5.0.8",
+        "electron-is-dev": "^3.0.1"
     },
     "devDependencies": {
         "@types/node": "^20.10.0",
@@ -70,7 +73,6 @@
         "cross-env": "^10.1.0",
         "electron": "^39.2.7",
         "electron-builder": "^26.4.0",
-        "electron-is-dev": "^3.0.1",
         "typescript": "^5.3.2",
         "vite": "6.3.5",
         "wait-on": "^9.0.3"
@@ -81,7 +83,32 @@
         "electron": "electron .",
         "build": "vite build",
         "build:electron": "npm run build && electron-builder",
+        "build:msi": "npm run build && electron-builder --win msi",
         "preview": "vite preview",
         "postinstall": "echo \"Run 'npm run dev' tto start the dev server or 'npm run dev:electron' for desktop app\""
+    },
+    "build": {
+        "appId": "com.kma.forum",
+        "productName": "Forum KMA",
+        "files": [
+            "dist/**/*",
+            "assets/**/*",
+            "electron-main.js",
+            "package.json"
+        ],
+        "win": {
+            "target": [
+                {
+                    "target": "msi",
+                    "arch": ["x64"]
+                }
+            ],
+            "icon": "assets/icon.ico"
+        },
+        "msi": {
+            "oneClick": false,
+            "createDesktopShortcut": true,
+            "createStartMenuShortcut": true
+        }
     }
 }

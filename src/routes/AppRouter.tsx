@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { createBrowserRouter, RouterProvider, Navigate, useNavigate } from 'react-router-dom';
+import { createHashRouter, RouterProvider, Navigate, useNavigate } from 'react-router-dom';
 import LoginPage from '@/features/auth/components/LoginPage';
 import RegisterPage from '@/features/auth/components/RegisterPage';
 import SettingsPage from '@/features/auth/components/SettingsPage';
@@ -42,12 +42,11 @@ function LoginWrapper() {
             const userIsAdmin = user?.roleName?.toUpperCase() === 'ADMIN' ||
                 user?.roles?.some((role: string) => role.toUpperCase() === 'ADMIN');
 
-            // Use window.location.href for immediate redirect
-            // This ensures the redirect happens before React re-renders
+            // Use navigate for routing in hash-based router
             if (userIsAdmin) {
-                window.location.href = '/admin';
+                navigate('/admin', { replace: true });
             } else {
-                window.location.href = '/forum';
+                navigate('/forum', { replace: true });
             }
         }}
         onSwitchToRegister={() => navigate('/register')}
@@ -247,7 +246,7 @@ export default function AppRouter() {
         initAuth();
     }, [initAuth]);
 
-    const router = createBrowserRouter(
+    const router = createHashRouter(
         [
             { path: '/', element: <Navigate to="/login" replace /> },
             { path: '/login', element: <LoginWrapper /> },

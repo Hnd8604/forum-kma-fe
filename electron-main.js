@@ -1,6 +1,7 @@
 const { app, BrowserWindow, Menu } = require('electron');
 const isDev = require('electron-is-dev');
 const path = require('path');
+const fs = require('fs');
 
 let mainWindow;
 
@@ -9,15 +10,18 @@ function createWindow() {
     width: 1200,
     height: 800,
     webPreferences: {
-      preload: path.join(__dirname, 'electron-preload.js'),
       nodeIntegration: false,
       contextIsolation: true,
     },
   });
 
-  const startURL = isDev
-    ? 'http://localhost:3000' // Vite dev server port
-    : `file://${path.join(__dirname, '../build/index.html')}`; // Production build
+  // Check if running from packaged app
+  const appPath = isDev ? app.getAppPath() : path.join(process.resourcesPath, 'app');
+  const indexPath = path.join(appPath, 'dist', 'index.html');
+  
+  const startURL = fs.existsSync(indexPath)
+    ? `file://${indexPath}`
+    : 'http://localhost:3000';
 
   mainWindow.loadURL(startURL);
 
