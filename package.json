@@ -2,6 +2,8 @@
     "name": "Student Forum Website Design",
     "version": "0.1.0",
     "private": true,
+    "main": "electron-main.js",
+    "homepage": "./",
     "dependencies": {
         "@radix-ui/react-accordion": "^1.2.3",
         "@radix-ui/react-alert-dialog": "^1.1.6",
@@ -64,13 +66,22 @@
         "@types/react-dom": "^18.2.11",
         "@types/react-router-dom": "^5.3.3",
         "@vitejs/plugin-react-swc": "^3.10.2",
+        "concurrently": "^9.2.1",
+        "cross-env": "^10.1.0",
+        "electron": "^39.2.7",
+        "electron-builder": "^26.4.0",
+        "electron-is-dev": "^3.0.1",
         "typescript": "^5.3.2",
-        "vite": "6.3.5"
+        "vite": "6.3.5",
+        "wait-on": "^9.0.3"
     },
     "scripts": {
         "dev": "vite",
+        "dev:electron": "cross-env ELECTRON_MODE=true concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
+        "electron": "electron .",
         "build": "vite build",
+        "build:electron": "npm run build && electron-builder",
         "preview": "vite preview",
-        "postinstall": "echo \"Run 'npm run dev' to start the dev server\""
+        "postinstall": "echo \"Run 'npm run dev' to start the dev server or 'npm run dev:electron' for desktop app\""
     }
 }

@@ -37,6 +37,6 @@
     },
     server: {
       port: 3000,
-      open: true,
+      open: !process.env.ELECTRON_MODE,
     },
   });
