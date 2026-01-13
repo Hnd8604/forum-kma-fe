@@ -4,7 +4,6 @@
     "description": "KMA Forum Application",
     "author": "KMA Students",
     "private": true,
-    "main": "electron-main.js",
     "homepage": "./",
     "dependencies": {
         "@radix-ui/react-accordion": "^1.2.3",
@@ -40,6 +39,7 @@
         "class-variance-authority": "^0.7.1",
         "clsx": "*",
         "cmdk": "^1.1.1",
+        "electron-is-dev": "^3.0.1",
         "embla-carousel-react": "^8.6.0",
         "i18next": "^23.0.1",
         "i18next-browser-languagedetector": "^7.0.1",
@@ -60,32 +60,27 @@
         "tailwind-merge": "*",
         "tailwindcss": "^3.4.7",
         "vaul": "^1.1.2",
-        "zustand": "^5.0.8",
-        "electron-is-dev": "^3.0.1"
+        "zustand": "^5.0.8"
     },
     "devDependencies": {
+        "@tauri-apps/api": "^2.2.3",
+        "@tauri-apps/cli": "^2.9.6",
         "@types/node": "^20.10.0",
         "@types/react": "^18.2.28",
         "@types/react-dom": "^18.2.11",
         "@types/react-router-dom": "^5.3.3",
         "@vitejs/plugin-react-swc": "^3.10.2",
-        "concurrently": "^9.2.1",
-        "cross-env": "^10.1.0",
-        "electron": "^39.2.7",
-        "electron-builder": "^26.4.0",
         "typescript": "^5.3.2",
-        "vite": "6.3.5",
-        "wait-on": "^9.0.3"
+        "vite": "6.3.5"
     },
     "scripts": {
         "dev": "vite",
-        "dev:electron": "cross-env ELECTRON_MODE=true concurrently \"npm run dev\" \"wait-on http://localhost:3000 && electron .\"",
-        "electron": "electron .",
+        "dev:tauri": "tauri dev",
         "build": "vite build",
-        "build:electron": "npm run build && electron-builder",
-        "build:msi": "npm run build && electron-builder --win msi",
+        "build:tauri": "tauri build",
+        "build:tauri:windows": "tauri build --target x86_64-pc-windows-msvc",
         "preview": "vite preview",
-        "postinstall": "echo \"Run 'npm run dev' tto start the dev server or 'npm run dev:electron' for desktop app\""
+        "postinstall": "echo \"Run 'npm run dev' to start web dev server or 'npm run dev:tauri' for desktop app\""
     },
     "build": {
         "appId": "com.kma.forum",
@@ -100,15 +95,15 @@
             "target": [
                 {
                     "target": "msi",
-                    "arch": ["x64"]
+                    "arch": [
+                        "x64"
+                    ]
                 }
             ],
             "icon": "assets/icon.ico"
-        },
-        "msi": {
-            "oneClick": false,
-            "createDesktopShortcut": true,
-            "createStartMenuShortcut": true
         }
+    },
+    "engines": {
+        "node": ">=18.0.0"
     }
 }
