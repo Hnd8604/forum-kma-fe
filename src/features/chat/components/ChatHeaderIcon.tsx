@@ -14,6 +14,7 @@ import { AuthService } from '../../auth/services/auth.service';
 import { startChatWithUser } from '../utils/chatActions';
 import { useAuthStore } from '@/store/useStore';
 import type { Conversation } from '@/interfaces/chat.types';
+import { AI_CONVERSATION_ID } from './ConversationList';
 
 interface ChatHeaderIconProps {
   onOpenMiniChat?: (conversation: Conversation) => void;
@@ -75,6 +76,12 @@ export default function ChatHeaderIcon({ onOpenMiniChat: _onOpenMiniChat }: Chat
 
   const handleSelectConversation = async (conversation: Conversation) => {
     setIsOpen(false);
+
+    // Handle AI conversation - open MiniAIChatWindow
+    if (conversation.conversationId === AI_CONVERSATION_ID) {
+      window.dispatchEvent(new CustomEvent('open-mini-ai-chat'));
+      return;
+    }
 
     // Get partner user ID for private chats
     if (conversation.type === 'private') {

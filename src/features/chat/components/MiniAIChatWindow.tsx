@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { chatbotService } from '../../chatbot/services/chatbot.service';
 import type { ChatBotMessage } from '@/interfaces/chatbot.types';
 import AIAvatar from './AIAvatar';
+import TypingMessage from './TypingMessage';
 import { useAuthStore } from '@/store/useStore';
 
 interface MiniAIChatWindowProps {
@@ -26,6 +27,8 @@ export default function MiniAIChatWindow({ onClose, position }: MiniAIChatWindow
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  // Track which message is currently being typed (for typing effect)
+  const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -76,16 +79,20 @@ export default function MiniAIChatWindow({ onClose, position }: MiniAIChatWindow
       });
 
       if (response && response.length > 0) {
-        response.forEach((item, index) => {
-          const botResponse: ChatBotMessage = {
-            id: `${Date.now()}_${index}`,
-            text: item.text,
-            sender: 'bot',
-            timestamp: new Date(),
-            buttons: item.buttons,
-          };
-          setMessages((prev) => [...prev, botResponse]);
-        });
+        // Add all bot responses and start typing animation for the first one
+        const botResponses: ChatBotMessage[] = response.map((item, index) => ({
+          id: `${Date.now()}_${index}`,
+          text: item.text,
+          sender: 'bot' as const,
+          timestamp: new Date(),
+          buttons: item.buttons,
+        }));
+
+        setMessages((prev) => [...prev, ...botResponses]);
+        // Start typing animation for the first bot response
+        if (botResponses.length > 0) {
+          setTypingMessageId(botResponses[0].id);
+        }
       }
     } catch (error) {
       console.error('Error calling chatbot API:', error);
@@ -96,6 +103,7 @@ export default function MiniAIChatWindow({ onClose, position }: MiniAIChatWindow
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botResponse]);
+      setTypingMessageId(botResponse.id);
     } finally {
       setIsLoading(false);
     }
@@ -148,54 +156,63 @@ export default function MiniAIChatWindow({ onClose, position }: MiniAIChatWindow
 
       {/* Messages */}
       <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-gradient-to-b from-purple-50/50 to-white">
-        {messages.map((message) => (
-          <div
-            key={message.id}
-            className={`flex gap-2 items-end ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-          >
-            {message.sender === 'bot' && (
-              <AIAvatar size="sm" className="mb-1" />
-            )}
-            <div className={`flex flex-col ${message.sender === 'user' ? 'items-end' : 'items-start'} max-w-[85%]`}>
-              <div
-                className={`rounded-2xl px-3 py-2 text-sm ${message.sender === 'user'
-                  ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-br-sm'
-                  : 'bg-white text-slate-800 border border-slate-100 shadow-sm rounded-bl-sm'
-                }`}
-              >
-                <p className="whitespace-pre-wrap leading-relaxed">{message.text}</p>
-              </div>
-              {message.buttons && message.buttons.length > 0 && (
-                <div className="flex flex-col gap-1.5 mt-2 w-full">
-                  {message.buttons.map((button, index) => (
-                    <Button
-                      key={index}
-                      variant="outline"
-                      size="sm"
-                      className="w-full justify-start text-left hover:bg-purple-50 border-purple-200 text-purple-600 hover:text-purple-700 rounded-lg text-xs"
-                      onClick={() => {
-                        if (button.type === 'web_url' && button.payload) {
-                          window.open(button.payload, '_blank');
-                        }
-                      }}
-                    >
-                      {button.title}
-                    </Button>
-                  ))}
+        {messages.map((message) => {
+          // Find if this message should be animated (it's the current typing message)
+          const shouldAnimate = message.sender === 'bot' && message.id === typingMessageId;
+
+          // Find the next bot message to animate after this one completes
+          const handleTypingComplete = () => {
+            // Find the next bot message after the current one
+            const currentBotMessages = messages
+              .filter((m) => m.sender === 'bot')
+              .map((m) => m.id);
+            const currentIndex = currentBotMessages.indexOf(message.id);
+            const nextBotMessageId = currentBotMessages[currentIndex + 1];
+
+            if (nextBotMessageId) {
+              setTypingMessageId(nextBotMessageId);
+            } else {
+              setTypingMessageId(null);
+            }
+          };
+
+          return (
+            <div
+              key={message.id}
+              className={`flex gap-2 items-end ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+            >
+              {message.sender === 'bot' && (
+                <AIAvatar size="sm" className="mb-1" />
+              )}
+
+              {message.sender === 'bot' ? (
+                <TypingMessage
+                  message={message}
+                  shouldAnimate={shouldAnimate}
+                  onTypingComplete={handleTypingComplete}
+                  typingSpeed={15}
+                  variant="mini"
+                />
+              ) : (
+                <div className="flex flex-col items-end max-w-[85%]">
+                  <div className="rounded-2xl px-3 py-2 text-sm bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-br-sm">
+                    <p className="whitespace-pre-wrap leading-relaxed">{message.text}</p>
+                  </div>
+                </div>
+              )}
+
+              {message.sender === 'user' && (
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center flex-shrink-0 text-white font-semibold text-xs mb-1 overflow-hidden">
+                  {user?.avatarUrl ? (
+                    <img src={user.avatarUrl} alt="User" className="w-full h-full object-cover" />
+                  ) : (
+                    user?.firstName?.charAt(0).toUpperCase() || 'U'
+                  )}
                 </div>
               )}
             </div>
-            {message.sender === 'user' && (
-              <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center flex-shrink-0 text-white font-semibold text-xs mb-1 overflow-hidden">
-                {user?.avatarUrl ? (
-                  <img src={user.avatarUrl} alt="User" className="w-full h-full object-cover" />
-                ) : (
-                  user?.firstName?.charAt(0).toUpperCase() || 'U'
-                )}
-              </div>
-            )}
-          </div>
-        ))}
+          );
+        })}
 
         {isLoading && (
           <div className="flex gap-2 justify-start items-end">

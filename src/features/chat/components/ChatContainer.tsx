@@ -77,6 +77,19 @@ export default function ChatContainer({ showFriendsList = false }: ChatContainer
         };
     }, [openConversation]);
 
+    // Listen for open-mini-ai-chat event (specifically for AI chat from header dropdown)
+    useEffect(() => {
+        const handleOpenMiniAIChat = () => {
+            setShowAIChat(true);
+        };
+
+        window.addEventListener('open-mini-ai-chat', handleOpenMiniAIChat);
+
+        return () => {
+            window.removeEventListener('open-mini-ai-chat', handleOpenMiniAIChat);
+        };
+    }, []);
+
     return (
         <>
             {/* Friends List - Fixed on right side */}
