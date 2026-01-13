@@ -82,6 +82,6 @@
         "build": "vite build",
         "build:electron": "npm run build && electron-builder",
         "preview": "vite preview",
-        "postinstall": "echo \"Run 'npm run dev' to start the dev server or 'npm run dev:electron' for desktop app\""
+        "postinstall": "echo \"Run 'npm run dev' tto start the dev server or 'npm run dev:electron' for desktop app\""
     }
 }
