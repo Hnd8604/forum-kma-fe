@@ -7,6 +7,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { chatbotService } from '../../chatbot/services/chatbot.service';
 import type { ChatBotMessage } from '@/interfaces/chatbot.types';
 import AIAvatar from './AIAvatar';
+import TypingMessage from './TypingMessage';
 import { useAuthStore } from '@/store/useStore';
 
 interface AIChatWindowProps {
@@ -26,6 +27,8 @@ export default function AIChatWindow({ onBack: _onBack }: AIChatWindowProps) {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  // Track which message is currently being typed (for typing effect)
+  const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -73,16 +76,20 @@ export default function AIChatWindow({ onBack: _onBack }: AIChatWindowProps) {
       });
 
       if (response && response.length > 0) {
-        response.forEach((item, index) => {
-          const botResponse: ChatBotMessage = {
-            id: `${Date.now()}_${index}`,
-            text: item.text,
-            sender: 'bot',
-            timestamp: new Date(),
-            buttons: item.buttons,
-          };
-          setMessages((prev) => [...prev, botResponse]);
-        });
+        // Add all bot responses and start typing animation for the first one
+        const botResponses: ChatBotMessage[] = response.map((item, index) => ({
+          id: `${Date.now()}_${index}`,
+          text: item.text,
+          sender: 'bot' as const,
+          timestamp: new Date(),
+          buttons: item.buttons,
+        }));
+
+        setMessages((prev) => [...prev, ...botResponses]);
+        // Start typing animation for the first bot response
+        if (botResponses.length > 0) {
+          setTypingMessageId(botResponses[0].id);
+        }
       }
     } catch (error) {
       console.error('Error calling chatbot API:', error);
@@ -93,6 +100,7 @@ export default function AIChatWindow({ onBack: _onBack }: AIChatWindowProps) {
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, botResponse]);
+      setTypingMessageId(botResponse.id);
     } finally {
       setIsLoading(false);
     }
@@ -134,56 +142,65 @@ export default function AIChatWindow({ onBack: _onBack }: AIChatWindowProps) {
       {/* Messages */}
       <ScrollArea className="flex-1 p-4 bg-gradient-to-b from-slate-50 to-white overflow-y-auto">
         <div className="flex flex-col gap-4">
-          {messages.map((message) => (
-            <div
-              key={message.id}
-              className={`flex gap-2 items-start ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-            >
-              {message.sender === 'bot' && (
-                <AIAvatar size="sm" />
-              )}
-              <div className={`flex flex-col gap-2 ${message.sender === 'user' ? 'items-end' : 'items-start'} max-w-[80%]`}>
-                <div
-                  className={`rounded-2xl px-4 py-3 shadow-sm ${message.sender === 'user'
-                    ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
-                    : 'bg-white text-slate-800 border border-slate-100'
-                  }`}
-                >
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
-                </div>
-                {message.buttons && message.buttons.length > 0 && (
-                  <div className="flex flex-col gap-2 w-full">
-                    {message.buttons.map((button, index) => (
-                      <Button
-                        key={index}
-                        variant="outline"
-                        className="w-full justify-start text-left hover:bg-purple-50 border-purple-200 text-purple-600 hover:text-purple-700 rounded-xl"
-                        onClick={() => {
-                          if (button.type === 'web_url' && button.payload) {
-                            window.open(button.payload, '_blank');
-                          }
-                        }}
-                      >
-                        {button.title}
-                      </Button>
-                    ))}
+          {messages.map((message) => {
+            // Find if this message should be animated (it's the current typing message)
+            const shouldAnimate = message.sender === 'bot' && message.id === typingMessageId;
+
+            // Find the next bot message to animate after this one completes
+            const handleTypingComplete = () => {
+              // Find the next bot message after the current one
+              const currentBotMessages = messages
+                .filter((m) => m.sender === 'bot')
+                .map((m) => m.id);
+              const currentIndex = currentBotMessages.indexOf(message.id);
+              const nextBotMessageId = currentBotMessages[currentIndex + 1];
+
+              if (nextBotMessageId) {
+                setTypingMessageId(nextBotMessageId);
+              } else {
+                setTypingMessageId(null);
+              }
+            };
+
+            return (
+              <div
+                key={message.id}
+                className={`flex gap-2 items-start ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+              >
+                {message.sender === 'bot' && (
+                  <AIAvatar size="sm" />
+                )}
+
+                {message.sender === 'bot' ? (
+                  <TypingMessage
+                    message={message}
+                    shouldAnimate={shouldAnimate}
+                    onTypingComplete={handleTypingComplete}
+                    typingSpeed={15}
+                  />
+                ) : (
+                  <div className="flex flex-col gap-2 items-end max-w-[80%]">
+                    <div className="rounded-2xl px-4 py-3 shadow-sm bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
+                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
+                    </div>
+                    <span className="text-xs text-slate-400 px-1">
+                      {message.timestamp.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                    </span>
                   </div>
                 )}
-                <span className="text-xs text-slate-400 px-1">
-                  {message.timestamp.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                </span>
+
+                {message.sender === 'user' && (
+                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center flex-shrink-0 text-white font-semibold text-xs shadow-sm overflow-hidden">
+                    {user?.avatarUrl ? (
+                      <img src={user.avatarUrl} alt="User" className="w-full h-full object-cover" />
+                    ) : (
+                      user?.firstName?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase() || 'U'
+                    )}
+                  </div>
+                )}
               </div>
-              {message.sender === 'user' && (
-                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center flex-shrink-0 text-white font-semibold text-xs shadow-sm overflow-hidden">
-                  {user?.avatarUrl ? (
-                    <img src={user.avatarUrl} alt="User" className="w-full h-full object-cover" />
-                  ) : (
-                    user?.firstName?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase() || 'U'
-                  )}
-                </div>
-              )}
-            </div>
-          ))}
+            );
+          })}
 
           {isLoading && (
             <div className="flex gap-2 justify-start items-start">
