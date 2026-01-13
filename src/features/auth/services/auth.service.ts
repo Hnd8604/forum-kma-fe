@@ -13,6 +13,10 @@ export class AuthService {
       try {
         localStorage.setItem('accessToken', response.accessToken);
         localStorage.setItem('refreshToken', response.refreshToken);
+        // Store sessionId for logout
+        if (response.sessionId) {
+          localStorage.setItem('sessionId', response.sessionId);
+        }
 
         // Store user data với đầy đủ thông tin
         const user: User = {
@@ -50,6 +54,10 @@ export class AuthService {
       try {
         localStorage.setItem('accessToken', response.accessToken);
         localStorage.setItem('refreshToken', response.refreshToken);
+        // Store sessionId for logout
+        if ((response as any).sessionId) {
+          localStorage.setItem('sessionId', (response as any).sessionId);
+        }
 
         // Store user data với đầy đủ thông tin
         const user: User = {
@@ -289,15 +297,39 @@ export class AuthService {
   }
 
   /**
-   * Logout user
+   * Logout user - calls API then clears local storage
    */
-  static logout(): void {
+  static async logout(): Promise<void> {
     try {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
+      const sessionId = this.getSessionId();
+      if (sessionId) {
+        // Call logout API with sessionId to invalidate session on backend
+        await ApiService.post('/auth/logout', { sessionId }, true);
+      }
     } catch (error) {
-      console.error('Failed to clear auth data:', error);
+      // Log error but continue with local logout
+      console.error('Failed to call logout API:', error);
+    } finally {
+      // Always clear local storage
+      try {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('refreshToken');
+        localStorage.removeItem('sessionId');
+        localStorage.removeItem('user');
+      } catch (error) {
+        console.error('Failed to clear auth data:', error);
+      }
+    }
+  }
+
+  /**
+   * Get session ID from localStorage
+   */
+  static getSessionId(): string | null {
+    try {
+      return localStorage.getItem('sessionId');
+    } catch {
+      return null;
     }
   }
 
