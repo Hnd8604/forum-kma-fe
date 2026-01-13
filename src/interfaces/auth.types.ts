@@ -24,7 +24,7 @@ export interface AuthData {
   refreshToken: string;
   roleName?: string;
   roleId?: string;
-  userStatus?: 'ACTIVE' | 'INACTIVE' | 'PENDING';
+  userStatus?: 'ACTIVE' | 'PENDING' | 'BANNED';
   is2FAEnabled?: boolean;
   dob?: string;
   gender?: string;
@@ -41,7 +41,7 @@ export interface User {
   roles?: string[];
   banned?: boolean;
   createdAt?: string;
-  userStatus?: 'ACTIVE' | 'INACTIVE' | 'PENDING';
+  userStatus?: 'ACTIVE' | 'PENDING' | 'BANNED';
   is2FAEnabled?: boolean;
   postCount?: number;
   totalPosts?: number;

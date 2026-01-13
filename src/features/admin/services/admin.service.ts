@@ -125,13 +125,14 @@ export class AdminService {
   }
 
   /**
-   * Get all users with pagination
+   * Get all users with pagination and optional status filter
    */
-  static async getAllUsers(page = 0, size = 10): Promise<PaginatedResponse<User>> {
-    const response = await ApiService.get<any>(
-      `${endpoints.ADMIN_ENDPOINTS.GET_ALL_USERS}?page=${page}&size=${size}`,
-      true
-    );
+  static async getAllUsers(page = 0, size = 10, status?: string): Promise<PaginatedResponse<User>> {
+    let url = `${endpoints.ADMIN_ENDPOINTS.GET_ALL_USERS}?page=${page}&size=${size}`;
+    if (status) {
+      url += `&status=${encodeURIComponent(status)}`;
+    }
+    const response = await ApiService.get<any>(url, true);
     // Map the response to transform 'id' to 'userId'
     if (response && response.content) {
       response.content = response.content.map((user: any) => this.mapUserResponse(user));

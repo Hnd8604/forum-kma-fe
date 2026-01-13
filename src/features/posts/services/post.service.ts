@@ -189,6 +189,17 @@ export class PostService {
   //   );
   // }
 
+  /**
+   * Report a post
+   */
+  static async reportPost(postId: string, reason: string, description: string): Promise<void> {
+    return ApiService.post<void>('/posts/reports', {
+      postId,
+      reason,
+      description,
+    }, true);
+  }
+
   /*
   /**
    * Get group pending posts (Admin)

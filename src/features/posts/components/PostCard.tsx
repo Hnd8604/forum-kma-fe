@@ -5,6 +5,7 @@ import {
   MessageSquare,
   MoreHorizontal,
   Trash,
+  Flag,
   Loader2,
 } from 'lucide-react';
 import { ApiPost } from '@/interfaces/post.types';
@@ -77,7 +78,22 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
   const [showModal, setShowModal] = useState(false);
   const [commentCount, setCommentCount] = useState(post.commentCount || 0);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [showReportDialog, setShowReportDialog] = useState(false);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isReporting, setIsReporting] = useState(false);
+  const [reportReason, setReportReason] = useState('SPAM');
+  const [reportDescription, setReportDescription] = useState('');
+
+  const reportReasons = [
+    { value: 'SPAM', label: 'Spam' },
+    { value: 'HARASSMENT', label: 'Quấy rối/Tấn công' },
+    { value: 'OFFENSIVE_CONTENT', label: 'Nội dung xúc phạm' },
+    { value: 'MISINFORMATION', label: 'Thông tin sai lệch' },
+    { value: 'COPYRIGHT', label: 'Vi phạm bản quyền' },
+    { value: 'ADULT_CONTENT', label: 'Nội dung người lớn' },
+    { value: 'VIOLENCE', label: 'Bạo lực' },
+    { value: 'OTHER', label: 'Khác' },
+  ];
 
   // Handle opening modal with URL change
   const openModal = useCallback(() => {
@@ -157,6 +173,27 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
       senderName,
     });
     setCommentCount(prev => prev + 1);
+  };
+
+  const handleReportPost = async () => {
+    if (!reportDescription.trim()) {
+      toast.error('Vui lòng mô tả chi tiết lý do báo cáo');
+      return;
+    }
+
+    if (isReporting) return;
+    setIsReporting(true);
+    try {
+      await PostService.reportPost(post.postId, reportReason, reportDescription);
+      toast.success('Báo cáo đã được gửi. Cảm ơn bạn!');
+      setShowReportDialog(false);
+      setReportDescription('');
+      setReportReason('SPAM');
+    } catch (error) {
+      toast.error('Không thể gửi báo cáo');
+    } finally {
+      setIsReporting(false);
+    }
   };
 
   const getUserInitials = () => {
@@ -254,31 +291,44 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
             Bình luận
           </Button>
 
-          {canDelete && (
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-10 w-10 text-slate-500 hover:bg-slate-50 rounded-full ml-1 transition-all"
-                >
-                  <MoreHorizontal className="w-5 h-5" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="bg-white dark:bg-slate-900">
-                <DropdownMenuItem
-                  className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
-                  onClick={(e: React.MouseEvent) => {
-                    e.stopPropagation();
-                    setShowDeleteDialog(true);
-                  }}
-                >
-                  <Trash className="w-4 h-4 mr-2" />
-                  Xóa bài viết
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          )}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-10 w-10 text-slate-500 hover:bg-slate-50 rounded-full ml-1 transition-all"
+              >
+                <MoreHorizontal className="w-5 h-5" />
+              </Button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="bg-white dark:bg-slate-900">
+              <DropdownMenuItem
+                className="text-slate-700 focus:text-slate-700 focus:bg-slate-50 cursor-pointer"
+                onClick={(e: React.MouseEvent) => {
+                  e.stopPropagation();
+                  setShowReportDialog(true);
+                }}
+              >
+                <Flag className="w-4 h-4 mr-2" />
+                Báo cáo bài viết
+              </DropdownMenuItem>
+              {canDelete && (
+                <>
+                  <hr className="my-1" />
+                  <DropdownMenuItem
+                    className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
+                    onClick={(e: React.MouseEvent) => {
+                      e.stopPropagation();
+                      setShowDeleteDialog(true);
+                    }}
+                  >
+                    <Trash className="w-4 h-4 mr-2" />
+                    Xóa bài viết
+                  </DropdownMenuItem>
+                </>
+              )}
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </div>
 
@@ -326,6 +376,66 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
                 </>
               ) : (
                 'Xóa bài viết'
+              )}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Report Dialog */}
+      <AlertDialog open={showReportDialog} onOpenChange={setShowReportDialog}>
+        <AlertDialogContent className="bg-white dark:bg-slate-900 max-w-md">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Báo cáo bài viết</AlertDialogTitle>
+            <AlertDialogDescription>
+              Vui lòng cho biết lý do bạn muốn báo cáo bài viết này
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-4 py-4">
+            {/* Reason Dropdown */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">Lý do báo cáo</label>
+              <select
+                value={reportReason}
+                onChange={(e) => setReportReason(e.target.value)}
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {reportReasons.map((reason) => (
+                  <option key={reason.value} value={reason.value}>
+                    {reason.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+            {/* Description */}
+            <div className="space-y-2">
+              <label className="text-sm font-medium text-slate-700">Mô tả chi tiết</label>
+              <textarea
+                value={reportDescription}
+                onChange={(e) => setReportDescription(e.target.value)}
+                placeholder="Vui lòng mô tả chi tiết vấn đề..."
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                rows={4}
+              />
+            </div>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isReporting}>Hủy</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={(e: React.MouseEvent) => {
+                e.preventDefault();
+                handleReportPost();
+              }}
+              disabled={isReporting || !reportDescription.trim()}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {isReporting ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Đang gửi...
+                </>
+              ) : (
+                'Gửi báo cáo'
               )}
             </AlertDialogAction>
           </AlertDialogFooter>

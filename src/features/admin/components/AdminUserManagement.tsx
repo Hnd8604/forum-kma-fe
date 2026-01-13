@@ -46,6 +46,7 @@ export default function AdminUserManagement() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('');
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
@@ -57,14 +58,14 @@ export default function AdminUserManagement() {
   const pageSize = 10;
   const debouncedSearchRef = useRef<(query: string, pageNum: number) => void>();
 
-  const fetchUsers = useCallback(async (currentPage: number = 0, searchTerm: string = '') => {
+  const fetchUsers = useCallback(async (currentPage: number = 0, searchTerm: string = '', status: string = '') => {
     setLoading(true);
     try {
       let response: PaginatedResponse<User>;
       if (searchTerm.trim()) {
         response = await AdminService.searchUsers(searchTerm, currentPage, pageSize);
       } else {
-        response = await AdminService.getAllUsers(currentPage, pageSize);
+        response = await AdminService.getAllUsers(currentPage, pageSize, status || undefined);
       }
       setUsers(response.content || []);
       setTotalPages(response.totalPages || 0);
@@ -84,23 +85,28 @@ export default function AdminUserManagement() {
   // Initialize debounced search function
   useEffect(() => {
     debouncedSearchRef.current = debounce((query: string, pageNum: number) => {
-      fetchUsers(pageNum, query);
+      fetchUsers(pageNum, query, statusFilter);
     }, 300); // 300ms delay
-  }, [fetchUsers]);
+  }, [fetchUsers, statusFilter]);
 
   // Fetch users when page changes
   useEffect(() => {
     if (searchQuery.trim()) {
       debouncedSearchRef.current?.(searchQuery, page);
     } else {
-      fetchUsers(page, '');
+      fetchUsers(page, '', statusFilter);
     }
-  }, [page, searchQuery, fetchUsers]);
+  }, [page, searchQuery, statusFilter, fetchUsers]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const query = e.target.value;
     setSearchQuery(query);
     setPage(0); // Reset to first page when search query changes
+  };
+
+  const handleStatusFilterChange = (status: string) => {
+    setStatusFilter(status);
+    setPage(0); // Reset to first page when filter changes
   };
 
   const handleAction = async () => {
@@ -151,8 +157,8 @@ export default function AdminUserManagement() {
   };
 
   const getStatusBadge = (user: User) => {
-    if (user.banned || user.userStatus === 'INACTIVE') {
-      return <Badge variant="destructive" className="font-normal">Bị cấm</Badge>;
+    if (user.banned || user.userStatus === 'BANNED') {
+      return <Badge className="bg-red-600 text-white font-normal hover:bg-red-700">Bị cấm</Badge>;
     }
     if (user.userStatus === 'PENDING') {
       return <Badge variant="secondary" className="bg-amber-50 text-amber-700 border-amber-200 font-normal">Chờ xác thực</Badge>;
@@ -199,7 +205,7 @@ export default function AdminUserManagement() {
       {/* Search */}
       <Card className="border-slate-200">
         <CardContent className="p-4">
-          <div className="flex gap-3">
+          <div className="flex gap-3 mb-3">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <Input
@@ -221,6 +227,42 @@ export default function AdminUserManagement() {
                 Xóa bộ lọc
               </Button>
             )}
+          </div>
+
+          {/* Status Filter */}
+          <div className="flex gap-2 flex-wrap">
+            <Button
+              variant={statusFilter === '' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleStatusFilterChange('')}
+              className={statusFilter === '' ? 'bg-blue-500 hover:bg-blue-600' : 'border-slate-300'}
+            >
+              Tất cả
+            </Button>
+            <Button
+              variant={statusFilter === 'ACTIVE' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleStatusFilterChange('ACTIVE')}
+              className={statusFilter === 'ACTIVE' ? 'bg-emerald-500 hover:bg-emerald-600' : 'border-slate-300'}
+            >
+              Hoạt động
+            </Button>
+            <Button
+              variant={statusFilter === 'PENDING' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleStatusFilterChange('PENDING')}
+              className={statusFilter === 'PENDING' ? 'bg-amber-500 hover:bg-amber-600' : 'border-slate-300'}
+            >
+              Chờ xác thực
+            </Button>
+            <Button
+              variant={statusFilter === 'BANNED' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => handleStatusFilterChange('BANNED')}
+              className={statusFilter === 'BANNED' ? 'bg-red-500 hover:bg-red-600' : 'border-slate-300'}
+            >
+              Bị cấm
+            </Button>
           </div>
         </CardContent>
       </Card>
@@ -288,7 +330,7 @@ export default function AdminUserManagement() {
                         >
                           <Eye className="h-4 w-4 text-slate-600" />
                         </Button>
-                        {user.banned || user.userStatus === 'INACTIVE' ? (
+                        {user.banned || user.userStatus === 'BANNED' ? (
                           <Button
                             variant="ghost"
                             size="icon"
