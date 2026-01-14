@@ -29,6 +29,7 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [totalCommentCount, setTotalCommentCount] = useState(0);
 
   // Selected files for upload
   const [selectedFiles, setSelectedFiles] = useState<SelectedFile[]>([]);
@@ -39,6 +40,48 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
   const docInputRef = useRef<HTMLInputElement>(null);
 
   const currentUser = useAuthStore((s) => s.user);
+
+  // Helper function to calculate total comment count including all nested replies
+  const calculateTotalCommentsWithNestedReplies = async (commentList: Comment[]): Promise<number> => {
+    let totalCount = 0;
+
+    // Recursive function to count replies at any depth
+    const countRepliesRecursively = async (replies: Comment[]): Promise<number> => {
+      let count = 0;
+      for (const reply of replies) {
+        count += 1; // Count this reply
+
+        if ((reply.replyCount ?? 0) > 0) {
+          try {
+            // Fetch nested replies
+            const nestedReplies = await CommentService.getRepliesByCommentId(reply.commentId);
+            count += await countRepliesRecursively(nestedReplies);
+          } catch (err) {
+            // Fallback to replyCount if fetch fails
+            count += reply.replyCount ?? 0;
+          }
+        }
+      }
+      return count;
+    };
+
+    for (const comment of commentList) {
+      totalCount += 1; // Count the comment itself
+
+      if ((comment.replyCount ?? 0) > 0) {
+        try {
+          // Fetch replies to get accurate nested count
+          const replies = await CommentService.getRepliesByCommentId(comment.commentId);
+          totalCount += await countRepliesRecursively(replies);
+        } catch (err) {
+          // Fallback to replyCount if fetch fails
+          totalCount += comment.replyCount ?? 0;
+        }
+      }
+    }
+
+    return totalCount;
+  };
 
   // Cleanup previews on unmount
   useEffect(() => {
@@ -75,7 +118,11 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
       } else {
         setComments(commentsWithReactions);
         if (pageNum === 0) {
-          onCommentCountChange?.(commentsWithReactions.length);
+          // Calculate total comments including all nested replies
+          calculateTotalCommentsWithNestedReplies(commentsWithReactions).then(totalCount => {
+            setTotalCommentCount(totalCount);
+            onCommentCountChange?.(totalCount);
+          });
         }
       }
 
@@ -190,11 +237,16 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
           ...created,
           authorName,
           authorAvatarUrl,
-          myReaction: null
+          myReaction: null,
+          replyCount: 0
         }, ...prev];
-        onCommentCountChange?.(newComments.length);
         return newComments;
       });
+
+      // Increment total count by 1 for the new comment
+      const newCount = totalCommentCount + 1;
+      setTotalCommentCount(newCount);
+      onCommentCountChange?.(newCount);
 
       setNewComment('');
       clearFiles();
@@ -210,11 +262,17 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
   const handleDeleteComment = async (commentId: string) => {
     try {
       await CommentService.deleteComment(commentId);
-      setComments((prev) => {
-        const newComments = prev.filter((c) => c.commentId !== commentId);
-        onCommentCountChange?.(newComments.length);
-        return newComments;
-      });
+
+      // Find the comment to get its replyCount before removing
+      const deletedComment = comments.find((c) => c.commentId === commentId);
+      const deletedRepliesCount = deletedComment?.replyCount || 0;
+
+      setComments((prev) => prev.filter((c) => c.commentId !== commentId));
+
+      // Decrement total count (comment + all its replies)
+      const newCount = Math.max(totalCommentCount - 1 - deletedRepliesCount, 0);
+      setTotalCommentCount(newCount);
+      onCommentCountChange?.(newCount);
     } catch (err) {
       console.error('Failed to delete comment:', err);
     }
@@ -239,6 +297,38 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
           : c
       )
     );
+  };
+
+  // Handle when a reply is added to a comment (at any depth)
+  const handleReplyAdded = (parentCommentId: string, _content: string) => {
+    // Update parent comment's replyCount for UI display
+    setComments((prev) =>
+      prev.map((c) =>
+        c.commentId === parentCommentId
+          ? { ...c, replyCount: (c.replyCount || 0) + 1 }
+          : c
+      )
+    );
+    // Increment total count by 1 (for the new reply)
+    const newCount = totalCommentCount + 1;
+    setTotalCommentCount(newCount);
+    onCommentCountChange?.(newCount);
+  };
+
+  // Handle when a reply is deleted from a comment (at any depth)
+  const handleReplyDeleted = (parentCommentId: string) => {
+    // Update parent comment's replyCount for UI display
+    setComments((prev) =>
+      prev.map((c) =>
+        c.commentId === parentCommentId
+          ? { ...c, replyCount: Math.max((c.replyCount || 0) - 1, 0) }
+          : c
+      )
+    );
+    // Decrement total count by 1
+    const newCount = Math.max(totalCommentCount - 1, 0);
+    setTotalCommentCount(newCount);
+    onCommentCountChange?.(newCount);
   };
 
   if (!isOpen) return null;
@@ -496,6 +586,8 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
                 onDelete={handleDeleteComment}
                 onUpdate={handleUpdateComment}
                 onReactionChange={handleReactionChange}
+                onReply={handleReplyAdded}
+                onReplyDeleted={handleReplyDeleted}
               />
             ))}
 

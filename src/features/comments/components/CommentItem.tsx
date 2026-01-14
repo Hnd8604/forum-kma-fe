@@ -35,6 +35,7 @@ interface CommentItemProps {
   onUpdate: (commentId: string, content: string) => void;
   onReactionChange: (commentId: string, newCount: number, myReaction: ReactionType | null) => void;
   onReply?: (parentCommentId: string, content: string) => void;
+  onReplyDeleted?: (parentCommentId: string) => void;
   depth?: number;
 }
 
@@ -45,6 +46,7 @@ export default function CommentItem({
   onUpdate,
   onReactionChange,
   onReply,
+  onReplyDeleted,
   depth = 0,
 }: CommentItemProps) {
   const [showActions, setShowActions] = useState(false);
@@ -271,6 +273,8 @@ export default function CommentItem({
         authorAvatarUrl: replyAuthorAvatarUrl,
         myReaction: null
       }]);
+      // Update cached reply count
+      setCachedTotalReplies((prev) => (prev ?? 0) + 1);
       setReplyContent('');
       clearReplyFiles();
       setShowReplyInput(false);
@@ -287,6 +291,10 @@ export default function CommentItem({
 
   const handleDeleteReply = (replyId: string) => {
     setReplies((prev) => prev.filter((r) => r.commentId !== replyId));
+    // Update cached reply count
+    setCachedTotalReplies((prev) => Math.max((prev ?? 1) - 1, 0));
+    // Notify parent that a reply was deleted
+    onReplyDeleted?.(comment.commentId);
   };
 
   const handleUpdateReply = (replyId: string, content: string) => {

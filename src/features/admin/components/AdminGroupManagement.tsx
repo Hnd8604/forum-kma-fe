@@ -47,39 +47,12 @@ export default function AdminGroupManagement() {
   const [page, setPage] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
   const [totalElements, setTotalElements] = useState(0);
-  const [postCounts, setPostCounts] = useState<Record<string, number>>({});
-  const [loadingPostCounts, setLoadingPostCounts] = useState(false);
 
   const [selectedGroup, setSelectedGroup] = useState<AdminGroup | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const pageSize = 10;
-
-  const fetchPostCounts = useCallback(async (groupList: AdminGroup[]) => {
-    setLoadingPostCounts(true);
-    const counts: Record<string, number> = {};
-
-    try {
-      // Fetch post counts for all groups in parallel
-      await Promise.all(
-        groupList.map(async (group) => {
-          try {
-            const response = await AdminService.getPostsByGroup(group.id, 0, 1);
-            counts[group.id] = response.totalElements || 0;
-          } catch (err) {
-            console.error(`Failed to fetch post count for group ${group.id}:`, err);
-            counts[group.id] = 0;
-          }
-        })
-      );
-      setPostCounts(counts);
-    } catch (error) {
-      console.error('Failed to fetch post counts:', error);
-    } finally {
-      setLoadingPostCounts(false);
-    }
-  }, []);
 
   const fetchGroups = useCallback(async () => {
     setLoading(true);
@@ -89,11 +62,6 @@ export default function AdminGroupManagement() {
       setGroups(groupList);
       setTotalPages(response.totalPages || 0);
       setTotalElements(response.totalElements || 0);
-
-      // Fetch post counts after loading groups
-      if (groupList.length > 0) {
-        fetchPostCounts(groupList);
-      }
     } catch (error) {
       console.error('Failed to fetch groups:', error);
       toast({
@@ -104,7 +72,7 @@ export default function AdminGroupManagement() {
     } finally {
       setLoading(false);
     }
-  }, [page, toast, fetchPostCounts]);
+  }, [page, toast]);
 
   useEffect(() => {
     fetchGroups();
@@ -256,11 +224,7 @@ export default function AdminGroupManagement() {
                     <TableCell>
                       <div className="flex items-center gap-1.5 text-sm text-slate-600">
                         <FileText className="h-4 w-4 text-slate-400" />
-                        {loadingPostCounts ? (
-                          <Loader2 className="h-3 w-3 animate-spin text-slate-400" />
-                        ) : (
-                          postCounts[group.id] ?? 0
-                        )}
+                        {group.postCount ?? 0}
                       </div>
                     </TableCell>
                     <TableCell>{getVisibilityBadge(group.visibility)}</TableCell>

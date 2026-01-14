@@ -124,6 +124,7 @@ export interface Group {
   privacy?: GroupPrivacy;  // For /groups endpoint
   visibility?: 'PUBLIC' | 'PRIVATE';  // For /groups/my-groups endpoint
   memberCount: number;
+  postCount?: number;      // Number of posts in the group
   createdBy?: string;
   ownerId?: string;        // For /groups/my-groups endpoint
   createdAt: string;
