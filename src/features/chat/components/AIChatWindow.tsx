@@ -9,6 +9,7 @@ import type { ChatBotMessage } from '@/interfaces/chatbot.types';
 import AIAvatar from './AIAvatar';
 import TypingMessage from './TypingMessage';
 import { useAuthStore } from '@/store/useStore';
+import SuggestionCards from '../../chatbot/components/SuggestionCards';
 
 interface AIChatWindowProps {
   onBack?: () => void;
@@ -17,18 +18,13 @@ interface AIChatWindowProps {
 export default function AIChatWindow({ onBack: _onBack }: AIChatWindowProps) {
   const user = useAuthStore((s) => s.user);
   const [senderId] = useState(() => `user_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`);
-  const [messages, setMessages] = useState<ChatBotMessage[]>([
-    {
-      id: '1',
-      text: 'Chào bạn, mình là Trợ lý AI của KMA! 🎓\n\nMình có thể giúp bạn giải đáp các vấn đề về học tập tại KMA như:\n• Lịch học, lịch thi\n• Điểm số và kết quả học tập\n• Quy định đào tạo\n• Hoạt động sinh viên\n\nBạn cần hỗ trợ gì nhé?',
-      sender: 'bot',
-      timestamp: new Date(),
-    },
-  ]);
+  const [messages, setMessages] = useState<ChatBotMessage[]>([]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   // Track which message is currently being typed (for typing effect)
   const [typingMessageId, setTypingMessageId] = useState<string | null>(null);
+  // Show suggestion cards when no user messages yet
+  const [showSuggestions, setShowSuggestions] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -43,15 +39,16 @@ export default function AIChatWindow({ onBack: _onBack }: AIChatWindowProps) {
   }, [messages, isLoading]);
 
   const handleReset = useCallback(() => {
-    setMessages([
-      {
-        id: '1',
-        text: 'Chào bạn, mình là Trợ lý AI của KMA! 🎓\n\nMình có thể giúp bạn giải đáp các vấn đề về học tập tại KMA như:\n• Lịch học, lịch thi\n• Điểm số và kết quả học tập\n• Quy định đào tạo\n• Hoạt động sinh viên\n\nBạn cần hỗ trợ gì nhé?',
-        sender: 'bot',
-        timestamp: new Date(),
-      },
-    ]);
+    setMessages([]);
     setInputValue('');
+    setShowSuggestions(true);
+  }, []);
+
+  // Handle when user selects a suggestion
+  const handleSelectSuggestion = useCallback((text: string) => {
+    setInputValue(text);
+    setShowSuggestions(false);
+    inputRef.current?.focus();
   }, []);
 
   const handleSendMessage = async () => {
@@ -139,84 +136,89 @@ export default function AIChatWindow({ onBack: _onBack }: AIChatWindowProps) {
         </Button>
       </div>
 
-      {/* Messages */}
+      {/* Messages / Suggestions */}
       <ScrollArea className="flex-1 p-4 bg-gradient-to-b from-slate-50 to-white overflow-y-auto">
-        <div className="flex flex-col gap-4">
-          {messages.map((message) => {
-            // Find if this message should be animated (it's the current typing message)
-            const shouldAnimate = message.sender === 'bot' && message.id === typingMessageId;
+        {/* Show suggestions when no messages */}
+        {showSuggestions && messages.length === 0 ? (
+          <SuggestionCards onSelectSuggestion={handleSelectSuggestion} count={4} />
+        ) : (
+          <div className="flex flex-col gap-4">
+            {messages.map((message) => {
+              // Find if this message should be animated (it's the current typing message)
+              const shouldAnimate = message.sender === 'bot' && message.id === typingMessageId;
 
-            // Find the next bot message to animate after this one completes
-            const handleTypingComplete = () => {
-              // Find the next bot message after the current one
-              const currentBotMessages = messages
-                .filter((m) => m.sender === 'bot')
-                .map((m) => m.id);
-              const currentIndex = currentBotMessages.indexOf(message.id);
-              const nextBotMessageId = currentBotMessages[currentIndex + 1];
+              // Find the next bot message to animate after this one completes
+              const handleTypingComplete = () => {
+                // Find the next bot message after the current one
+                const currentBotMessages = messages
+                  .filter((m) => m.sender === 'bot')
+                  .map((m) => m.id);
+                const currentIndex = currentBotMessages.indexOf(message.id);
+                const nextBotMessageId = currentBotMessages[currentIndex + 1];
 
-              if (nextBotMessageId) {
-                setTypingMessageId(nextBotMessageId);
-              } else {
-                setTypingMessageId(null);
-              }
-            };
+                if (nextBotMessageId) {
+                  setTypingMessageId(nextBotMessageId);
+                } else {
+                  setTypingMessageId(null);
+                }
+              };
 
-            return (
-              <div
-                key={message.id}
-                className={`flex gap-2 items-start ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
-              >
-                {message.sender === 'bot' && (
-                  <AIAvatar size="sm" />
-                )}
+              return (
+                <div
+                  key={message.id}
+                  className={`flex gap-2 items-start ${message.sender === 'user' ? 'justify-end' : 'justify-start'}`}
+                >
+                  {message.sender === 'bot' && (
+                    <AIAvatar size="sm" />
+                  )}
 
-                {message.sender === 'bot' ? (
-                  <TypingMessage
-                    message={message}
-                    shouldAnimate={shouldAnimate}
-                    onTypingComplete={handleTypingComplete}
-                    typingSpeed={15}
-                  />
-                ) : (
-                  <div className="flex flex-col gap-2 items-end max-w-[80%]">
-                    <div className="rounded-2xl px-4 py-3 shadow-sm bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
+                  {message.sender === 'bot' ? (
+                    <TypingMessage
+                      message={message}
+                      shouldAnimate={shouldAnimate}
+                      onTypingComplete={handleTypingComplete}
+                      typingSpeed={15}
+                    />
+                  ) : (
+                    <div className="flex flex-col gap-2 items-end max-w-[80%]">
+                      <div className="rounded-2xl px-4 py-3 shadow-sm bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
+                        <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
+                      </div>
+                      <span className="text-xs text-slate-400 px-1">
+                        {message.timestamp.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
+                      </span>
                     </div>
-                    <span className="text-xs text-slate-400 px-1">
-                      {message.timestamp.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' })}
-                    </span>
-                  </div>
-                )}
+                  )}
 
-                {message.sender === 'user' && (
-                  <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center flex-shrink-0 text-white font-semibold text-xs shadow-sm overflow-hidden">
-                    {user?.avatarUrl ? (
-                      <img src={user.avatarUrl} alt="User" className="w-full h-full object-cover" />
-                    ) : (
-                      user?.firstName?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase() || 'U'
-                    )}
-                  </div>
-                )}
-              </div>
-            );
-          })}
+                  {message.sender === 'user' && (
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center flex-shrink-0 text-white font-semibold text-xs shadow-sm overflow-hidden">
+                      {user?.avatarUrl ? (
+                        <img src={user.avatarUrl} alt="User" className="w-full h-full object-cover" />
+                      ) : (
+                        user?.firstName?.charAt(0).toUpperCase() || user?.username?.charAt(0).toUpperCase() || 'U'
+                      )}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
 
-          {isLoading && (
-            <div className="flex gap-2 justify-start items-start">
-              <AIAvatar size="sm" />
-              <div className="bg-white border border-slate-100 rounded-2xl px-4 py-3 shadow-sm">
-                <div className="flex gap-1">
-                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+            {isLoading && (
+              <div className="flex gap-2 justify-start items-start">
+                <AIAvatar size="sm" />
+                <div className="bg-white border border-slate-100 rounded-2xl px-4 py-3 shadow-sm">
+                  <div className="flex gap-1">
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          <div ref={messagesEndRef} />
-        </div>
+            <div ref={messagesEndRef} />
+          </div>
+        )}
       </ScrollArea>
 
       {/* Input */}
