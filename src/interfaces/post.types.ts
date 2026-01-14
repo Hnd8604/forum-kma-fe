@@ -156,6 +156,7 @@ export interface GroupMember {
   userId: string;
   userName: string;
   userEmail?: string;
+  avatarUrl?: string;  // User's avatar URL from backend
   role: MemberRole;
   joinedAt: string;
 }

@@ -5,6 +5,7 @@ import {
   UserMinus, UserPlus, Globe, Lock, Edit2, Trash2, X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { GroupService } from '@/features/groups/services/group.service';
 import { PostService } from '@/features/posts/services/post.service';
 import { PostCard, CreatePost } from '@/features/posts';
@@ -430,9 +431,16 @@ export default function GroupPage() {
               {members.map((member) => (
                 <div key={member.id} className="p-4 flex items-center justify-between hover:bg-slate-50 transition-colors">
                   <div className="flex items-center gap-3">
-                    <div className="w-10 h-10 bg-gradient-to-br from-blue-400 to-indigo-500 rounded-full flex items-center justify-center text-white font-medium">
-                      {member.userName?.[0]?.toUpperCase() || 'U'}
-                    </div>
+                    <Avatar className="h-12 w-12 ring-2 ring-white shadow-md">
+                      <AvatarImage 
+                        src={member.avatarUrl} 
+                        alt={member.userName} 
+                        className="object-cover"
+                      />
+                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-semibold text-sm">
+                        {member.userName?.[0]?.toUpperCase() || 'U'}
+                      </AvatarFallback>
+                    </Avatar>
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-medium text-slate-900">{member.userName}</span>
