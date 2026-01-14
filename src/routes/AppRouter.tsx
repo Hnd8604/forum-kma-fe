@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { createHashRouter, RouterProvider, Navigate, useNavigate } from 'react-router-dom';
+import { createBrowserRouter, RouterProvider, Navigate, useNavigate } from 'react-router-dom';
 import LoginPage from '@/features/auth/components/LoginPage';
 import RegisterPage from '@/features/auth/components/RegisterPage';
 import SettingsPage from '@/features/auth/components/SettingsPage';
@@ -246,7 +246,7 @@ export default function AppRouter() {
         initAuth();
     }, [initAuth]);
 
-    const router = createHashRouter(
+    const router = createBrowserRouter(
         [
             { path: '/', element: <Navigate to="/login" replace /> },
             { path: '/login', element: <LoginWrapper /> },

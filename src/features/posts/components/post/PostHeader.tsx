@@ -30,26 +30,36 @@ export default function PostHeader({
     postType,
     resourceUrls,
 }: PostHeaderProps) {
-    // Determine media type based on resourceUrls content
+    // Determine media type based on postType and resourceUrls content
     const getMediaTypeInfo = () => {
-        if (postType !== 'IMAGE') {
+        // Handle VIDEO type
+        if (postType === 'VIDEO') {
+            return { icon: <Film className="w-3 h-3" />, label: 'Video' };
+        }
+
+        // Handle DOC type
+        if (postType === 'DOC') {
             return { icon: <FileText className="w-3 h-3" />, label: 'Tài liệu' };
         }
 
-        // Check if any resource is a video
-        const hasVideo = resourceUrls?.some(url => isVideoUrl(url)) ?? false;
-        const hasImage = resourceUrls?.some(url => !isVideoUrl(url)) ?? false;
+        // Handle IMAGE type - check if mixed content
+        if (postType === 'IMAGE') {
+            const hasVideo = resourceUrls?.some(url => isVideoUrl(url)) ?? false;
+            const hasImage = resourceUrls?.some(url => !isVideoUrl(url)) ?? false;
 
-        if (hasVideo && hasImage) {
-            return {
-                icon: <><ImageIcon className="w-3 h-3" /><Film className="w-3 h-3 -ml-1" /></>,
-                label: 'Ảnh/Video'
-            };
+            if (hasVideo && hasImage) {
+                return {
+                    icon: <><ImageIcon className="w-3 h-3" /><Film className="w-3 h-3 -ml-1" /></>,
+                    label: 'Ảnh/Video'
+                };
+            }
+            if (hasVideo) {
+                return { icon: <Film className="w-3 h-3" />, label: 'Video' };
+            }
+            return { icon: <ImageIcon className="w-3 h-3" />, label: 'Hình ảnh' };
         }
-        if (hasVideo) {
-            return { icon: <Film className="w-3 h-3" />, label: 'Video' };
-        }
-        return { icon: <ImageIcon className="w-3 h-3" />, label: 'Hình ảnh' };
+
+        return null;
     };
 
     const mediaInfo = postType !== 'TEXT' ? getMediaTypeInfo() : null;

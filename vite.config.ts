@@ -5,7 +5,7 @@ import path from 'path';
 
 export default defineConfig({
   plugins: [react()],
-  base: './',
+  base: '/',
   resolve: {
     extensions: ['.js', '.jsx', '.ts', '.tsx', '.json'],
     alias: {
@@ -40,5 +40,6 @@ export default defineConfig({
     port: 3000,
     host: '0.0.0.0',
     open: true,
+    historyApiFallback: true,
   },
 });
