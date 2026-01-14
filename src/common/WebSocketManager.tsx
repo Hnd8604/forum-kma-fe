@@ -1,29 +1,90 @@
 import { useAuthStore } from '@/store/useStore';
 import { useWebSocket } from '@/features/chat/hooks/useWebSocket';
-import { useNotificationWebSocket } from '@/features/notifications/hooks/useNotificationWebSocket';
 
-interface WebSocketMessage {
+interface ChatMessageEvent {
+    type: 'MESSAGE' | 'DELETED';
+    messageId: string;
     chatId: string;
     senderId: string;
     receiverId: string | null;
     participantIds: string[] | null;
     message: string;
+    messageType: string;
     sentAt: string;
+    resourceUrls?: string[];
+    isDeleted?: boolean;
+}
+
+interface NotificationEvent {
+    id: string;
+    userId: string;
+    senderId?: string;
+    senderName?: string;
+    type: 'POST' | 'LIKE_POST' | 'LIKE_COMMENT' | 'COMMENT' | 'CHAT' | 'MENTION' | 'ADMIN';
+    title: string;
+    content: string;
+    postId?: string;
+    commentId?: string;
+    groupId?: string;
+    referenceId?: string;
+    isRead: boolean;
+    createdAt: string | number[];
 }
 
 /**
- * WebSocketManager - Manages global WebSocket connections
- * - Auto-connects when user is authenticated
- * - Handles incoming chat messages
- * - Handles incoming notifications
- * - Dispatches events for real-time updates
+ * WebSocketManager - Manages global WebSocket connection
+ * 
+ * Architecture:
+ * - There's only ONE WebSocket connection to chat-service (port 8090)
+ * - This WebSocket receives BOTH:
+ *   1. Chat messages (type: "MESSAGE" or "DELETED")
+ *   2. Notifications (type: "POST", "LIKE_POST", etc.)
+ * 
+ * The handler distinguishes message types and dispatches to correct event handlers.
  */
 export default function WebSocketManager() {
     const user = useAuthStore((s) => s.user);
 
-    // Chat message handler
-    const handleChatMessage = (data: WebSocketMessage) => {
-        // Dispatch event for own messages
+    /**
+     * Unified message handler for all WebSocket messages
+     * Routes messages to correct handler based on 'type' field
+     */
+    const handleWebSocketMessage = (data: ChatMessageEvent | NotificationEvent | any) => {
+        console.log('[WebSocketManager] Received message:', data);
+
+        // Check message type to route correctly
+        // Chat messages have type: "MESSAGE" or "DELETED"
+        // Notifications have type: "POST", "LIKE_POST", "LIKE_COMMENT", "COMMENT", "CHAT", "MENTION", "ADMIN"
+
+        if (data.type === 'MESSAGE' || data.type === 'DELETED') {
+            // This is a chat message
+            handleChatMessage(data as ChatMessageEvent);
+        } else if (data.type && ['POST', 'LIKE_POST', 'LIKE_COMMENT', 'COMMENT', 'CHAT', 'MENTION', 'ADMIN'].includes(data.type)) {
+            // This is a notification
+            handleNotification(data as NotificationEvent);
+        } else if (data.chatId && data.senderId) {
+            // Fallback: If no type but has chatId and senderId, treat as chat message
+            // This handles legacy format
+            handleChatMessage(data as ChatMessageEvent);
+        } else {
+            // Unknown message format, log for debugging
+            console.warn('[WebSocketManager] Unknown message format:', data);
+        }
+    };
+
+    /**
+     * Handle chat messages
+     */
+    const handleChatMessage = (data: ChatMessageEvent) => {
+        console.log('[WebSocketManager] Handling chat message:', data);
+
+        // Handle deleted message event
+        if (data.type === 'DELETED' || data.isDeleted) {
+            window.dispatchEvent(new CustomEvent('chat-message-deleted', { detail: data }));
+            return;
+        }
+
+        // Dispatch event for own messages (echo from server)
         if (data.senderId === user?.userId) {
             window.dispatchEvent(new CustomEvent('chat-message-sent', { detail: data }));
             return;
@@ -33,8 +94,12 @@ export default function WebSocketManager() {
         window.dispatchEvent(new CustomEvent('chat-message-received', { detail: data }));
     };
 
-    // Notification handler
-    const handleNotification = (data: any) => {
+    /**
+     * Handle notifications (post likes, comments, etc.)
+     */
+    const handleNotification = (data: NotificationEvent) => {
+        console.log('[WebSocketManager] Handling notification:', data);
+
         // Dispatch event for new notification
         window.dispatchEvent(new CustomEvent('notification-received', { detail: data }));
 
@@ -42,21 +107,16 @@ export default function WebSocketManager() {
         window.dispatchEvent(new CustomEvent('notification-unread-count-changed', { detail: data }));
     };
 
-    // Initialize Chat WebSocket connection
+    // Initialize unified WebSocket connection (port 8090)
+    // This receives both chat messages and notifications
     useWebSocket({
         userId: user?.userId || '',
         token: localStorage.getItem('accessToken') || '',
-        onMessage: handleChatMessage,
-        autoConnect: !!user?.userId,
-    });
-
-    // Initialize Notification WebSocket connection
-    useNotificationWebSocket({
-        userId: user?.userId || '',
-        onNotification: handleNotification,
+        onMessage: handleWebSocketMessage, // Use unified handler
         autoConnect: !!user?.userId,
     });
 
     return null;
 }
+
 

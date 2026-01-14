@@ -38,11 +38,13 @@ export function useNotificationWebSocket({
         onCloseRef.current = onClose;
     }, [onNotification, onError, onOpen, onClose]);
 
-    // Get WebSocket URL for notification service (port 8083)
+
+    // Get WebSocket URL for notification service (port 8090 - same as chat)
     const getWsUrl = useCallback(() => {
-        const wsBase = import.meta.env.VITE_NOTIFICATION_WS_URL || 'ws://72.60.198.235:8083';
+        const wsBase = import.meta.env.VITE_WS_BASE_URL || 'ws://72.60.198.235:8090';
         return `${wsBase}/ws?userId=${userId}`;
     }, [userId]);
+
 
     const connect = useCallback(() => {
         // Prevent multiple simultaneous connection attempts
