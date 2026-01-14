@@ -1,4 +1,4 @@
-export type MessageType = 'TEXT' | 'IMAGE' | 'FILE' | 'VIDEO' | 'DELETE';
+export type MessageType = 'TEXT' | 'IMAGE' | 'FILE' | 'VIDEO' | 'MESSAGE_DELETED';
 export type ConversationType = 'private' | 'group';
 
 // Backend response for ChatMessage

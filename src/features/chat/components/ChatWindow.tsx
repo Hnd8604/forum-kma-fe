@@ -120,8 +120,8 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
     const currentConvId = currentConversationIdRef.current;
 
     // Handle incoming messages - check against current conversation
-    // Also handle DELETE type for message deletion updates
-    if ((data.type === 'MESSAGE' || data.type === 'DELETE' || !data.type) && (data.conversationId === currentConvId || data.chatId === currentConvId)) {
+    // Also handle MESSAGE_DELETED type for message deletion updates
+    if ((data.type === 'MESSAGE' || data.type === 'MESSAGE_DELETED' || !data.type) && (data.conversationId === currentConvId || data.chatId === currentConvId)) {
       const newMsg: Message = {
         id: data.id || data.messageId || `msg-${Date.now()}`,
         fromUserId: data.fromUserId || data.senderId,
@@ -155,17 +155,38 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
 
     window.addEventListener('chat-message-received', wrappedHandler);
 
-    // Listen for message deletion from other windows
+    // Listen for message deletion from other windows or WebSocket
     const handleMessageDeleted = (event: Event) => {
       const customEvent = event as CustomEvent;
-      const { messageId, conversationId } = customEvent.detail;
-      if (conversationId === currentConversationIdRef.current) {
+      const data = customEvent.detail;
+      console.log('[ChatWindow] Received chat-message-deleted event:', data);
+      // WebSocket sends chatId, local events send conversationId
+      const messageId = data.messageId || data.id;
+      const convId = data.conversationId || data.chatId;
+      console.log('[ChatWindow] Extracted messageId:', messageId, 'convId:', convId, 'currentConvId:', currentConversationIdRef.current);
+      if (convId === currentConversationIdRef.current) {
+        console.log('[ChatWindow] ConvId matches! Updating messages...');
         // Mark message as deleted instead of removing
-        setMessages((prev) => prev.map((m) =>
-          m.id === messageId
-            ? { ...m, type: 'DELETE' as const, message: 'Tin nhắn đã bị xóa', resourceUrls: undefined }
-            : m
-        ));
+        setMessages((prev) => {
+          console.log('[ChatWindow] Current messages:', prev.map(m => ({ id: m.id, message: m.message?.substring(0, 20) })));
+          const updated = prev.map((m) => {
+            // Try multiple matching strategies:
+            // 1. Exact match
+            // 2. ID contains the messageId (for cases where one has prefix)
+            // 3. messageId contains the message ID
+            const isMatch = m.id === messageId ||
+              m.id?.includes(messageId) ||
+              messageId?.includes(m.id);
+            if (isMatch) {
+              console.log('[ChatWindow] Found matching message to delete:', m.id);
+              return { ...m, type: 'MESSAGE_DELETED' as const, message: 'Tin nhắn đã bị xóa', resourceUrls: undefined };
+            }
+            return m;
+          });
+          return updated;
+        });
+      } else {
+        console.log('[ChatWindow] ConvId does NOT match, skipping update');
       }
     };
     window.addEventListener('chat-message-deleted', handleMessageDeleted);
@@ -392,7 +413,7 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
   };
 
   // Handle delete message
-  // Backend marks message as DELETE type instead of actually deleting it
+  // Backend marks message as MESSAGE_DELETED type instead of actually deleting it
   const handleDeleteMessage = async () => {
     if (!messageToDelete) return;
 
@@ -400,10 +421,10 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
     try {
       await ChatService.deleteMessage(messageToDelete);
 
-      // Mark message as deleted in local state (backend changes type to DELETE)
+      // Mark message as deleted in local state (backend changes type to MESSAGE_DELETED)
       setMessages((prev) => prev.map((m) =>
         m.id === messageToDelete
-          ? { ...m, type: 'DELETE' as const, message: 'Tin nhắn đã bị xóa', resourceUrls: undefined }
+          ? { ...m, type: 'MESSAGE_DELETED' as const, message: 'Tin nhắn đã bị xóa', resourceUrls: undefined }
           : m
       ));
 
@@ -542,7 +563,7 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
                         )}
 
                         {/* Delete button for own messages - appears on hover, hide for already deleted messages */}
-                        {isMine && message.type !== 'DELETE' && (
+                        {isMine && message.type !== 'MESSAGE_DELETED' && (
                           <div className="flex items-center opacity-0 group-hover/message:opacity-100 transition-opacity">
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>

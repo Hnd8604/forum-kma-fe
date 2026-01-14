@@ -76,12 +76,33 @@ export default function ConversationList({
       }
     };
 
+    // Handle message deleted event - update lastMessage to "Tin nhắn đã bị xóa"
+    const handleMessageDeleted = (event: Event) => {
+      const customEvent = event as CustomEvent;
+      const data = customEvent.detail;
+      const convId = data.conversationId || data.chatId;
+
+      if (convId) {
+        setConversations((prev) => {
+          return prev.map((conv) => {
+            if (conv.conversationId === convId) {
+              // Update lastMessage to show deleted message text
+              return { ...conv, lastMessage: 'Tin nhắn đã bị xóa' };
+            }
+            return conv;
+          });
+        });
+      }
+    };
+
     window.addEventListener('chat-message-received', handleChatMessage as EventListener);
     window.addEventListener('chat-message-sent', handleChatMessage as EventListener);
+    window.addEventListener('chat-message-deleted', handleMessageDeleted as EventListener);
 
     return () => {
       window.removeEventListener('chat-message-received', handleChatMessage as EventListener);
       window.removeEventListener('chat-message-sent', handleChatMessage as EventListener);
+      window.removeEventListener('chat-message-deleted', handleMessageDeleted as EventListener);
     };
   }, [currentUser]);
 

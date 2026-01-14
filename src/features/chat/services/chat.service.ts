@@ -68,12 +68,27 @@ export class ChatService {
       `${CHAT_SERVICE_BASE}/messages?conversationId=${conversationId}&page=${page}&limit=${limit}`,
       true
     );
+
+    // Helper to normalize message type from backend
+    const normalizeMessageType = (msg: any): Message => {
+      // Backend may return different type values for deleted messages
+      // Normalize to MESSAGE_DELETED for consistent frontend handling
+      let type = msg.type || 'TEXT';
+      if (type === 'DELETE' || type === 'DELETED' || type === 'MESSAGE DELETED' || msg.isDeleted) {
+        type = 'MESSAGE_DELETED';
+      }
+      return {
+        ...msg,
+        type,
+      };
+    };
+
     // Backend returns PageResponse format with content array
     if (response && response.content) {
-      return response.content;
+      return response.content.map(normalizeMessageType);
     }
     // Fallback for direct array response (backward compatibility)
-    return Array.isArray(response) ? response : [];
+    return Array.isArray(response) ? response.map(normalizeMessageType) : [];
   }
 
   /**

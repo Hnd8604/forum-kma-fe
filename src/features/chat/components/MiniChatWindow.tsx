@@ -164,15 +164,18 @@ export default function MiniChatWindow({
 
     window.addEventListener('chat-message-received', handleNewMessage as EventListener);
 
-    // Listen for message deletion from other windows (ChatWindow)
+    // Listen for message deletion from other windows (ChatWindow) or WebSocket
     const handleMessageDeleted = (event: Event) => {
       const customEvent = event as CustomEvent;
-      const { messageId, conversationId } = customEvent.detail;
-      if (conversationId === conversation.conversationId) {
+      const data = customEvent.detail;
+      // WebSocket sends chatId, local events send conversationId
+      const messageId = data.messageId || data.id;
+      const convId = data.conversationId || data.chatId;
+      if (convId === conversation.conversationId) {
         // Mark message as deleted instead of removing
         setMessages((prev) => prev.map((m) =>
           m.id === messageId
-            ? { ...m, type: 'DELETE' as const, message: 'Tin nhắn đã bị xóa', resourceUrls: undefined }
+            ? { ...m, type: 'MESSAGE_DELETED' as const, message: 'Tin nhắn đã bị xóa', resourceUrls: undefined }
             : m
         ));
       }
@@ -336,7 +339,7 @@ export default function MiniChatWindow({
   };
 
   // Handle delete message
-  // Backend marks message as DELETE type instead of actually deleting it
+  // Backend marks message as MESSAGE_DELETED type instead of actually deleting it
   const handleDeleteMessage = async () => {
     if (!messageToDelete) return;
 
@@ -344,10 +347,10 @@ export default function MiniChatWindow({
     try {
       await ChatService.deleteMessage(messageToDelete);
 
-      // Mark message as deleted in local state (backend changes type to DELETE)
+      // Mark message as deleted in local state (backend changes type to MESSAGE_DELETED)
       setMessages((prev) => prev.map((m) =>
         m.id === messageToDelete
-          ? { ...m, type: 'DELETE' as const, message: 'Tin nhắn đã bị xóa', resourceUrls: undefined }
+          ? { ...m, type: 'MESSAGE_DELETED' as const, message: 'Tin nhắn đã bị xóa', resourceUrls: undefined }
           : m
       ));
 
@@ -459,7 +462,7 @@ export default function MiniChatWindow({
                     )}
 
                     {/* Delete button for own messages - appears on hover, hide for already deleted messages */}
-                    {isMine && message.type !== 'DELETE' && (
+                    {isMine && message.type !== 'MESSAGE_DELETED' && (
                       <div className="flex items-center opacity-0 group-hover/message:opacity-100 transition-opacity">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>

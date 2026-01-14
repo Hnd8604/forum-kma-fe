@@ -38,7 +38,8 @@ export default function ChatMessageContent({
     const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
     // Deleted message - show italic text
-    if (type === 'DELETE') {
+    // Check for MESSAGE_DELETED type
+    if (type === 'MESSAGE_DELETED') {
         return (
             <p
                 className={`text-sm italic ${isMine ? 'text-white/70' : 'text-slate-400'}`}

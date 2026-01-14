@@ -2,7 +2,7 @@ import { useAuthStore } from '@/store/useStore';
 import { useWebSocket } from '@/features/chat/hooks/useWebSocket';
 
 interface ChatMessageEvent {
-    type: 'MESSAGE' | 'DELETED';
+    type: 'MESSAGE' | 'MESSAGE_DELETED';
     messageId: string;
     chatId: string;
     senderId: string;
@@ -37,7 +37,7 @@ interface NotificationEvent {
  * Architecture:
  * - There's only ONE WebSocket connection to chat-service (port 8090)
  * - This WebSocket receives BOTH:
- *   1. Chat messages (type: "MESSAGE" or "DELETED")
+ *   1. Chat messages (type: "MESSAGE" or "MESSAGE_DELETED")
  *   2. Notifications (type: "POST", "LIKE_POST", etc.)
  * 
  * The handler distinguishes message types and dispatches to correct event handlers.
@@ -53,10 +53,10 @@ export default function WebSocketManager() {
         console.log('[WebSocketManager] Received message:', data);
 
         // Check message type to route correctly
-        // Chat messages have type: "MESSAGE" or "DELETED"
+        // Chat messages have type: "MESSAGE" or "MESSAGE_DELETED"
         // Notifications have type: "POST", "LIKE_POST", "LIKE_COMMENT", "COMMENT", "CHAT", "MENTION", "ADMIN"
 
-        if (data.type === 'MESSAGE' || data.type === 'DELETED') {
+        if (data.type === 'MESSAGE' || data.type === 'MESSAGE_DELETED') {
             // This is a chat message
             handleChatMessage(data as ChatMessageEvent);
         } else if (data.type && ['POST', 'LIKE_POST', 'LIKE_COMMENT', 'COMMENT', 'CHAT', 'MENTION', 'ADMIN'].includes(data.type)) {
@@ -79,7 +79,14 @@ export default function WebSocketManager() {
         console.log('[WebSocketManager] Handling chat message:', data);
 
         // Handle deleted message event
-        if (data.type === 'DELETED' || data.isDeleted) {
+        // Backend sends 'MESSAGE_DELETED' for deleted messages
+        if (data.type === 'MESSAGE_DELETED' || data.isDeleted) {
+            console.log('[WebSocketManager] Message deleted event detected, dispatching chat-message-deleted with:', {
+                messageId: data.messageId,
+                chatId: data.chatId,
+                type: data.type,
+                isDeleted: data.isDeleted
+            });
             window.dispatchEvent(new CustomEvent('chat-message-deleted', { detail: data }));
             return;
         }
