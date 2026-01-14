@@ -116,12 +116,7 @@ export default function MiniChatWindow({
 
       // Check if this message belongs to current conversation
       if (messageConversationId === conversation.conversationId) {
-        // Don't add our own messages again (already added via setMessages after sendMessage)
-        if (data.senderId === user?.userId) {
-          return;
-        }
-
-        // Add new message to the list
+        // Build message object
         const newMsg: Message = {
           id: data.id || data.messageId || `ws-${Date.now()}-${Math.random()}`,
           conversationId: messageConversationId,
@@ -134,7 +129,21 @@ export default function MiniChatWindow({
         };
 
         setMessages((prev) => {
-          // Check for duplicates based on message content and time (not just ID)
+          // Check if message with same id already exists (for updates like delete)
+          const existingIndex = prev.findIndex(m => m.id === newMsg.id);
+          if (existingIndex !== -1) {
+            // Update existing message (e.g., when message is deleted/updated)
+            const updated = [...prev];
+            updated[existingIndex] = { ...updated[existingIndex], ...newMsg };
+            return updated;
+          }
+
+          // Don't add our own messages again (already added via setMessages after sendMessage)
+          if (data.senderId === user?.userId) {
+            return prev;
+          }
+
+          // Check for duplicates based on message content and time
           const isDuplicate = prev.some(m =>
             m.message === newMsg.message &&
             m.fromUserId === newMsg.fromUserId &&
@@ -160,7 +169,12 @@ export default function MiniChatWindow({
       const customEvent = event as CustomEvent;
       const { messageId, conversationId } = customEvent.detail;
       if (conversationId === conversation.conversationId) {
-        setMessages((prev) => prev.filter((m) => m.id !== messageId));
+        // Mark message as deleted instead of removing
+        setMessages((prev) => prev.map((m) =>
+          m.id === messageId
+            ? { ...m, type: 'DELETE' as const, message: 'Tin nhắn đã bị xóa', resourceUrls: undefined }
+            : m
+        ));
       }
     };
     window.addEventListener('chat-message-deleted', handleMessageDeleted);
@@ -322,6 +336,7 @@ export default function MiniChatWindow({
   };
 
   // Handle delete message
+  // Backend marks message as DELETE type instead of actually deleting it
   const handleDeleteMessage = async () => {
     if (!messageToDelete) return;
 
@@ -329,8 +344,12 @@ export default function MiniChatWindow({
     try {
       await ChatService.deleteMessage(messageToDelete);
 
-      // Remove message from local state
-      setMessages((prev) => prev.filter((m) => m.id !== messageToDelete));
+      // Mark message as deleted in local state (backend changes type to DELETE)
+      setMessages((prev) => prev.map((m) =>
+        m.id === messageToDelete
+          ? { ...m, type: 'DELETE' as const, message: 'Tin nhắn đã bị xóa', resourceUrls: undefined }
+          : m
+      ));
 
       // Dispatch event to sync with other chat windows (ChatWindow)
       window.dispatchEvent(new CustomEvent('chat-message-deleted', {
@@ -340,10 +359,10 @@ export default function MiniChatWindow({
         }
       }));
 
-      toast.success('Đã xóa tin nhắn');
+      toast.success('Đã thu hồi tin nhắn');
     } catch (err: any) {
       console.error('Failed to delete message:', err);
-      toast.error(err.message || 'Không thể xóa tin nhắn');
+      toast.error(err.message || 'Không thể thu hồi tin nhắn');
     } finally {
       setDeletingMessageId(null);
       setShowDeleteDialog(false);
@@ -439,8 +458,8 @@ export default function MiniChatWindow({
                       </div>
                     )}
 
-                    {/* Delete button for own messages - appears on hover */}
-                    {isMine && (
+                    {/* Delete button for own messages - appears on hover, hide for already deleted messages */}
+                    {isMine && message.type !== 'DELETE' && (
                       <div className="flex items-center opacity-0 group-hover/message:opacity-100 transition-opacity">
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
@@ -463,7 +482,7 @@ export default function MiniChatWindow({
                               onClick={() => confirmDeleteMessage(message.id)}
                             >
                               <Trash2 className="w-4 h-4 mr-2" />
-                              Xóa tin nhắn
+                              Thu hồi tin nhắn
                             </DropdownMenuItem>
                           </DropdownMenuContent>
                         </DropdownMenu>
@@ -529,9 +548,9 @@ export default function MiniChatWindow({
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
         <AlertDialogContent className="bg-white">
           <AlertDialogHeader>
-            <AlertDialogTitle>Xóa tin nhắn?</AlertDialogTitle>
+            <AlertDialogTitle>Thu hồi tin nhắn?</AlertDialogTitle>
             <AlertDialogDescription>
-              Tin nhắn sẽ bị xóa vĩnh viễn và không thể khôi phục.
+              Tin nhắn sẽ bị thu hồi và người khác sẽ không thể xem nội dung gốc.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -540,7 +559,7 @@ export default function MiniChatWindow({
               onClick={handleDeleteMessage}
               className="bg-red-600 hover:bg-red-700 text-white"
             >
-              Xóa tin nhắn
+              Thu hồi
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

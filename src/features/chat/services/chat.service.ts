@@ -58,15 +58,22 @@ export class ChatService {
     return conversation;
   }
 
+
   /**
-   * Lấy lịch sử tin nhắn
+   * Lấy lịch sử tin nhắn với phân trang
+   * Backend trả về PageResponse, extract content để lấy messages
    */
-  static async getMessages(conversationId: string): Promise<Message[]> {
-    const response = await ApiService.get<Message[]>(
-      `${CHAT_SERVICE_BASE}/messages?conversationId=${conversationId}`,
+  static async getMessages(conversationId: string, page = 0, limit = 50): Promise<Message[]> {
+    const response = await ApiService.get<any>(
+      `${CHAT_SERVICE_BASE}/messages?conversationId=${conversationId}&page=${page}&limit=${limit}`,
       true
     );
-    return response;
+    // Backend returns PageResponse format with content array
+    if (response && response.content) {
+      return response.content;
+    }
+    // Fallback for direct array response (backward compatibility)
+    return Array.isArray(response) ? response : [];
   }
 
   /**

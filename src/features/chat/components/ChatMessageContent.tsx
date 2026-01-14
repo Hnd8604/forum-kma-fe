@@ -37,6 +37,18 @@ export default function ChatMessageContent({
     const [imageError, setImageError] = useState<Record<string, boolean>>({});
     const [fullscreenImage, setFullscreenImage] = useState<string | null>(null);
 
+    // Deleted message - show italic text
+    if (type === 'DELETE') {
+        return (
+            <p
+                className={`text-sm italic ${isMine ? 'text-white/70' : 'text-slate-400'}`}
+                style={{ wordBreak: 'break-word', overflowWrap: 'anywhere' }}
+            >
+                {message || 'Tin nhắn đã bị xóa'}
+            </p>
+        );
+    }
+
     // Text message
     if (type === 'TEXT' || !resourceUrls || resourceUrls.length === 0) {
         return (
