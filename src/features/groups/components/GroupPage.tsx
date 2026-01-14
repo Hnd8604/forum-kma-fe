@@ -253,16 +253,16 @@ export default function GroupPage() {
   const isPublic = group.visibility === 'PUBLIC' || group.privacy === 'PUBLIC';
 
   return (
-    <div className="max-w-4xl mx-auto px-4 py-6">
+    <div className="max-w-4xl mx-auto px-2 sm:px-4 py-4 sm:py-6">
       {/* Header */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-6 mb-6 shadow-sm">
-        <div className="flex items-start justify-between mb-4">
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 p-4 sm:p-6 mb-4 sm:mb-6 shadow-sm">
+        <div className="flex items-start justify-between mb-3 sm:mb-4">
           <button
             onClick={() => navigate('/forum')}
-            className="flex items-center text-slate-500 hover:text-slate-700 transition-colors"
+            className="flex items-center text-slate-500 hover:text-slate-700 transition-colors text-sm sm:text-base"
           >
-            <ChevronLeft className="w-5 h-5 mr-1" />
-            Quay lại
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 mr-1" />
+            <span className="hidden xs:inline">Quay lại</span>
           </button>
 
           {isAdmin && (
@@ -271,9 +271,10 @@ export default function GroupPage() {
                 variant="outline"
                 size="sm"
                 onClick={() => setShowSettings(!showSettings)}
+                className="text-xs sm:text-sm"
               >
-                <Settings className="w-4 h-4 mr-2" />
-                Cài đặt
+                <Settings className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Cài đặt</span>
               </Button>
 
               {/* Settings Dropdown */}
@@ -299,28 +300,28 @@ export default function GroupPage() {
           )}
         </div>
 
-        <div className="flex items-center gap-4">
-          <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl flex items-center justify-center text-white text-2xl font-bold shadow-lg">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-white text-xl sm:text-2xl font-bold shadow-lg flex-shrink-0">
             {categoryName[0]?.toUpperCase()}
           </div>
 
-          <div className="flex-1">
-            <div className="flex items-center gap-2">
-              <h1 className="text-2xl font-bold text-slate-900">{categoryName}</h1>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center gap-2 flex-wrap">
+              <h1 className="text-lg sm:text-2xl font-bold text-slate-900 break-words">{categoryName}</h1>
               {isPublic ? (
                 <span title="Công khai">
-                  <Globe className="w-5 h-5 text-green-500" />
+                  <Globe className="w-4 h-4 sm:w-5 sm:h-5 text-green-500 flex-shrink-0" />
                 </span>
               ) : (
                 <span title="Riêng tư">
-                  <Lock className="w-5 h-5 text-amber-500" />
+                  <Lock className="w-4 h-4 sm:w-5 sm:h-5 text-amber-500 flex-shrink-0" />
                 </span>
               )}
             </div>
-            <p className="text-slate-500 mt-1">{group.description || 'Không có mô tả'}</p>
-            <div className="flex items-center gap-4 mt-2 text-sm text-slate-500">
+            <p className="text-slate-500 mt-1 text-xs sm:text-sm line-clamp-2">{group.description || 'Không có mô tả'}</p>
+            <div className="flex items-center gap-4 mt-2 text-xs sm:text-sm text-slate-500">
               <span className="flex items-center gap-1">
-                <Users className="w-4 h-4" />
+                <Users className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
                 {group.memberCount} người tham gia
               </span>
             </div>
@@ -328,14 +329,14 @@ export default function GroupPage() {
 
           {/* Ẩn nút Rời danh mục/Tham gia với Admin */}
           {!isAdmin && (
-            <div>
+            <div className="w-full sm:w-auto mt-2 sm:mt-0">
               {membership?.isMember ? (
-                <Button variant="outline" onClick={handleLeaveGroup}>
+                <Button variant="outline" onClick={handleLeaveGroup} className="w-full sm:w-auto text-xs sm:text-sm">
                   <UserMinus className="w-4 h-4 mr-2" />
                   Rời danh mục
                 </Button>
               ) : (
-                <Button onClick={handleJoinGroup}>
+                <Button onClick={handleJoinGroup} className="w-full sm:w-auto text-xs sm:text-sm">
                   <UserPlus className="w-4 h-4 mr-2" />
                   Tham gia
                 </Button>
@@ -346,7 +347,7 @@ export default function GroupPage() {
       </div>
 
       {/* Tabs */}
-      <div className="bg-white rounded-2xl border border-slate-200 mb-6 shadow-sm">
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 mb-4 sm:mb-6 shadow-sm">
         <div className="flex border-b border-slate-200">
           <button
             onClick={() => setActiveTab('posts')}

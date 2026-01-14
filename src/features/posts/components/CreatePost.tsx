@@ -208,19 +208,19 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 mb-5 shadow-sm hover:shadow-md transition-shadow">
+    <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 mb-4 sm:mb-5 shadow-sm hover:shadow-md transition-shadow">
       {!isExpanded ? (
-        <div className="flex items-center p-3 gap-3">
+        <div className="flex items-center p-2 sm:p-3 gap-2 sm:gap-3">
           {/* User Avatar */}
           {user?.avatarUrl ? (
             <img
               src={user.avatarUrl}
               alt={user.firstName || 'User'}
-              className="w-10 h-10 rounded-full object-cover flex-shrink-0 shadow-md"
+              className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0 shadow-md"
             />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/20">
-              <span className="text-white text-sm font-bold">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/20">
+              <span className="text-white text-xs sm:text-sm font-bold">
                 {user?.firstName?.[0]?.toUpperCase() || 'U'}
               </span>
             </div>
@@ -229,15 +229,15 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
           {/* Input Box */}
           <div
             onClick={() => setIsExpanded(true)}
-            className="flex-1 bg-slate-100 hover:bg-slate-50 border-2 border-transparent hover:border-blue-200 rounded-xl px-4 py-3 cursor-text text-sm text-slate-500 transition-all"
+            className="flex-1 bg-slate-100 hover:bg-slate-50 border-2 border-transparent hover:border-blue-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 cursor-text text-xs sm:text-sm text-slate-500 transition-all"
           >
             Bạn đang nghĩ gì?
           </div>
 
-          {/* Quick Actions */}
+          {/* Quick Actions - Hidden on mobile */}
           <Button
             variant="ghost"
-            className="flex items-center gap-2 px-3 py-2 text-slate-500 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-colors"
+            className="hidden sm:flex items-center gap-2 px-3 py-2 text-slate-500 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-colors"
             onClick={() => {
               setPostType('IMAGE');
               setIsExpanded(true);
@@ -247,7 +247,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
           </Button>
           <Button
             variant="ghost"
-            className="flex items-center gap-2 px-3 py-2 text-slate-500 hover:bg-purple-50 hover:text-purple-600 rounded-xl transition-colors"
+            className="hidden sm:flex items-center gap-2 px-3 py-2 text-slate-500 hover:bg-purple-50 hover:text-purple-600 rounded-xl transition-colors"
             onClick={() => {
               setPostType('VIDEO');
               setIsExpanded(true);
@@ -257,7 +257,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
           </Button>
           <Button
             variant="ghost"
-            className="flex items-center gap-2 px-3 py-2 text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
+            className="hidden sm:flex items-center gap-2 px-3 py-2 text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
             onClick={() => {
               setPostType('DOC');
               setIsExpanded(true);
@@ -267,10 +267,10 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
           </Button>
         </div>
       ) : (
-        <div className="p-5">
+        <div className="p-3 sm:p-5">
           {/* Header */}
-          <div className="flex items-center justify-between mb-5">
-            <h3 className="text-lg font-semibold text-slate-900">Tạo bài viết</h3>
+          <div className="flex items-center justify-between mb-4 sm:mb-5">
+            <h3 className="text-base sm:text-lg font-semibold text-slate-900">Tạo bài viết</h3>
             <Button
               variant="ghost"
               size="icon"
@@ -281,72 +281,72 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
                 setError(null);
                 clearAllFiles();
               }}
-              className="h-9 w-9 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-full transition-all"
+              className="h-8 w-8 sm:h-9 sm:w-9 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-full transition-all"
             >
-              <X className="w-5 h-5" />
+              <X className="w-4 h-4 sm:w-5 sm:h-5" />
             </Button>
           </div>
 
           {error && (
-            <div className="p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-sm mb-5 flex items-center gap-3">
-              <span className="text-lg">⚠️</span>
+            <div className="p-3 sm:p-4 bg-red-50 border border-red-100 rounded-xl text-red-600 text-xs sm:text-sm mb-4 sm:mb-5 flex items-center gap-2 sm:gap-3">
+              <span className="text-base sm:text-lg">⚠️</span>
               {error}
             </div>
           )}
 
           {/* Post Type Tabs */}
-          <div className="flex gap-2 mb-5 bg-slate-100 p-1 rounded-xl">
+          <div className="flex gap-1 sm:gap-2 mb-4 sm:mb-5 bg-slate-100 p-1 rounded-xl overflow-x-auto">
             <button
               onClick={() => {
                 setPostType('TEXT');
                 clearAllFiles();
               }}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${postType === 'TEXT'
+              className={`flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-lg transition-all min-w-[60px] ${postType === 'TEXT'
                 ? 'bg-white text-blue-600 shadow-sm'
                 : 'text-slate-500 hover:text-slate-700'
                 }`}
             >
-              <FileText className="w-4 h-4" />
-              Post
+              <FileText className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline sm:inline">Post</span>
             </button>
             <button
               onClick={() => {
                 setPostType('IMAGE');
                 clearAllFiles();
               }}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${postType === 'IMAGE'
+              className={`flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-lg transition-all min-w-[60px] ${postType === 'IMAGE'
                 ? 'bg-white text-blue-600 shadow-sm'
                 : 'text-slate-500 hover:text-slate-700'
                 }`}
             >
-              <Image className="w-4 h-4" />
-              Ảnh
+              <Image className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline sm:inline">Ảnh</span>
             </button>
             <button
               onClick={() => {
                 setPostType('VIDEO');
                 clearAllFiles();
               }}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${postType === 'VIDEO'
+              className={`flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-lg transition-all min-w-[60px] ${postType === 'VIDEO'
                 ? 'bg-white text-purple-600 shadow-sm'
                 : 'text-slate-500 hover:text-slate-700'
                 }`}
             >
-              <Film className="w-4 h-4" />
-              Video
+              <Film className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline sm:inline">Video</span>
             </button>
             <button
               onClick={() => {
                 setPostType('DOC');
                 clearAllFiles();
               }}
-              className={`flex-1 flex items-center justify-center gap-2 py-2.5 text-sm font-medium rounded-lg transition-all ${postType === 'DOC'
+              className={`flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-lg transition-all min-w-[60px] ${postType === 'DOC'
                 ? 'bg-white text-blue-600 shadow-sm'
                 : 'text-slate-500 hover:text-slate-700'
                 }`}
             >
-              <File className="w-4 h-4" />
-              Tài liệu
+              <File className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+              <span className="hidden xs:inline sm:inline">Tài liệu</span>
             </button>
           </div>
 

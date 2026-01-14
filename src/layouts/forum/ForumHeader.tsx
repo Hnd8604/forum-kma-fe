@@ -101,35 +101,35 @@ export default function ForumHeader({
   }, [user?.userId]);
 
   return (
-    <header className="bg-white/80 backdrop-blur-md h-16 border-b border-slate-200/80">
-      <div className="flex items-center justify-between h-full px-5 max-w-full mx-auto">
+    <header className="bg-white/80 backdrop-blur-md h-14 sm:h-16 border-b border-slate-200/80">
+      <div className="flex items-center justify-between h-full px-3 sm:px-5 max-w-full mx-auto">
         {/* Logo */}
         <Link to="/forum" className="flex items-center space-x-2 cursor-pointer flex-shrink-0">
           <div className="flex items-center">
-            <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
-              <svg viewBox="0 0 24 24" className="w-5 h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
+              <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
                 <path d="M6 12v5c3 3 9 3 12 0v-5" />
               </svg>
             </div>
-            <span className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent ml-3 hidden md:block">
+            <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent ml-2 sm:ml-3 hidden sm:block">
               Forum KMA
             </span>
           </div>
         </Link>
 
         {/* Search Bar - Centered */}
-        <div className="flex-1 max-w-2xl mx-auto px-4">
+        <div className="flex-1 max-w-xl lg:max-w-2xl mx-2 sm:mx-4">
           <div className="relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-[#878A8C] z-10" />
             <Input
               ref={searchInputRef}
               type="text"
-              placeholder="Tìm kiếm bài viết, danh mục, người dùng..."
+              placeholder="Tìm kiếm..."
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               onFocus={() => setIsSearchFocused(true)}
-              className="w-full pl-10 pr-4 h-10 bg-slate-100 border-0 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:outline-none hover:bg-slate-50 transition-all text-sm shadow-inner"
+              className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 h-9 sm:h-10 bg-slate-100 border-0 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:outline-none hover:bg-slate-50 transition-all text-sm shadow-inner"
             />
 
             {/* Search Dropdown */}
@@ -143,49 +143,49 @@ export default function ForumHeader({
         </div>
 
         {/* Right Actions */}
-        <div className="flex items-center space-x-1">
+        <div className="flex items-center space-x-0.5 sm:space-x-1">
           <ChatHeaderIcon onOpenMiniChat={onOpenMiniChat} />
 
           {/* Notifications Icon */}
           <Button
             variant="ghost"
             size="icon"
-            className="relative hover:bg-blue-50 rounded-xl transition-colors"
+            className="relative hover:bg-blue-50 rounded-xl transition-colors h-9 w-9 sm:h-10 sm:w-10"
             onClick={onOpenNotifications}
           >
-            <Bell className="w-5 h-5 text-gray-700" />
+            <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
             {unreadNotificationCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 min-w-[18px] h-[18px] bg-gradient-to-r from-red-500 to-rose-500 text-white text-xs font-bold rounded-full flex items-center justify-center px-1 shadow-lg">
+              <span className="absolute -top-0.5 -right-0.5 min-w-[16px] sm:min-w-[18px] h-[16px] sm:h-[18px] bg-gradient-to-r from-red-500 to-rose-500 text-white text-[10px] sm:text-xs font-bold rounded-full flex items-center justify-center px-1 shadow-lg">
                 {unreadNotificationCount > 99 ? '99+' : unreadNotificationCount}
               </span>
             )}
           </Button>
 
-          {/* Friends Icon */}
-          <Link to="/friends">
+          {/* Friends Icon - Hidden on small screens */}
+          <Link to="/friends" className="hidden sm:block">
             <Button
               variant="ghost"
               size="icon"
-              className="relative hover:bg-blue-50 rounded-xl transition-colors"
+              className="relative hover:bg-blue-50 rounded-xl transition-colors h-9 w-9 sm:h-10 sm:w-10"
             >
-              <Users className="w-5 h-5 text-gray-700" />
+              <Users className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
             </Button>
           </Link>
 
           {/* User Menu */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center gap-2 h-10 px-3 border border-transparent hover:border-slate-200 hover:bg-slate-50 rounded-xl transition-all">
-                <Avatar className="h-8 w-8">
+              <Button variant="ghost" className="flex items-center gap-1 sm:gap-2 h-9 sm:h-10 px-1.5 sm:px-3 border border-transparent hover:border-slate-200 hover:bg-slate-50 rounded-xl transition-all">
+                <Avatar className="h-7 w-7 sm:h-8 sm:w-8">
                   <AvatarImage src={avatarUrl} alt={displayName} />
-                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-xs">
+                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-[10px] sm:text-xs">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
                 <div className="hidden lg:flex flex-col items-start">
-                  <span className="font-semibold text-sm text-slate-900">{displayName}</span>
+                  <span className="font-semibold text-sm text-slate-900 max-w-[100px] truncate">{displayName}</span>
                 </div>
-                <ChevronDown className="w-4 h-4 text-slate-400 hidden lg:block" />
+                <ChevronDown className="w-3 h-3 sm:w-4 sm:h-4 text-slate-400 hidden lg:block" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-64 rounded-2xl shadow-2xl border-0 bg-white overflow-hidden">

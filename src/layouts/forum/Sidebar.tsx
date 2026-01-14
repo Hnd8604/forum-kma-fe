@@ -107,8 +107,8 @@ export default function Sidebar() {
 
   return (
     <>
-      <aside className="hidden lg:block w-64 flex-shrink-0 mr-6">
-        <div className="pr-2 max-h-[calc(100vh-2rem)]">
+      <aside className="w-full flex-shrink-0">
+        <div className="max-h-[calc(100vh-8rem)] lg:max-h-[calc(100vh-2rem)]">
           {/* Feed Options */}
           <div className="mb-4">
             {feedOptions.map((item) => {

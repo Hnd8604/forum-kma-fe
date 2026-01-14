@@ -139,13 +139,13 @@ export default function ForumFeed() {
   ];
 
   return (
-    <main className="flex-1 min-w-0">
+    <main className="flex-1 min-w-0 px-2 sm:px-4 md:px-6 py-4">
       {/* Create Post Box - Reddit style */}
       <CreatePost onPostCreated={handlePostCreated} />
 
       {/* Sort Bar */}
-      <div className="bg-white rounded-2xl border border-slate-200 mb-5 p-2 flex items-center shadow-sm">
-        <div className="flex items-center gap-1 w-full">
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-slate-200 mb-4 sm:mb-5 p-1.5 sm:p-2 flex items-center shadow-sm overflow-x-auto">
+        <div className="flex items-center gap-0.5 sm:gap-1 w-full min-w-max">
           {sortOptions.map((option) => {
             const Icon = option.icon;
             const isActive = sortBy === option.id;
@@ -153,13 +153,13 @@ export default function ForumFeed() {
               <button
                 key={option.id}
                 onClick={() => setSortBy(option.id as any)}
-                className={`flex-1 sm:flex-none flex items-center justify-center gap-2 px-6 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${isActive
+                className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 ${isActive
                   ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-500/25'
                   : 'text-slate-600 hover:bg-slate-100'
                   }`}
               >
-                <Icon className={`w-4 h-4 ${isActive ? 'text-white' : ''}`} />
-                {option.label}
+                <Icon className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isActive ? 'text-white' : ''}`} />
+                <span className="hidden xs:inline sm:inline">{option.label}</span>
               </button>
             );
           })}

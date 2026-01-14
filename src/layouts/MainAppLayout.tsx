@@ -1,4 +1,6 @@
-import { ReactNode } from 'react';
+import { ReactNode, useState } from 'react';
+import { Menu, X, Users } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface MainAppLayoutProps {
   header: ReactNode; // Header component (fixed at top)
@@ -27,6 +29,7 @@ interface MainAppLayoutProps {
  * - Header height is auto
  * - Content area = 100vh - header height
  * - Each section has independent scroll
+ * - Responsive: Sidebars hidden on mobile, shown as overlay
  */
 export default function MainAppLayout({
   header,
@@ -36,6 +39,9 @@ export default function MainAppLayout({
   leftSidebarWidth = '280px',
   rightSidebarWidth = '320px',
 }: MainAppLayoutProps) {
+  const [showMobileLeftSidebar, setShowMobileLeftSidebar] = useState(false);
+  const [showMobileRightSidebar, setShowMobileRightSidebar] = useState(false);
+
   return (
     <div className="flex flex-col h-screen w-screen bg-white overflow-hidden">
       {/* Fixed Header */}
@@ -44,40 +50,131 @@ export default function MainAppLayout({
       </div>
 
       {/* Main Content Area - Flexible Height with 3 Columns */}
-      <div className="flex flex-1 overflow-hidden bg-gradient-to-b from-slate-50 to-slate-100">
-        {/* Left Sidebar */}
+      <div className="flex flex-1 overflow-hidden bg-gradient-to-b from-slate-50 to-slate-100 relative">
+        
+        {/* Mobile Overlay */}
+        {(showMobileLeftSidebar || showMobileRightSidebar) && (
+          <div 
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={() => {
+              setShowMobileLeftSidebar(false);
+              setShowMobileRightSidebar(false);
+            }}
+          />
+        )}
+
+        {/* Left Sidebar - Hidden on mobile, shown as overlay */}
         {leftSidebar && (
-          <div
-            className="flex flex-col border-r border-slate-200/50 bg-white/50 backdrop-blur-sm overflow-hidden"
-            style={{ width: leftSidebarWidth }}
-          >
-            <div className="flex-1 overflow-y-auto overflow-x-hidden">
-              <div className="p-4">
-                {leftSidebar}
+          <>
+            {/* Desktop Left Sidebar */}
+            <div
+              className="hidden lg:flex flex-col border-r border-slate-200/50 bg-white/50 backdrop-blur-sm overflow-hidden"
+              style={{ width: leftSidebarWidth }}
+            >
+              <div className="flex-1 overflow-y-auto overflow-x-hidden">
+                <div className="p-4">
+                  {leftSidebar}
+                </div>
               </div>
             </div>
-          </div>
+
+            {/* Mobile Left Sidebar - Overlay */}
+            <div
+              className={`fixed left-0 top-0 h-full z-50 flex flex-col border-r border-slate-200/50 bg-white overflow-hidden transform transition-transform duration-300 ease-in-out lg:hidden ${
+                showMobileLeftSidebar ? 'translate-x-0' : '-translate-x-full'
+              }`}
+              style={{ width: '280px' }}
+            >
+              <div className="flex items-center justify-end p-2 border-b border-slate-100">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowMobileLeftSidebar(false)}
+                  className="h-8 w-8 hover:bg-slate-100 rounded-lg"
+                >
+                  <X className="w-4 h-4 text-slate-500" />
+                </Button>
+              </div>
+              <div className="flex-1 overflow-y-auto overflow-x-hidden">
+                <div className="p-3">
+                  {leftSidebar}
+                </div>
+              </div>
+            </div>
+          </>
         )}
 
         {/* Main Content */}
         <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Mobile Header Bar */}
+          <div className="flex items-center justify-between px-3 py-2 bg-white border-b border-slate-200 lg:hidden">
+            {leftSidebar && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowMobileLeftSidebar(true)}
+                className="h-9 w-9 hover:bg-slate-100 rounded-xl"
+              >
+                <Menu className="w-5 h-5 text-slate-700" />
+              </Button>
+            )}
+            <span className="flex-1" />
+            {rightSidebar && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => setShowMobileRightSidebar(true)}
+                className="h-9 w-9 hover:bg-blue-50 rounded-xl"
+              >
+                <Users className="w-5 h-5 text-slate-700" />
+              </Button>
+            )}
+          </div>
+
           <div className="flex-1 overflow-y-auto overflow-x-hidden">
             {children}
           </div>
         </div>
 
-        {/* Right Sidebar */}
+        {/* Right Sidebar - Hidden on mobile & tablet */}
         {rightSidebar && (
-          <div
-            className="flex flex-col border-l border-slate-200/50 bg-white/50 backdrop-blur-sm overflow-hidden"
-            style={{ width: rightSidebarWidth }}
-          >
-            <div className="flex-1 overflow-y-auto overflow-x-hidden">
-              <div className="p-4">
-                {rightSidebar}
+          <>
+            {/* Desktop Right Sidebar */}
+            <div
+              className="hidden xl:flex flex-col border-l border-slate-200/50 bg-white/50 backdrop-blur-sm overflow-hidden"
+              style={{ width: rightSidebarWidth }}
+            >
+              <div className="flex-1 overflow-y-auto overflow-x-hidden">
+                <div className="p-4">
+                  {rightSidebar}
+                </div>
               </div>
             </div>
-          </div>
+
+            {/* Mobile Right Sidebar - Overlay */}
+            <div
+              className={`fixed right-0 top-0 h-full z-50 flex flex-col border-l border-slate-200/50 bg-white overflow-hidden transform transition-transform duration-300 ease-in-out xl:hidden ${
+                showMobileRightSidebar ? 'translate-x-0' : 'translate-x-full'
+              }`}
+              style={{ width: '300px', maxWidth: '85vw' }}
+            >
+              <div className="flex items-center justify-between p-4 border-b border-slate-200">
+                <span className="font-semibold text-slate-900">Bạn bè</span>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => setShowMobileRightSidebar(false)}
+                >
+                  <X className="w-5 h-5" />
+                </Button>
+              </div>
+              <div className="flex-1 overflow-y-auto overflow-x-hidden">
+                <div className="p-4">
+                  {rightSidebar}
+                </div>
+              </div>
+            </div>
+          </>
         )}
       </div>
     </div>

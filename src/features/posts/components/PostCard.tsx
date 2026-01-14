@@ -207,8 +207,8 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
   };
 
   return (
-    <div className="bg-white border border-slate-200 hover:border-slate-300 rounded-2xl transition-all duration-200 mb-4 hover:shadow-lg hover:shadow-slate-200/50 overflow-hidden">
-      <div className="p-4">
+    <div className="bg-white border border-slate-200 hover:border-slate-300 rounded-xl sm:rounded-2xl transition-all duration-200 mb-3 sm:mb-4 hover:shadow-lg hover:shadow-slate-200/50 overflow-hidden">
+      <div className="p-3 sm:p-4">
         {/* Post Header */}
         <PostHeader
           authorId={post.authorId}
@@ -223,7 +223,7 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
 
         {/* Post Title */}
         <h3
-          className="text-lg font-semibold text-slate-900 mb-2 cursor-pointer hover:text-blue-600 transition-colors leading-snug"
+          className="text-base sm:text-lg font-semibold text-slate-900 mb-2 cursor-pointer hover:text-blue-600 transition-colors leading-snug"
           onClick={openModal}
         >
           {post.title}
@@ -231,7 +231,7 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
 
         {/* Post Content */}
         <p
-          className="text-sm text-slate-600 mb-3 whitespace-pre-line line-clamp-3 leading-relaxed cursor-pointer hover:text-slate-900 transition-colors"
+          className="text-xs sm:text-sm text-slate-600 mb-3 whitespace-pre-line line-clamp-3 leading-relaxed cursor-pointer hover:text-slate-900 transition-colors"
           onClick={openModal}
         >
           {post.content}
@@ -269,7 +269,7 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
         />
 
         {/* Post Actions Buttons */}
-        <div className="flex items-center gap-1 border-t border-slate-100 pt-1">
+        <div className="flex items-center gap-0.5 sm:gap-1 border-t border-slate-100 pt-1">
           <div className="flex-1">
             <ReactionPicker
               currentReaction={currentReaction}
@@ -278,17 +278,17 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
               disabled={isReacting}
               size="md"
               showCount={false}
-              className="w-full justify-center hover:bg-slate-50 rounded-lg py-2"
+              className="w-full justify-center hover:bg-slate-50 rounded-lg py-1.5 sm:py-2"
             />
           </div>
 
           <Button
             variant="ghost"
-            className="flex-1 flex items-center justify-center gap-2 hover:bg-slate-50 rounded-lg text-slate-600 font-medium h-10 transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2 hover:bg-slate-50 rounded-lg text-slate-600 font-medium h-9 sm:h-10 text-xs sm:text-sm transition-colors"
             onClick={openModal}
           >
-            <MessageSquare className="w-5 h-5" />
-            Bình luận
+            <MessageSquare className="w-4 h-4 sm:w-5 sm:h-5" />
+            <span className="hidden xs:inline">Bình luận</span>
           </Button>
 
           <DropdownMenu>
@@ -296,9 +296,9 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 text-slate-500 hover:bg-slate-50 rounded-full ml-1 transition-all"
+                className="h-9 w-9 sm:h-10 sm:w-10 text-slate-500 hover:bg-slate-50 rounded-full ml-0.5 sm:ml-1 transition-all"
               >
-                <MoreHorizontal className="w-5 h-5" />
+                <MoreHorizontal className="w-4 h-4 sm:w-5 sm:h-5" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-white dark:bg-slate-900">
