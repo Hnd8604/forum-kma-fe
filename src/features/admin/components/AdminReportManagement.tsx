@@ -38,6 +38,7 @@ import {
   Check,
   X,
   AlertCircle,
+  Gavel,
 } from 'lucide-react';
 import { Textarea } from '@/components/ui/textarea';
 
@@ -288,7 +289,7 @@ export default function AdminReportManagement() {
                             title="Xử lý báo cáo"
                             className="h-8 w-8 hover:bg-amber-50"
                           >
-                            <Check className="h-4 w-4 text-amber-600" />
+                            <Gavel className="h-4 w-4 text-amber-600" />
                           </Button>
                         )}
                       </div>
@@ -332,12 +333,12 @@ export default function AdminReportManagement() {
 
       {/* Details Dialog */}
       <Dialog open={showDetailsDialog} onOpenChange={setShowDetailsDialog}>
-        <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto bg-white border border-gray-300 shadow-2xl rounded-lg">
-          <DialogHeader>
+        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col gap-0 bg-white border border-gray-300 shadow-2xl rounded-lg">
+          <DialogHeader className="flex-shrink-0">
             <DialogTitle className="text-2xl font-bold text-gray-900">Chi tiết báo cáo</DialogTitle>
           </DialogHeader>
           {selectedReport && (
-            <div className="space-y-6 py-4">
+            <div className="space-y-6 py-4 overflow-y-auto flex-1">
               {/* Status and Reason Row */}
               <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-2">
@@ -428,7 +429,7 @@ export default function AdminReportManagement() {
               </div>
             </div>
           )}
-          <DialogFooter className="border-t pt-4">
+          <DialogFooter className="border-t pt-4 flex-shrink-0">
             {selectedReport?.status === 'PENDING' && (
               <Button
                 onClick={() => {

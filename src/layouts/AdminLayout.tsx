@@ -32,7 +32,6 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { icon: UsersRound, label: 'Danh Mục', path: '/admin/groups' },
     { icon: Shield, label: 'Vai Trò', path: '/admin/roles' },
     { icon: MessageSquare, label: 'Báo Cáo', path: '/admin/reports' },
-    { icon: Settings, label: 'Cài Đặt', path: '/admin/settings' },
   ];
 
   const handleLogout = () => {

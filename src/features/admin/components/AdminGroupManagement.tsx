@@ -36,7 +36,9 @@ import {
   Globe,
   Lock,
   UsersRound,
+  Plus,
 } from 'lucide-react';
+import AdminCreateGroupDialog from './AdminCreateGroupDialog';
 
 export default function AdminGroupManagement() {
   const { toast } = useToast();
@@ -51,6 +53,7 @@ export default function AdminGroupManagement() {
   const [selectedGroup, setSelectedGroup] = useState<AdminGroup | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
+  const [showCreateDialog, setShowCreateDialog] = useState(false);
 
   const pageSize = 10;
 
@@ -151,10 +154,16 @@ export default function AdminGroupManagement() {
             <p className="text-sm text-slate-500">{totalElements} danh mục</p>
           </div>
         </div>
-        <Button variant="outline" onClick={fetchGroups} disabled={loading} className="border-slate-300">
-          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
-          Làm mới
-        </Button>
+        <div className="flex gap-2">
+          <Button onClick={() => setShowCreateDialog(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
+            <Plus className="h-4 w-4 mr-2" />
+            Tạo danh mục
+          </Button>
+          <Button variant="outline" onClick={fetchGroups} disabled={loading} className="border-slate-300">
+            <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            Làm mới
+          </Button>
+        </div>
       </div>
 
       {/* Search */}
@@ -316,6 +325,13 @@ export default function AdminGroupManagement() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Create Group Dialog */}
+      <AdminCreateGroupDialog
+        isOpen={showCreateDialog}
+        onClose={() => setShowCreateDialog(false)}
+        onGroupCreated={fetchGroups}
+      />
     </div>
   );
 }

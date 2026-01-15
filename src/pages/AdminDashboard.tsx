@@ -207,36 +207,6 @@ export default function AdminDashboard() {
           ))}
         </div>
       </div>
-
-      {/* System Info */}
-      <Card className="border-slate-200 bg-white">
-        <CardHeader>
-          <CardTitle className="text-base font-semibold text-slate-800">Thông Tin Hệ Thống</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
-            <div>
-              <p className="text-sm text-slate-500">Phiên bản</p>
-              <p className="text-sm font-medium text-slate-800 mt-1">v1.0.0</p>
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Môi trường</p>
-              <p className="text-sm font-medium text-slate-800 mt-1">Production</p>
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Trạng thái</p>
-              <div className="flex items-center gap-2 mt-1">
-                <span className="w-2 h-2 bg-emerald-500 rounded-full"></span>
-                <p className="text-sm font-medium text-emerald-600">Hoạt động</p>
-              </div>
-            </div>
-            <div>
-              <p className="text-sm text-slate-500">Cập nhật lần cuối</p>
-              <p className="text-sm font-medium text-slate-800 mt-1">{new Date().toLocaleDateString('vi-VN')}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
     </div>
   );
 }
