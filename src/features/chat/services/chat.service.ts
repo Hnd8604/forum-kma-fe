@@ -84,11 +84,17 @@ export class ChatService {
     };
 
     // Backend returns PageResponse format with content array
+    // Backend returns messages sorted by createdAt DESC (newest first)
+    // We need to reverse to show oldest at top, newest at bottom in chat UI
     if (response && response.content) {
-      return response.content.map(normalizeMessageType);
+      const messages = response.content.map(normalizeMessageType);
+      return messages.reverse();
     }
     // Fallback for direct array response (backward compatibility)
-    return Array.isArray(response) ? response.map(normalizeMessageType) : [];
+    if (Array.isArray(response)) {
+      return response.map(normalizeMessageType).reverse();
+    }
+    return [];
   }
 
   /**
