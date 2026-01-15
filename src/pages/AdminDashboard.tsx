@@ -6,15 +6,15 @@ import { User } from '@/interfaces/auth.types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  Users, 
-  FileText, 
-  MessageSquare, 
-  Shield, 
-  UsersRound, 
-  RefreshCw, 
-  Loader2, 
-  TrendingUp, 
+import {
+  Users,
+  FileText,
+  MessageSquare,
+  Shield,
+  UsersRound,
+  RefreshCw,
+  Loader2,
+  TrendingUp,
   ArrowUpRight,
   AlertTriangle,
   Clock,
@@ -28,7 +28,7 @@ export default function AdminDashboard() {
   const user = useAuthStore((s) => s.user);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
-  
+
   // Recent activity data
   const [recentUsers, setRecentUsers] = useState<User[]>([]);
   const [recentPosts, setRecentPosts] = useState<AdminPost[]>([]);
@@ -138,8 +138,16 @@ export default function AdminDashboard() {
   ];
 
   // Format date to relative time
+  // Backend returns LocalDateTime which is in UTC, but without timezone indicator
+  // We need to treat it as UTC time to calculate correct relative time
   const formatRelativeTime = (dateString: string) => {
-    const date = new Date(dateString);
+    // If the dateString doesn't have timezone info, append 'Z' to treat it as UTC
+    let normalizedDateString = dateString;
+    if (!dateString.endsWith('Z') && !dateString.includes('+') && !dateString.includes('-', 10)) {
+      normalizedDateString = dateString + 'Z';
+    }
+
+    const date = new Date(normalizedDateString);
     const now = new Date();
     const diff = now.getTime() - date.getTime();
     const minutes = Math.floor(diff / 60000);
@@ -408,10 +416,10 @@ export default function AdminDashboard() {
                     <div key={report.reportId} className="p-2 rounded-lg hover:bg-slate-50 transition-colors border-l-2 border-red-400">
                       <div className="flex items-center gap-2">
                         <Badge variant="outline" className="text-xs border-red-200 text-red-600 bg-red-50">
-                          {report.reason === 'SPAM' ? 'Spam' : 
-                           report.reason === 'HARASSMENT' ? 'Quấy rối' :
-                           report.reason === 'OFFENSIVE_CONTENT' ? 'Nội dung xúc phạm' :
-                           report.reason === 'MISINFORMATION' ? 'Thông tin sai' : 'Khác'}
+                          {report.reason === 'SPAM' ? 'Spam' :
+                            report.reason === 'HARASSMENT' ? 'Quấy rối' :
+                              report.reason === 'OFFENSIVE_CONTENT' ? 'Nội dung xúc phạm' :
+                                report.reason === 'MISINFORMATION' ? 'Thông tin sai' : 'Khác'}
                         </Badge>
                         <span className="text-xs text-slate-400">{formatRelativeTime(report.createdAt)}</span>
                       </div>
