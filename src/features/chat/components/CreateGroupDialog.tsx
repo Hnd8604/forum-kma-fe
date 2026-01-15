@@ -156,7 +156,7 @@ export default function CreateGroupDialog({
           )}
 
           <div className="space-y-2">
-            <Label htmlFor="groupName">Tên nhóm</Label>
+            <Label htmlFor="groupName" className="text-sm font-medium text-slate-700">Tên nhóm</Label>
             <Input
               id="groupName"
               value={groupName}
@@ -164,7 +164,7 @@ export default function CreateGroupDialog({
               placeholder="Nhập tên nhóm chat"
               disabled={loading}
               autoFocus
-              className="h-11"
+              className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-slate-300 focus:ring-0 focus:outline-none transition-all placeholder:text-slate-400"
             />
           </div>
 
@@ -203,13 +203,13 @@ export default function CreateGroupDialog({
 
             {/* Search Input */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+              <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 text-slate-400" />
               <Input
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Tìm kiếm người dùng..."
                 disabled={loading}
-                className="h-11 pl-10"
+                className="h-12 pl-11 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-slate-300 focus:ring-0 focus:outline-none transition-all placeholder:text-slate-400"
               />
             </div>
 
@@ -236,8 +236,8 @@ export default function CreateGroupDialog({
                           key={user.userId}
                           onClick={() => handleToggleMember(user)}
                           className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${isSelected
-                              ? 'bg-blue-50 border border-blue-300'
-                              : 'hover:bg-gray-50 border border-transparent'
+                            ? 'bg-blue-50 border border-blue-300'
+                            : 'hover:bg-gray-50 border border-transparent'
                             }`}
                         >
                           <Avatar className="h-10 w-10">
@@ -269,11 +269,20 @@ export default function CreateGroupDialog({
           </div>
         </div>
 
-        <DialogFooter className="gap-2 flex-shrink-0 pt-4 border-t">
-          <Button variant="outline" onClick={handleClose} disabled={loading}>
+        <DialogFooter className="gap-3 flex-shrink-0 pt-4 border-t border-slate-100">
+          <Button
+            variant="outline"
+            onClick={handleClose}
+            disabled={loading}
+            className="rounded-xl border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all"
+          >
             Hủy
           </Button>
-          <Button onClick={handleCreateGroup} disabled={loading || selectedMembers.length === 0} className="min-w-[120px]">
+          <Button
+            onClick={handleCreateGroup}
+            disabled={loading || selectedMembers.length === 0}
+            className="min-w-[120px] rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 shadow-lg shadow-blue-500/25 transition-all"
+          >
             {loading ? 'Đang tạo...' : 'Tạo nhóm'}
           </Button>
         </DialogFooter>

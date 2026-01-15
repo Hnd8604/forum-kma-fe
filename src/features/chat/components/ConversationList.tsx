@@ -5,7 +5,7 @@ import type { Conversation } from '@/interfaces/chat.types';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { MessageCircle, Users, Plus, PenSquare, Sparkles } from 'lucide-react';
+import { MessageCircle, Users, Plus, Sparkles } from 'lucide-react';
 import { useAuthStore } from '@/store/useStore';
 import AIAvatar from './AIAvatar';
 import { formatConversationTime } from '../utils/timeFormat';
@@ -17,14 +17,12 @@ interface ConversationListProps {
   onSelectConversation: (conversation: Conversation) => void;
   selectedConversationId?: string;
   onCreateGroup?: () => void;
-  onNewMessage?: () => void;
 }
 
 export default function ConversationList({
   onSelectConversation,
   selectedConversationId,
   onCreateGroup,
-  onNewMessage,
 }: ConversationListProps) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [userNames, setUserNames] = useState<Record<string, string>>({});
@@ -264,15 +262,6 @@ export default function ConversationList({
           <p className="text-xs text-slate-500 mt-0.5">{conversations.length} cuộc hội thoại</p>
         </div>
         <div className="flex gap-2">
-          {onNewMessage && (
-            <Button
-              size="sm"
-              onClick={onNewMessage}
-              className="gap-2 rounded-xl bg-gradient-to-r from-indigo-500 to-purple-500 hover:from-indigo-600 hover:to-purple-600 text-white shadow-lg shadow-indigo-500/30 transition-all hover:scale-105"
-            >
-              <PenSquare className="w-4 h-4" />
-            </Button>
-          )}
           {onCreateGroup && (
             <Button
               size="sm"

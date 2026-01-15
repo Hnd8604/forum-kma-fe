@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Home, Users, ChevronDown, ChevronUp, Plus, Loader2, Flame, Star, Zap, LayoutGrid } from 'lucide-react';
+import { Home, ChevronDown, ChevronUp, Plus, Loader2, Flame, Zap, LayoutGrid } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { GroupService, CreateGroupDialog } from '@/features/groups';
 import type { Group } from '@/interfaces/post.types';
@@ -305,31 +305,6 @@ export default function Sidebar() {
                 )}
               </div>
             )}
-          </div>
-
-          <div className="border-t border-[#EDEFF1] my-3"></div>
-
-          {/* Resources */}
-          <div className="mb-4 bg-white rounded-2xl border border-slate-200 p-2 shadow-sm">
-            <div className="px-3 py-2 text-xs font-semibold uppercase tracking-wider text-slate-500">
-              Tài nguyên
-            </div>
-            <div className="space-y-1">
-              <Button
-                variant="ghost"
-                className="w-full justify-start h-11 px-3 rounded-xl hover:bg-slate-100 text-sm font-medium text-slate-700 transition-all"
-              >
-                <Users className="w-5 h-5 mr-3 text-slate-500" />
-                Giới thiệu Forum KMA
-              </Button>
-              <Button
-                variant="ghost"
-                className="w-full justify-start h-11 px-3 rounded-xl hover:bg-slate-100 text-sm font-medium text-slate-700 transition-all"
-              >
-                <Star className="w-5 h-5 mr-3 text-amber-500" />
-                Hướng dẫn sử dụng
-              </Button>
-            </div>
           </div>
 
           {/* Footer */}
