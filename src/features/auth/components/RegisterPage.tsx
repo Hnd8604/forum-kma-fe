@@ -9,6 +9,47 @@ import { useAuthStore } from '@/store/useStore';
 import { ApiError } from '@/interfaces/auth.types';
 import EmailVerificationDialog from './EmailVerificationDialog';
 
+// Password strength calculator
+const getPasswordStrength = (password: string): { level: number; text: string } => {
+  let score = 0;
+
+  // Length checks
+  if (password.length >= 6) score += 1;
+  if (password.length >= 10) score += 1;
+
+  // Contains lowercase
+  if (/[a-z]/.test(password)) score += 1;
+
+  // Contains uppercase
+  if (/[A-Z]/.test(password)) score += 1;
+
+  // Contains number
+  if (/[0-9]/.test(password)) score += 1;
+
+  // Contains special character
+  if (/[^a-zA-Z0-9]/.test(password)) score += 1;
+
+  // Calculate level (1-4)
+  let level: number;
+  let text: string;
+
+  if (score <= 2) {
+    level = 1;
+    text = 'Yếu - Thêm chữ hoa, số hoặc ký tự đặc biệt';
+  } else if (score <= 3) {
+    level = 2;
+    text = 'Trung bình - Mật khẩu có thể mạnh hơn';
+  } else if (score <= 4) {
+    level = 3;
+    text = 'Khá - Gần đạt yêu cầu bảo mật';
+  } else {
+    level = 4;
+    text = 'Mạnh - Mật khẩu an toàn';
+  }
+
+  return { level, text };
+};
+
 interface RegisterPageProps {
   onRegister: (user: any) => void;
   onSwitchToLogin?: () => void;
@@ -234,6 +275,27 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
                     required
                   />
                 </div>
+                {/* Password Strength Indicator */}
+                {password && (
+                  <div className="flex mt-2">
+                    {[1, 2, 3, 4].map((level) => {
+                      const strength = getPasswordStrength(password);
+                      const isActive = level <= strength.level;
+                      return (
+                        <div
+                          key={level}
+                          className={`h-1 flex-1 transition-all duration-300 first:rounded-l-full last:rounded-r-full ${isActive
+                              ? strength.level === 1 ? 'bg-red-500'
+                                : strength.level === 2 ? 'bg-orange-500'
+                                  : strength.level === 3 ? 'bg-yellow-500'
+                                    : 'bg-green-500'
+                              : 'bg-slate-200'
+                            }`}
+                        />
+                      );
+                    })}
+                  </div>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword" className="text-sm font-medium text-slate-700">Xác nhận mật khẩu</Label>

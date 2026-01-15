@@ -100,6 +100,10 @@ export default function AIChatWindow({ onBack: _onBack }: AIChatWindowProps) {
       setTypingMessageId(botResponse.id);
     } finally {
       setIsLoading(false);
+      // Delay focus to ensure input is enabled after state update
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
     }
   };
 

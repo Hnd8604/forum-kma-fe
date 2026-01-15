@@ -10,7 +10,7 @@ import type { ApiPost } from '@/interfaces/post.types';
 import { useAuthStore } from '@/store/useStore';
 
 export default function ForumFeed() {
-  const { postId } = useParams<{ postId?: string }>();
+  const { postId: urlPostId } = useParams<{ postId?: string }>();
   const [posts, setPosts] = useState<ApiPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -19,6 +19,9 @@ export default function ForumFeed() {
   const [hasMore, setHasMore] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const user = useAuthStore((state) => state.user);
+
+  // Track the last fetched urlPostId to avoid duplicate fetches
+  const [lastFetchedUrlPostId, setLastFetchedUrlPostId] = useState<string | null>(null);
 
   const loadPosts = useCallback(async (pageNum: number = 0, append: boolean = false) => {
     try {
@@ -85,6 +88,47 @@ export default function ForumFeed() {
       window.removeEventListener('changeSortFilter', handleSortFilterChange as EventListener);
     };
   }, [sortBy, loadPosts]);
+
+  // Fetch specific post from URL when navigating from notifications
+  useEffect(() => {
+    const fetchPostFromUrl = async () => {
+      if (!urlPostId || lastFetchedUrlPostId === urlPostId) return;
+
+      // Check if post already exists in the list
+      const existingPost = posts.find(p => p.postId === urlPostId);
+      if (existingPost) {
+        setLastFetchedUrlPostId(urlPostId);
+        return;
+      }
+
+      try {
+        console.log('[ForumFeed] Fetching post from URL:', urlPostId);
+        const post = await PostService.getPostById(urlPostId);
+
+        // Add the fetched post to the beginning of the list
+        setPosts(prev => {
+          // Avoid duplicates
+          if (prev.some(p => p.postId === post.postId)) {
+            return prev;
+          }
+          return [{ ...post, myReaction: (post as any).userReactionType || null }, ...prev];
+        });
+
+        setLastFetchedUrlPostId(urlPostId);
+
+        // Dispatch event to open the post modal
+        setTimeout(() => {
+          window.dispatchEvent(new CustomEvent('open-post-modal', {
+            detail: { postId: urlPostId }
+          }));
+        }, 100);
+      } catch (err) {
+        console.error('[ForumFeed] Failed to fetch post from URL:', err);
+      }
+    };
+
+    fetchPostFromUrl();
+  }, [urlPostId, lastFetchedUrlPostId, posts]);
 
   const handleLoadMore = () => {
     if (!loadingMore && hasMore) {
@@ -204,7 +248,7 @@ export default function ForumFeed() {
                 post={post}
                 onReactionChange={handleReactionChange}
                 onDelete={handlePostDelete}
-                autoOpenIfId={postId}
+                autoOpenIfId={urlPostId}
               />
             ))}
 

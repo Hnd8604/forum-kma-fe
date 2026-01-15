@@ -106,6 +106,10 @@ export default function MiniAIChatWindow({ onClose, position }: MiniAIChatWindow
       setTypingMessageId(botResponse.id);
     } finally {
       setIsLoading(false);
+      // Delay focus to ensure input is enabled after state update
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
     }
   };
 

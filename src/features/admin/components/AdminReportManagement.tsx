@@ -104,6 +104,7 @@ export default function AdminReportManagement() {
         description: `Đã xử lý báo cáo với quyết định: ${resolveDecision === 'RESOLVED' ? 'Phê duyệt' : 'Từ chối'}`,
       });
       setShowResolveDialog(false);
+      setShowDetailsDialog(false);
       setResolveDecision('RESOLVED');
       setResolutionNotes('');
       fetchReports();
@@ -267,31 +268,24 @@ export default function AdminReportManagement() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => {
-                            setSelectedReport(report);
-                            setShowDetailsDialog(true);
-                          }}
-                          title="Xem chi tiết"
+                          onClick={() => window.open(`/forum/post/${report.postId}`, '_blank')}
+                          title="Xem bài viết"
                           className="h-8 w-8 hover:bg-slate-100"
                         >
                           <Eye className="h-4 w-4 text-slate-600" />
                         </Button>
-                        {report.status === 'PENDING' && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => {
-                              setSelectedReport(report);
-                              setResolveDecision('RESOLVED');
-                              setResolutionNotes('');
-                              setShowResolveDialog(true);
-                            }}
-                            title="Xử lý báo cáo"
-                            className="h-8 w-8 hover:bg-amber-50"
-                          >
-                            <Gavel className="h-4 w-4 text-amber-600" />
-                          </Button>
-                        )}
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => {
+                            setSelectedReport(report);
+                            setShowDetailsDialog(true);
+                          }}
+                          title="Xem chi tiết & Xử lý báo cáo"
+                          className="h-8 w-8 hover:bg-amber-50"
+                        >
+                          <Gavel className="h-4 w-4 text-amber-600" />
+                        </Button>
                       </div>
                     </TableCell>
                   </TableRow>
@@ -431,16 +425,60 @@ export default function AdminReportManagement() {
           )}
           <DialogFooter className="border-t pt-4 flex-shrink-0">
             {selectedReport?.status === 'PENDING' && (
+              <div className="w-full space-y-4">
+                {/* Resolution Notes */}
+                <div>
+                  <p className="text-sm font-semibold text-slate-700 mb-2">Ghi chú xử lý (tùy chọn)</p>
+                  <Textarea
+                    placeholder="Ghi chú về quyết định này..."
+                    value={resolutionNotes}
+                    onChange={(e) => setResolutionNotes(e.target.value)}
+                    className="min-h-20"
+                  />
+                </div>
+
+                {/* Action Buttons */}
+                <div className="flex gap-2 justify-end">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowDetailsDialog(false)}
+                    disabled={resolveLoading}
+                  >
+                    Đóng
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setResolveDecision('REJECTED');
+                      handleResolve();
+                    }}
+                    disabled={resolveLoading}
+                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                  >
+                    {resolveLoading && resolveDecision === 'REJECTED' && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                    <Check className="h-4 w-4 mr-2" />
+                    Từ chối báo cáo
+                  </Button>
+                  <Button
+                    onClick={() => {
+                      setResolveDecision('RESOLVED');
+                      handleResolve();
+                    }}
+                    disabled={resolveLoading}
+                    className="bg-red-600 hover:bg-red-700 text-white"
+                  >
+                    {resolveLoading && resolveDecision === 'RESOLVED' && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
+                    <X className="h-4 w-4 mr-2" />
+                    Phê duyệt (Xóa bài)
+                  </Button>
+                </div>
+              </div>
+            )}
+            {selectedReport?.status !== 'PENDING' && (
               <Button
-                onClick={() => {
-                  setShowDetailsDialog(false);
-                  setResolveDecision('RESOLVED');
-                  setResolutionNotes('');
-                  setShowResolveDialog(true);
-                }}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                variant="outline"
+                onClick={() => setShowDetailsDialog(false)}
               >
-                Xử lý báo cáo
+                Đóng
               </Button>
             )}
           </DialogFooter>

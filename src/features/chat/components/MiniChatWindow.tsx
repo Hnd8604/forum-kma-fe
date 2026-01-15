@@ -60,6 +60,7 @@ export default function MiniChatWindow({
   const [userNames, setUserNames] = useState<Record<string, string>>({});
   const [userAvatars, setUserAvatars] = useState<Record<string, string>>({});
   const scrollRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const [deletingMessageId, setDeletingMessageId] = useState<string | null>(null);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [messageToDelete, setMessageToDelete] = useState<string | null>(null);
@@ -320,6 +321,10 @@ export default function MiniChatWindow({
       setNewMessage(messageText);
     } finally {
       setSending(false);
+      // Delay focus to ensure input is enabled after state update
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
     }
   };
 
@@ -533,6 +538,7 @@ export default function MiniChatWindow({
           />
 
           <Input
+            ref={inputRef}
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}

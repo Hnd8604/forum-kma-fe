@@ -395,7 +395,10 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
       setMessages((prev) => prev.filter(msg => msg.id !== tempId));
     } finally {
       setSending(false);
-      inputRef.current?.focus();
+      // Delay focus to ensure input is enabled after state update
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 0);
     }
   };
 
