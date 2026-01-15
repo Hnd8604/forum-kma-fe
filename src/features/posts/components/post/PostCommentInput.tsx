@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Smile, Send } from 'lucide-react';
+import { Send } from 'lucide-react';
 
 interface PostCommentInputProps {
     userAvatarUrl?: string;
@@ -60,12 +60,6 @@ export default function PostCommentInput({
                         disabled={disabled || sending}
                         className="flex-1 text-sm outline-none bg-transparent placeholder:text-slate-400"
                     />
-                    <button
-                        className="text-slate-400 hover:text-slate-600 transition-colors p-1"
-                        type="button"
-                    >
-                        <Smile className="w-5 h-5" />
-                    </button>
                     <button
                         onClick={handleSubmit}
                         disabled={!commentText.trim() || sending}
