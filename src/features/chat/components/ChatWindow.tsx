@@ -428,11 +428,15 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
           : m
       ));
 
+      // Determine if deleted message is the latest message
+      const isLatest = messages.length > 0 && messages[messages.length - 1].id === messageToDelete;
+
       // Dispatch event to sync with other chat windows (MiniChatWindow)
       window.dispatchEvent(new CustomEvent('chat-message-deleted', {
         detail: {
           messageId: messageToDelete,
           conversationId: conversation.conversationId,
+          isLatest, // Only update sidebar if this is the latest message
         }
       }));
 

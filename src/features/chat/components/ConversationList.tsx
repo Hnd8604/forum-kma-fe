@@ -75,10 +75,18 @@ export default function ConversationList({
     };
 
     // Handle message deleted event - update lastMessage to "Tin nhắn đã bị xóa"
+    // Only update sidebar if the deleted message is the latest message (isLatest !== false)
     const handleMessageDeleted = (event: Event) => {
       const customEvent = event as CustomEvent;
       const data = customEvent.detail;
       const convId = data.conversationId || data.chatId;
+
+      // If isLatest is explicitly false, don't update the sidebar
+      // This means the deleted message is not the latest message in conversation
+      if (data.isLatest === false) {
+        console.log('[ConversationList] Skipping sidebar update - deleted message is not the latest');
+        return;
+      }
 
       if (convId) {
         setConversations((prev) => {

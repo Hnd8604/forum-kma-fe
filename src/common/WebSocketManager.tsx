@@ -13,6 +13,7 @@ interface ChatMessageEvent {
     sentAt: string;
     resourceUrls?: string[];
     isDeleted?: boolean;
+    isLatest?: boolean; // Indicates if the deleted message is the latest message in conversation
 }
 
 interface NotificationEvent {
@@ -85,7 +86,8 @@ export default function WebSocketManager() {
                 messageId: data.messageId,
                 chatId: data.chatId,
                 type: data.type,
-                isDeleted: data.isDeleted
+                isDeleted: data.isDeleted,
+                isLatest: data.isLatest
             });
             window.dispatchEvent(new CustomEvent('chat-message-deleted', { detail: data }));
             return;
