@@ -383,7 +383,7 @@ export default function MiniChatWindow({
 
   return (
     <Card
-      className="fixed bottom-0 w-80 shadow-2xl border-0 flex flex-col bg-white/95 backdrop-blur-md z-50 rounded-t-2xl overflow-hidden"
+      className="fixed bottom-0 w-80 shadow-2xl border-0 flex flex-col gap-0 bg-white/95 backdrop-blur-md z-50 rounded-t-2xl overflow-hidden"
       style={{ right: `${rightOffset}px`, height: '480px' }}
     >
       {/* Header */}

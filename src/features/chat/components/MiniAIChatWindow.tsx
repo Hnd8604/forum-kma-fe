@@ -118,7 +118,7 @@ export default function MiniAIChatWindow({ onClose, position }: MiniAIChatWindow
 
   return (
     <Card
-      className="fixed bottom-0 w-80 h-[480px] z-40 shadow-2xl flex flex-col overflow-hidden border border-purple-200 rounded-t-2xl rounded-b-none bg-white"
+      className="fixed bottom-0 w-80 h-[480px] z-40 shadow-2xl flex flex-col gap-0 overflow-hidden border border-purple-200 rounded-t-2xl rounded-b-none bg-white"
       style={{ right: `${rightOffset}px` }}
     >
       {/* Header */}

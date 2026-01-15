@@ -454,7 +454,7 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
 
   return (
     <>
-      <Card className="h-full flex flex-col border-0 rounded-none bg-white">
+      <Card className="h-full flex flex-col gap-0 border-0 rounded-none bg-white">
         <div className="p-4 border-b border-slate-100 flex items-center gap-3 bg-white/80 backdrop-blur-md">
           {onBack && (
             <Button variant="ghost" size="sm" onClick={onBack} className="rounded-xl hover:bg-slate-100">

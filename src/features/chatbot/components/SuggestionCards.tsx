@@ -87,17 +87,6 @@ export default function SuggestionCards({
                     );
                 })}
             </div>
-
-            {/* Auto-rotate indicator dots */}
-            <div className="flex gap-1.5">
-                {[0, 1, 2].map((index) => (
-                    <div
-                        key={index}
-                        className="w-1.5 h-1.5 rounded-full bg-slate-300"
-                    />
-                ))}
-                <div className="w-1.5 h-1.5 rounded-full bg-blue-500 animate-pulse" />
-            </div>
         </div>
     );
 }
