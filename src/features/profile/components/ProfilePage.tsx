@@ -13,6 +13,7 @@ import { PostCard } from '@/features/posts';
 import type { ApiPost } from '@/interfaces/post.types';
 import type { User } from '@/interfaces/auth.types';
 import type { FriendshipResponse } from '@/interfaces/friendship.types';
+import { FriendshipStatus } from '@/interfaces/friendship.types';
 import {
   Info,
   FileText,
@@ -30,6 +31,7 @@ export default function ProfilePage() {
   const [profileUser, setProfileUser] = useState<User | null>(null);
   const [posts, setPosts] = useState<ApiPost[]>([]);
   const [friends, setFriends] = useState<FriendshipResponse[]>([]);
+  const [friendshipStatus, setFriendshipStatus] = useState<FriendshipStatus | null>(null);
   const [activeTab, setActiveTab] = useState<ProfileTab>('about');
   const [loading, setLoading] = useState(true);
   const [postsLoading, setPostsLoading] = useState(false);
@@ -65,6 +67,17 @@ export default function ProfilePage() {
 
       await loadPosts();
       await loadFriends();
+
+      // Load friendship status for other users' profiles
+      if (!isOwnProfile && targetUserId) {
+        try {
+          const statusResponse = await FriendshipService.checkFriendshipStatus(targetUserId);
+          setFriendshipStatus(statusResponse.status);
+        } catch (error) {
+          console.error('Error checking friendship status:', error);
+          setFriendshipStatus(null);
+        }
+      }
     } catch (error: any) {
       console.error('Error loading profile:', error);
       toast.error('Không thể tải thông tin hồ sơ');
@@ -206,10 +219,12 @@ export default function ProfilePage() {
                   ) : (
                     <>
                       <FriendButton userId={targetUserId!} />
-                      <StartChatButton
-                        userId={targetUserId!}
-                        userName={getDisplayName()}
-                      />
+                      {friendshipStatus === FriendshipStatus.FRIENDS && (
+                        <StartChatButton
+                          userId={targetUserId!}
+                          userName={getDisplayName()}
+                        />
+                      )}
                     </>
                   )}
                 </div>

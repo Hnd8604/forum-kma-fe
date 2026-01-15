@@ -140,7 +140,8 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
 
   // Check ownership
   const isOwner = currentUser?.userId === post.authorId;
-  const canDelete = isOwner;
+  const isAdmin = currentUser?.roleName === 'ADMIN';
+  const canDelete = isOwner || isAdmin;
 
   // Sync comment count when post prop changes
   useEffect(() => {
@@ -302,19 +303,21 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="bg-white dark:bg-slate-900">
-              <DropdownMenuItem
-                className="text-slate-700 focus:text-slate-700 focus:bg-slate-50 cursor-pointer"
-                onClick={(e: React.MouseEvent) => {
-                  e.stopPropagation();
-                  setShowReportDialog(true);
-                }}
-              >
-                <Flag className="w-4 h-4 mr-2" />
-                Báo cáo bài viết
-              </DropdownMenuItem>
+              {!isOwner && (
+                <DropdownMenuItem
+                  className="text-slate-700 focus:text-slate-700 focus:bg-slate-50 cursor-pointer"
+                  onClick={(e: React.MouseEvent) => {
+                    e.stopPropagation();
+                    setShowReportDialog(true);
+                  }}
+                >
+                  <Flag className="w-4 h-4 mr-2" />
+                  Báo cáo bài viết
+                </DropdownMenuItem>
+              )}
               {canDelete && (
                 <>
-                  <hr className="my-1" />
+                  {!isOwner && <hr className="my-1" />}
                   <DropdownMenuItem
                     className="text-red-600 focus:text-red-600 focus:bg-red-50 cursor-pointer"
                     onClick={(e: React.MouseEvent) => {
