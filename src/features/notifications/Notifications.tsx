@@ -58,8 +58,31 @@ export default function Notifications({ isOpen: externalIsOpen, onOpenChange }: 
   useEffect(() => {
     const handleNewNotification = (event: CustomEvent) => {
       const notification = event.detail as Notification;
-      setNotifications((prev) => [notification, ...prev]);
-      setUnreadCount((prev) => prev + 1);
+
+      setNotifications((prev) => {
+        // Kiểm tra xem notification đã tồn tại hay chưa (cùng id)
+        const existingIndex = prev.findIndex((n) => n.id === notification.id);
+
+        if (existingIndex >= 0) {
+          // Notification đã tồn tại - cập nhật và đưa lên đầu list (mới nhất)
+          const existingNotif = prev[existingIndex];
+          const updatedList = [...prev];
+          updatedList.splice(existingIndex, 1); // Xóa notification cũ
+
+          // Nếu notification cũ đã đọc và notification mới chưa đọc thì tăng unreadCount
+          if (existingNotif.isRead && !notification.isRead) {
+            setUnreadCount((count) => count + 1);
+          }
+
+          return [notification, ...updatedList]; // Thêm notification mới vào đầu
+        }
+
+        // Notification mới hoàn toàn - thêm vào đầu list và tăng unreadCount
+        if (!notification.isRead) {
+          setUnreadCount((count) => count + 1);
+        }
+        return [notification, ...prev];
+      });
     };
 
     window.addEventListener('notification-received', handleNewNotification as EventListener);
@@ -247,7 +270,7 @@ export default function Notifications({ isOpen: externalIsOpen, onOpenChange }: 
                               {notification.title}
                             </p>
                             <span className="text-xs text-slate-400 flex-shrink-0">
-                              {formatTimeAgo(notification.createdAt)}
+                              {formatTimeAgo(notification.lastActivityAt || notification.createdAt)}
                             </span>
                           </div>
                           <p className={`text-xs ${notification.isRead ? 'text-slate-500' : 'text-slate-700'} leading-relaxed line-clamp-2`}>

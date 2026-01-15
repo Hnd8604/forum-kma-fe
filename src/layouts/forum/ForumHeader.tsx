@@ -40,7 +40,6 @@ export default function ForumHeader({
 
   const displayName = user ? `${user.lastName || ''} ${user.firstName || ''}`.trim() || user.username || 'User' : 'User';
   const displayEmail = user?.email || 'student@university.edu';
-  const displayPostCount = user?.totalPosts ?? user?.postCount ?? 0;
   const avatarUrl = user?.avatarUrl;
 
   const getInitials = () => {
@@ -202,10 +201,6 @@ export default function ForumHeader({
                   </div>
                 </div>
                 <p className="text-xs text-blue-100 truncate">{displayEmail}</p>
-                <div className="mt-3 text-center">
-                  <p className="text-2xl font-bold text-white">{displayPostCount}</p>
-                  <p className="text-xs text-blue-100">bài viết</p>
-                </div>
               </div>
               <div className="p-2">
                 <DropdownMenuItem asChild className="cursor-pointer rounded-xl p-3 hover:bg-slate-50">
