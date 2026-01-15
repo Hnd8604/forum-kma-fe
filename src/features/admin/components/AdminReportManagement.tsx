@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AdminService, ReportResponse, PageResponse } from '../services/admin.service';
 import { useToast } from '@/components/ui/use-toast';
 import {
@@ -44,6 +45,7 @@ import { Textarea } from '@/components/ui/textarea';
 
 export default function AdminReportManagement() {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const [reports, setReports] = useState<ReportResponse[]>([]);
   const [loading, setLoading] = useState(true);
@@ -268,7 +270,7 @@ export default function AdminReportManagement() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => window.open(`/forum/post/${report.postId}`, '_blank')}
+                          onClick={() => navigate(`/forum/post/${report.postId}`)}
                           title="Xem bài viết"
                           className="h-8 w-8 hover:bg-slate-100"
                         >

@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AdminService, AdminPost, PaginatedResponse } from '../services/admin.service';
 import { useToast } from '@/components/ui/use-toast';
 import {
@@ -40,6 +41,7 @@ import {
 
 export default function AdminPostManagement() {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const [posts, setPosts] = useState<AdminPost[]>([]);
   const [loading, setLoading] = useState(true);
@@ -245,7 +247,7 @@ export default function AdminPostManagement() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => window.open(`/forum/post/${post.postId}`, '_blank')}
+                          onClick={() => navigate(`/forum/post/${post.postId}`)}
                           title="Xem bài viết"
                           className="h-8 w-8 hover:bg-slate-100"
                         >

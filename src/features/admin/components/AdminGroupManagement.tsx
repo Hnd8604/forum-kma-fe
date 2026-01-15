@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AdminService, AdminGroup, PaginatedResponse } from '../services/admin.service';
 import { useToast } from '@/components/ui/use-toast';
 import {
@@ -42,6 +43,7 @@ import AdminCreateGroupDialog from './AdminCreateGroupDialog';
 
 export default function AdminGroupManagement() {
   const { toast } = useToast();
+  const navigate = useNavigate();
 
   const [groups, setGroups] = useState<AdminGroup[]>([]);
   const [loading, setLoading] = useState(true);
@@ -245,7 +247,7 @@ export default function AdminGroupManagement() {
                         <Button
                           variant="ghost"
                           size="icon"
-                          onClick={() => window.open(`/forum/group/${group.id}`, '_blank')}
+                          onClick={() => navigate(`/forum/group/${group.id}`)}
                           title="Xem danh mục"
                           className="h-8 w-8 hover:bg-slate-100"
                         >
