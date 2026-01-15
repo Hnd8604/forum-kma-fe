@@ -379,10 +379,6 @@ export default function AdminReportManagement() {
                         {selectedReport.post.content}
                       </p>
                     </div>
-                    <div className="border-t border-amber-200 pt-3">
-                      <p className="text-xs font-medium text-slate-600 uppercase tracking-wide mb-1">Tác giả</p>
-                      <p className="text-sm text-slate-800">{selectedReport.post.authorName}</p>
-                    </div>
                   </div>
                 </div>
               )}
