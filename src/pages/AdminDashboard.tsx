@@ -1,16 +1,39 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '@/store/useStore';
-import { AdminService, AdminStats } from '@/features/admin';
+import { AdminService, AdminStats, AdminPost, ReportResponse } from '@/features/admin';
+import { User } from '@/interfaces/auth.types';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Users, FileText, MessageSquare, Shield, UsersRound, RefreshCw, Loader2, TrendingUp, ArrowUpRight } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { 
+  Users, 
+  FileText, 
+  MessageSquare, 
+  Shield, 
+  UsersRound, 
+  RefreshCw, 
+  Loader2, 
+  TrendingUp, 
+  ArrowUpRight,
+  AlertTriangle,
+  Clock,
+  UserPlus,
+  PenSquare,
+  Flag
+} from 'lucide-react';
 
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const [stats, setStats] = useState<AdminStats | null>(null);
   const [loading, setLoading] = useState(true);
+  
+  // Recent activity data
+  const [recentUsers, setRecentUsers] = useState<User[]>([]);
+  const [recentPosts, setRecentPosts] = useState<AdminPost[]>([]);
+  const [recentReports, setRecentReports] = useState<ReportResponse[]>([]);
+  const [activityLoading, setActivityLoading] = useState(true);
 
   const fetchStats = async () => {
     setLoading(true);
@@ -44,9 +67,40 @@ export default function AdminDashboard() {
     }
   };
 
+  const fetchRecentActivity = async () => {
+    setActivityLoading(true);
+    try {
+      const [usersRes, postsRes, reportsRes] = await Promise.allSettled([
+        AdminService.getAllUsers(0, 5),
+        AdminService.getAllPosts(0, 5),
+        AdminService.getPendingReports(0, 5),
+      ]);
+
+      if (usersRes.status === 'fulfilled') {
+        setRecentUsers(usersRes.value.content || []);
+      }
+      if (postsRes.status === 'fulfilled') {
+        setRecentPosts(postsRes.value.content || []);
+      }
+      if (reportsRes.status === 'fulfilled') {
+        setRecentReports(reportsRes.value.content || []);
+      }
+    } catch (error) {
+      console.error('Failed to fetch recent activity:', error);
+    } finally {
+      setActivityLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchStats();
+    fetchRecentActivity();
   }, []);
+
+  const handleRefresh = () => {
+    fetchStats();
+    fetchRecentActivity();
+  };
 
   const statsCards = [
     {
@@ -74,14 +128,30 @@ export default function AdminDashboard() {
       color: 'bg-violet-500',
     },
     {
-      title: 'Báo Cáo',
+      title: 'Báo Cáo Chờ Xử Lý',
       value: stats?.pendingReports ?? 0,
-      icon: Shield,
-      description: 'Chờ xử lý',
+      icon: AlertTriangle,
+      description: 'Cần xử lý ngay',
       onClick: () => navigate('/admin/reports'),
-      color: 'bg-amber-500',
+      color: (stats?.pendingReports ?? 0) > 0 ? 'bg-red-500' : 'bg-amber-500',
     },
   ];
+
+  // Format date to relative time
+  const formatRelativeTime = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diff = now.getTime() - date.getTime();
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'Vừa xong';
+    if (minutes < 60) return `${minutes} phút trước`;
+    if (hours < 24) return `${hours} giờ trước`;
+    if (days < 7) return `${days} ngày trước`;
+    return date.toLocaleDateString('vi-VN');
+  };
 
   const quickActions = [
     {
@@ -130,11 +200,11 @@ export default function AdminDashboard() {
         </div>
         <Button
           variant="outline"
-          onClick={fetchStats}
-          disabled={loading}
+          onClick={handleRefresh}
+          disabled={loading || activityLoading}
           className="border-slate-300"
         >
-          <RefreshCw className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} />
+          <RefreshCw className={`h-4 w-4 mr-2 ${loading || activityLoading ? 'animate-spin' : ''}`} />
           Làm mới
         </Button>
       </div>
@@ -205,6 +275,154 @@ export default function AdminDashboard() {
               </CardHeader>
             </Card>
           ))}
+        </div>
+      </div>
+
+      {/* Recent Activity Section */}
+      <div>
+        <h2 className="text-lg font-semibold text-slate-800 mb-4">Hoạt Động Gần Đây</h2>
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Recent Users */}
+          <Card className="border-slate-200 bg-white">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-blue-100 rounded-lg">
+                    <UserPlus className="h-4 w-4 text-blue-600" />
+                  </div>
+                  <CardTitle className="text-sm font-semibold text-slate-800">Người Dùng Mới</CardTitle>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => navigate('/admin/users')} className="text-xs text-blue-600 hover:text-blue-700">
+                  Xem tất cả
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              {activityLoading ? (
+                <div className="flex justify-center py-6">
+                  <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+                </div>
+              ) : recentUsers.length === 0 ? (
+                <p className="text-sm text-slate-500 text-center py-6">Không có dữ liệu</p>
+              ) : (
+                <div className="space-y-3">
+                  {recentUsers.slice(0, 5).map((u) => (
+                    <div key={u.userId} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-xs font-semibold overflow-hidden">
+                        {u.avatarUrl ? (
+                          <img src={u.avatarUrl} alt={u.username} className="w-full h-full object-cover" />
+                        ) : (
+                          u.firstName?.charAt(0) || u.username?.charAt(0) || 'U'
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-medium text-slate-800 truncate">{u.firstName} {u.lastName}</p>
+                        <p className="text-xs text-slate-500 truncate">@{u.username}</p>
+                      </div>
+                      <div className="flex items-center gap-1 text-xs text-slate-400">
+                        <Clock className="h-3 w-3" />
+                        {formatRelativeTime(u.createdAt || new Date().toISOString())}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Recent Posts */}
+          <Card className="border-slate-200 bg-white">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-emerald-100 rounded-lg">
+                    <PenSquare className="h-4 w-4 text-emerald-600" />
+                  </div>
+                  <CardTitle className="text-sm font-semibold text-slate-800">Bài Viết Mới</CardTitle>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => navigate('/admin/posts')} className="text-xs text-emerald-600 hover:text-emerald-700">
+                  Xem tất cả
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              {activityLoading ? (
+                <div className="flex justify-center py-6">
+                  <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+                </div>
+              ) : recentPosts.length === 0 ? (
+                <p className="text-sm text-slate-500 text-center py-6">Không có dữ liệu</p>
+              ) : (
+                <div className="space-y-3">
+                  {recentPosts.slice(0, 5).map((post) => (
+                    <div key={post.postId} className="p-2 rounded-lg hover:bg-slate-50 transition-colors">
+                      <p className="text-sm font-medium text-slate-800 truncate">{post.title}</p>
+                      <div className="flex items-center gap-2 mt-1">
+                        <span className="text-xs text-slate-500">bởi {post.authorName}</span>
+                        <span className="text-xs text-slate-300">•</span>
+                        <span className="text-xs text-slate-400">{formatRelativeTime(post.createdAt)}</span>
+                      </div>
+                      {post.groupName && (
+                        <Badge variant="secondary" className="mt-1 text-xs bg-slate-100 text-slate-600">
+                          {post.groupName}
+                        </Badge>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
+
+          {/* Pending Reports */}
+          <Card className="border-slate-200 bg-white">
+            <CardHeader className="pb-3">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <Flag className="h-4 w-4 text-red-600" />
+                  </div>
+                  <CardTitle className="text-sm font-semibold text-slate-800">Báo Cáo Chờ Xử Lý</CardTitle>
+                </div>
+                <Button variant="ghost" size="sm" onClick={() => navigate('/admin/reports')} className="text-xs text-red-600 hover:text-red-700">
+                  Xem tất cả
+                </Button>
+              </div>
+            </CardHeader>
+            <CardContent className="pt-0">
+              {activityLoading ? (
+                <div className="flex justify-center py-6">
+                  <Loader2 className="h-6 w-6 animate-spin text-slate-400" />
+                </div>
+              ) : recentReports.length === 0 ? (
+                <div className="text-center py-6">
+                  <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center mx-auto mb-2">
+                    <Shield className="h-6 w-6 text-emerald-600" />
+                  </div>
+                  <p className="text-sm text-emerald-600 font-medium">Không có báo cáo</p>
+                  <p className="text-xs text-slate-500">Hệ thống sạch sẽ!</p>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  {recentReports.slice(0, 5).map((report) => (
+                    <div key={report.reportId} className="p-2 rounded-lg hover:bg-slate-50 transition-colors border-l-2 border-red-400">
+                      <div className="flex items-center gap-2">
+                        <Badge variant="outline" className="text-xs border-red-200 text-red-600 bg-red-50">
+                          {report.reason === 'SPAM' ? 'Spam' : 
+                           report.reason === 'HARASSMENT' ? 'Quấy rối' :
+                           report.reason === 'OFFENSIVE_CONTENT' ? 'Nội dung xúc phạm' :
+                           report.reason === 'MISINFORMATION' ? 'Thông tin sai' : 'Khác'}
+                        </Badge>
+                        <span className="text-xs text-slate-400">{formatRelativeTime(report.createdAt)}</span>
+                      </div>
+                      <p className="text-xs text-slate-600 mt-1 line-clamp-2">{report.description || 'Không có mô tả'}</p>
+                      <p className="text-xs text-slate-500 mt-1">Báo cáo bởi: {report.reportedByName}</p>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </CardContent>
+          </Card>
         </div>
       </div>
     </div>
