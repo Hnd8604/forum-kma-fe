@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Camera, UserCircle, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 // switch replaced by single button UI
@@ -128,7 +129,7 @@ export default function SettingsPage() {
       <div className="bg-white p-6 rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 mb-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-500 rounded-xl flex items-center justify-center">
-            <span className="text-white text-lg">📷</span>
+            <Camera className="w-5 h-5 text-white" />
           </div>
           <h3 className="text-xl font-semibold text-slate-900">Ảnh đại diện</h3>
         </div>
@@ -165,7 +166,7 @@ export default function SettingsPage() {
       <div className="space-y-5 bg-white p-6 rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 mb-6">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center">
-            <span className="text-white text-lg">👤</span>
+            <UserCircle className="w-5 h-5 text-white" />
           </div>
           <h3 className="text-xl font-semibold text-slate-900">Thông tin cá nhân</h3>
         </div>
@@ -273,7 +274,7 @@ export default function SettingsPage() {
       <div className="bg-white p-6 rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center">
-            <span className="text-white text-lg">🔒</span>
+            <ShieldCheck className="w-5 h-5 text-white" />
           </div>
           <h3 className="text-xl font-semibold text-slate-900">Bảo mật</h3>
         </div>
@@ -337,8 +338,8 @@ export default function SettingsPage() {
                 size="sm"
                 disabled={toggling2FA || loading}
                 className={`h-10 px-5 rounded-xl font-medium transition-all ${is2FAEnabled
-                    ? 'border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300'
-                    : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25'
+                  ? 'border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300'
+                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25'
                   }`}
               >
                 {toggling2FA ? 'Đang xử lý...' : (is2FAEnabled ? 'Tắt 2FA' : 'Bật 2FA')}

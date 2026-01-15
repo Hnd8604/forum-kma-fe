@@ -29,6 +29,10 @@ export default function Sidebar() {
   const [showCreateGroup, setShowCreateGroup] = useState(false);
   const [suggestedGroups, setSuggestedGroups] = useState<Group[]>([]);
   const [joiningGroupId, setJoiningGroupId] = useState<string | null>(null);
+  const [showAllMyGroups, setShowAllMyGroups] = useState(false);
+  const [showAllSuggested, setShowAllSuggested] = useState(false);
+
+  const MAX_VISIBLE_GROUPS = 5;
 
   useEffect(() => {
     loadMyGroups();
@@ -153,44 +157,65 @@ export default function Sidebar() {
             {showRecent && (
               <div className="space-y-1 mt-1">
                 {suggestedGroups.length > 0 ? (
-                  suggestedGroups.map((group: Group, index: number) => {
-                    const categoryName = group.name || group.groupName || 'Danh mục';
-                    const color = getRandomColor(index);
-                    const isJoining = joiningGroupId === group.groupId;
+                  <>
+                    {(showAllSuggested ? suggestedGroups : suggestedGroups.slice(0, MAX_VISIBLE_GROUPS)).map((group: Group, index: number) => {
+                      const categoryName = group.name || group.groupName || 'Danh mục';
+                      const color = getRandomColor(index);
+                      const isJoining = joiningGroupId === group.groupId;
 
-                    return (
-                      <div key={group.groupId} className="flex items-center gap-1 group/item">
-                        <Button
-                          variant="ghost"
-                          onClick={() => handleGroupClick(group.groupId)}
-                          className="flex-1 justify-start h-11 px-3 rounded-xl hover:bg-slate-100 text-sm font-medium text-slate-700 transition-all truncate"
-                        >
-                          <div
-                            className="w-6 h-6 mr-3 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold shadow-sm"
-                            style={{ backgroundColor: color }}
+                      return (
+                        <div key={group.groupId} className="flex items-center gap-1 group/item">
+                          <Button
+                            variant="ghost"
+                            onClick={() => handleGroupClick(group.groupId)}
+                            className="flex-1 justify-start h-11 px-3 rounded-xl hover:bg-slate-100 text-sm font-medium text-slate-700 transition-all truncate"
                           >
-                            {categoryName[0]?.toUpperCase()}
-                          </div>
-                          <span className="truncate">{categoryName}</span>
-                        </Button>
+                            <div
+                              className="w-6 h-6 mr-3 rounded-full flex-shrink-0 flex items-center justify-center text-white text-xs font-bold shadow-sm"
+                              style={{ backgroundColor: color }}
+                            >
+                              {categoryName[0]?.toUpperCase()}
+                            </div>
+                            <span className="truncate">{categoryName}</span>
+                          </Button>
 
-                        <Button
-                          size="icon"
-                          variant="ghost"
-                          onClick={(e: React.MouseEvent) => handleJoinGroup(e, group.groupId)}
-                          disabled={isJoining}
-                          className="h-8 w-8 rounded-full hover:bg-blue-50 text-slate-400 hover:text-blue-600 opacity-0 group-hover/item:opacity-100 transition-all"
-                          title="Tham gia danh mục"
-                        >
-                          {isJoining ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Plus className="w-4 h-4" />
-                          )}
-                        </Button>
-                      </div>
-                    );
-                  })
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            onClick={(e: React.MouseEvent) => handleJoinGroup(e, group.groupId)}
+                            disabled={isJoining}
+                            className="h-8 w-8 rounded-full hover:bg-blue-50 text-slate-400 hover:text-blue-600 opacity-0 group-hover/item:opacity-100 transition-all"
+                            title="Tham gia danh mục"
+                          >
+                            {isJoining ? (
+                              <Loader2 className="w-4 h-4 animate-spin" />
+                            ) : (
+                              <Plus className="w-4 h-4" />
+                            )}
+                          </Button>
+                        </div>
+                      );
+                    })}
+                    {suggestedGroups.length > MAX_VISIBLE_GROUPS && (
+                      <Button
+                        variant="ghost"
+                        onClick={() => setShowAllSuggested(!showAllSuggested)}
+                        className="w-full justify-center h-9 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all"
+                      >
+                        {showAllSuggested ? (
+                          <>
+                            <ChevronUp className="w-4 h-4 mr-1" />
+                            Ẩn bớt
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className="w-4 h-4 mr-1" />
+                            Xem thêm {suggestedGroups.length - MAX_VISIBLE_GROUPS} danh mục
+                          </>
+                        )}
+                      </Button>
+                    )}
+                  </>
                 ) : (
                   <div className="text-center py-4 px-3 text-sm text-slate-500">
                     Không có gợi ý nào
@@ -231,27 +256,48 @@ export default function Sidebar() {
                     <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
                   </div>
                 ) : groups.length > 0 ? (
-                  groups.map((group, index) => {
-                    const categoryName = group.groupName || group.name || 'Danh mục';
-                    const color = getRandomColor(index);
+                  <>
+                    {(showAllMyGroups ? groups : groups.slice(0, MAX_VISIBLE_GROUPS)).map((group, index) => {
+                      const categoryName = group.groupName || group.name || 'Danh mục';
+                      const color = getRandomColor(index);
 
-                    return (
-                      <Button
-                        key={group.groupId}
-                        variant="ghost"
-                        onClick={() => handleGroupClick(group.groupId)}
-                        className="w-full justify-start h-11 px-3 rounded-xl hover:bg-slate-100 text-sm font-medium text-slate-700 transition-all"
-                      >
-                        <div
-                          className="w-6 h-6 mr-3 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm"
-                          style={{ backgroundColor: color }}
+                      return (
+                        <Button
+                          key={group.groupId}
+                          variant="ghost"
+                          onClick={() => handleGroupClick(group.groupId)}
+                          className="w-full justify-start h-11 px-3 rounded-xl hover:bg-slate-100 text-sm font-medium text-slate-700 transition-all"
                         >
-                          {categoryName[0]?.toUpperCase()}
-                        </div>
-                        <span className="truncate">{categoryName}</span>
+                          <div
+                            className="w-6 h-6 mr-3 rounded-full flex items-center justify-center text-white text-xs font-bold shadow-sm"
+                            style={{ backgroundColor: color }}
+                          >
+                            {categoryName[0]?.toUpperCase()}
+                          </div>
+                          <span className="truncate">{categoryName}</span>
+                        </Button>
+                      );
+                    })}
+                    {groups.length > MAX_VISIBLE_GROUPS && (
+                      <Button
+                        variant="ghost"
+                        onClick={() => setShowAllMyGroups(!showAllMyGroups)}
+                        className="w-full justify-center h-9 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all"
+                      >
+                        {showAllMyGroups ? (
+                          <>
+                            <ChevronUp className="w-4 h-4 mr-1" />
+                            Ẩn bớt
+                          </>
+                        ) : (
+                          <>
+                            <ChevronDown className="w-4 h-4 mr-1" />
+                            Xem thêm {groups.length - MAX_VISIBLE_GROUPS} danh mục
+                          </>
+                        )}
                       </Button>
-                    );
-                  })
+                    )}
+                  </>
                 ) : (
                   <div className="text-center py-4 px-3 text-sm text-slate-500">
                     Bạn chưa tham gia danh mục nào
