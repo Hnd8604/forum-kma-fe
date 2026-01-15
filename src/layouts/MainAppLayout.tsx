@@ -1,4 +1,5 @@
 import { ReactNode, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Menu, X, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -51,10 +52,10 @@ export default function MainAppLayout({
 
       {/* Main Content Area - Flexible Height with 3 Columns */}
       <div className="flex flex-1 overflow-hidden bg-gradient-to-b from-slate-50 to-slate-100 relative">
-        
+
         {/* Mobile Overlay */}
         {(showMobileLeftSidebar || showMobileRightSidebar) && (
-          <div 
+          <div
             className="fixed inset-0 bg-black/50 z-40 lg:hidden"
             onClick={() => {
               setShowMobileLeftSidebar(false);
@@ -80,12 +81,26 @@ export default function MainAppLayout({
 
             {/* Mobile Left Sidebar - Overlay */}
             <div
-              className={`fixed left-0 top-0 h-full z-50 flex flex-col border-r border-slate-200/50 bg-white overflow-hidden transform transition-transform duration-300 ease-in-out lg:hidden ${
-                showMobileLeftSidebar ? 'translate-x-0' : '-translate-x-full'
-              }`}
+              className={`fixed left-0 top-0 h-full z-50 flex flex-col border-r border-slate-200/50 bg-white overflow-hidden transform transition-transform duration-300 ease-in-out lg:hidden ${showMobileLeftSidebar ? 'translate-x-0' : '-translate-x-full'
+                }`}
               style={{ width: '280px' }}
             >
-              <div className="flex items-center justify-end p-2 border-b border-slate-100">
+              <div className="flex items-center justify-between p-2 border-b border-slate-100">
+                <Link
+                  to="/forum"
+                  className="flex items-center space-x-2 cursor-pointer"
+                  onClick={() => setShowMobileLeftSidebar(false)}
+                >
+                  <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
+                    <svg viewBox="0 0 24 24" className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+                      <path d="M6 12v5c3 3 9 3 12 0v-5" />
+                    </svg>
+                  </div>
+                  <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    Forum KMA
+                  </span>
+                </Link>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -153,9 +168,8 @@ export default function MainAppLayout({
 
             {/* Mobile Right Sidebar - Overlay */}
             <div
-              className={`fixed right-0 top-0 h-full z-50 flex flex-col border-l border-slate-200/50 bg-white overflow-hidden transform transition-transform duration-300 ease-in-out xl:hidden ${
-                showMobileRightSidebar ? 'translate-x-0' : 'translate-x-full'
-              }`}
+              className={`fixed right-0 top-0 h-full z-50 flex flex-col border-l border-slate-200/50 bg-white overflow-hidden transform transition-transform duration-300 ease-in-out xl:hidden ${showMobileRightSidebar ? 'translate-x-0' : 'translate-x-full'
+                }`}
               style={{ width: '300px', maxWidth: '85vw' }}
             >
               <div className="flex items-center justify-between p-4 border-b border-slate-200">
