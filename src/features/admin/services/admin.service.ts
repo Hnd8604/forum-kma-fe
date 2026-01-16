@@ -78,6 +78,36 @@ export interface AdminStats {
   pendingReports: number;
 }
 
+export interface BackupInfo {
+  date: string;
+  size: string;
+  mongoSize: string;
+  postgresSize: string;
+  minioSize: string;
+  createdAt: string;
+  location: string; // "local", "cloud", "local+cloud"
+}
+
+export interface BackupJobResponse {
+  jobId: string;
+  status: string;
+  message?: string;
+}
+
+export interface RestoreJobResponse {
+  jobId: string;
+  status: string;
+  date: string;
+}
+
+export interface JobStatus {
+  jobId: string;
+  status: string;
+  progress: number;
+  message?: string;
+  error?: string;
+}
+
 export interface ReportResponse {
   reportId: string;
   postId: string;
@@ -521,6 +551,69 @@ export class AdminService {
         decision,
         reason,
       },
+      true
+    );
+    return response;
+  }
+
+  // ============= BACKUP MANAGEMENT =============
+
+  /**
+   * Get all backups
+   */
+  static async getAllBackups(): Promise<{ backups: BackupInfo[] }> {
+    const response = await ApiService.get<any>(
+      endpoints.BACKUP_ENDPOINTS.GET_ALL,
+      true
+    );
+    // Handle both array and object response formats
+    if (Array.isArray(response)) {
+      return { backups: response };
+    }
+    return response;
+  }
+
+  /**
+   * Trigger a new backup
+   */
+  static async triggerBackup(): Promise<BackupJobResponse> {
+    const response = await ApiService.post<BackupJobResponse>(
+      endpoints.BACKUP_ENDPOINTS.TRIGGER_BACKUP,
+      {},
+      true
+    );
+    return response;
+  }
+
+  /**
+   * Trigger restore from a backup
+   */
+  static async triggerRestore(date: string): Promise<RestoreJobResponse> {
+    const response = await ApiService.post<RestoreJobResponse>(
+      endpoints.BACKUP_ENDPOINTS.TRIGGER_RESTORE,
+      { date },
+      true
+    );
+    return response;
+  }
+
+  /**
+   * Get backup job status
+   */
+  static async getBackupStatus(jobId: string): Promise<JobStatus> {
+    const response = await ApiService.get<JobStatus>(
+      endpoints.BACKUP_ENDPOINTS.GET_BACKUP_STATUS(jobId),
+      true
+    );
+    return response;
+  }
+
+  /**
+   * Get restore job status
+   */
+  static async getRestoreStatus(jobId: string): Promise<JobStatus> {
+    const response = await ApiService.get<JobStatus>(
+      endpoints.BACKUP_ENDPOINTS.GET_RESTORE_STATUS(jobId),
       true
     );
     return response;
