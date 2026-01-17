@@ -1,6 +1,4 @@
-/**
- * Utility functions for date/time handling
- */
+
 import { type Locale } from 'date-fns';
 
 /**

@@ -12,26 +12,6 @@ interface MainAppLayoutProps {
   rightSidebarWidth?: string; // Default: 320px
 }
 
-/**
- * MainAppLayout - Full-page layout with fixed header and 3-column scrollable content
- * 
- * Structure:
- * ┌─────────────────────────────────┐
- * │         FIXED HEADER            │ (height: auto)
- * ├────────────┬─────────────┬──────┤
- * │   Left     │   Main      │Right │
- * │ Sidebar    │  Content    │Side  │
- * │ (scroll)   │  (scroll)   │(scrl)│
- * │            │             │      │
- * ├────────────┴─────────────┴──────┤
- * └─────────────────────────────────┘
- * 
- * - Total height = 100vh
- * - Header height is auto
- * - Content area = 100vh - header height
- * - Each section has independent scroll
- * - Responsive: Sidebars hidden on mobile, shown as overlay
- */
 export default function MainAppLayout({
   header,
   leftSidebar,
@@ -45,7 +25,7 @@ export default function MainAppLayout({
 
   return (
     <div className="flex flex-col h-screen w-screen bg-white overflow-hidden">
-      {/* Fixed Header */}
+
       <div className="flex-shrink-0 border-b border-slate-200/80">
         {header}
       </div>
