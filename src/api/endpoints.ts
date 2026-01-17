@@ -130,4 +130,11 @@ export default {
         GET_STATS: "/admin/stats",
         DASHBOARD_STATISTICS: "/dashboard/statistics",
     },
+    BACKUP_ENDPOINTS: {
+        GET_ALL: "/backups",
+        TRIGGER_BACKUP: "/backups/trigger",
+        TRIGGER_RESTORE: "/backups/restore",
+        GET_BACKUP_STATUS: (jobId: string) => `/backups/backup/status/${jobId}`,
+        GET_RESTORE_STATUS: (jobId: string) => `/backups/restore/status/${jobId}`,
+    },
 } as const;

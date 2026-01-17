@@ -13,6 +13,7 @@ import {
   UsersRound,
   ChevronRight,
   Home,
+  Database,
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -32,6 +33,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { icon: UsersRound, label: 'Danh Mục', path: '/admin/groups' },
     { icon: Shield, label: 'Vai Trò', path: '/admin/roles' },
     { icon: MessageSquare, label: 'Báo Cáo', path: '/admin/reports' },
+    { icon: Database, label: 'Backup', path: '/admin/backups' },
   ];
 
   const handleLogout = () => {
