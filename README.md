@@ -1,4 +1,4 @@
-# 🎓 Forum KMA - Frontend
+# 🎓 AutoLux - Frontend
 
 Ứng dụng Frontend cho hệ thống **Diễn đàn Sinh viên KMA** (Học viện Kỹ thuật Mật mã), được xây dựng bằng **React**, **TypeScript** và **Vite**. Hỗ trợ đa nền tảng: Web, Desktop (Tauri) và Mobile (Android).
 
@@ -27,7 +27,7 @@
 ## 📁 Cấu trúc thư mục
 
 ```
-forum-kma-fe/
+autolux-fe/
 ├── src/
 │   ├── api/                    # Cấu hình API
 │   │   ├── api.service.ts      # Service xử lý API chung
@@ -349,4 +349,4 @@ Mọi đóng góp đều được chào đón! Vui lòng tạo issue hoặc pull
 ## 📞 Liên hệ
 
 - **Trường:** Học viện Kỹ thuật Mật mã (KMA)
-- **Website:** [https://actvn.edu.vn](https://actvn.edu.vn)
+- **Website:** [https://actvn.edu.vn](https://actvn.edu.vn)# autolux-fe
