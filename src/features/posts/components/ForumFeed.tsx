@@ -198,7 +198,7 @@ export default function ForumFeed() {
                 key={option.id}
                 onClick={() => setSortBy(option.id as any)}
                 className={`flex-1 sm:flex-none flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-6 py-2 sm:py-2.5 rounded-lg sm:rounded-xl text-xs sm:text-sm font-medium transition-all duration-200 ${isActive
-                  ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white shadow-md shadow-blue-500/25'
+                  ? 'bg-gradient-to-r from-red-500 to-rose-500 text-white shadow-md shadow-red-500/25'
                   : 'text-slate-600 hover:bg-slate-100'
                   }`}
               >
@@ -214,7 +214,7 @@ export default function ForumFeed() {
       <div className="space-y-0">
         {loading ? (
           <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl border border-slate-200">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center mb-4 animate-pulse">
+            <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-rose-500 rounded-full flex items-center justify-center mb-4 animate-pulse">
               <Loader2 className="w-6 h-6 animate-spin text-white" />
             </div>
             <span className="text-sm text-slate-500">Đang tải bài viết...</span>
@@ -227,7 +227,7 @@ export default function ForumFeed() {
             <p className="text-red-500 mb-4 text-sm">{error}</p>
             <Button
               onClick={() => loadPosts(0, false)}
-              className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl px-6 text-sm font-medium shadow-lg shadow-blue-500/25"
+              className="bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-xl px-6 text-sm font-medium shadow-lg shadow-red-500/25"
             >
               Thử lại
             </Button>
@@ -257,7 +257,7 @@ export default function ForumFeed() {
                 <Button
                   onClick={handleLoadMore}
                   disabled={loadingMore}
-                  className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl px-8 text-sm font-medium h-11 shadow-lg shadow-blue-500/25 transition-all"
+                  className="bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-xl px-8 text-sm font-medium h-11 shadow-lg shadow-red-500/25 transition-all"
                 >
                   {loadingMore ? (
                     <>

@@ -183,11 +183,11 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-3 sm:p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-red-50 to-rose-100 p-3 sm:p-4 relative overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-64 sm:w-96 h-64 sm:h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-        <div className="absolute top-40 right-10 w-64 sm:w-96 h-64 sm:h-96 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-20 left-10 w-64 sm:w-96 h-64 sm:h-96 bg-red-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-40 right-10 w-64 sm:w-96 h-64 sm:h-96 bg-rose-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
         <div className="absolute -bottom-8 left-20 w-64 sm:w-96 h-64 sm:h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
       </div>
 
@@ -195,14 +195,14 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
         {/* Logo and Title */}
         <div className="text-center mb-6 sm:mb-8">
           <div className="inline-flex items-center justify-center mb-3 sm:mb-4">
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-blue-500/30 transform hover:scale-105 transition-transform">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-red-600 to-rose-600 rounded-2xl flex items-center justify-center shadow-2xl shadow-red-500/30 transform hover:scale-105 transition-transform">
               <svg viewBox="0 0 24 24" className="w-8 h-8 sm:w-10 sm:h-10 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
                 <path d="M6 12v5c3 3 9 3 12 0v-5" />
               </svg>
             </div>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Forum KMA</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent">AutoLux</h1>
           <p className="text-xs sm:text-sm text-slate-500 mt-2">Cộng đồng sinh viên Học viện Kỹ thuật Mật mã</p>
         </div>
 
@@ -227,13 +227,13 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
                 <div className="space-y-2">
                   <Label htmlFor="username" className="text-xs sm:text-sm font-medium text-slate-700">Tên đăng nhập</Label>
                   <div className="relative group">
-                    <User className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                    <User className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-slate-400 group-focus-within:text-red-500 transition-colors" />
                     <Input
                       id="username"
                       type="text"
                       value={username}
                       onChange={(e) => setUsername(e.target.value)}
-                      className="pl-10 sm:pl-12 h-10 sm:h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm transition-all"
+                      className="pl-10 sm:pl-12 h-10 sm:h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 text-sm transition-all"
                       required
                     />
                   </div>
@@ -247,7 +247,7 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
                       type={showPassword ? "text" : "password"}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      className="pl-10 sm:pl-12 pr-10 sm:pr-12 h-10 sm:h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm transition-all [&::-ms-reveal]:hidden [&::-ms-clear]:hidden"
+                      className="pl-10 sm:pl-12 pr-10 sm:pr-12 h-10 sm:h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 text-sm transition-all [&::-ms-reveal]:hidden [&::-ms-clear]:hidden"
                       required
                     />
                     <button
@@ -270,14 +270,14 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
                       type="checkbox"
                       checked={rememberMe}
                       onChange={(e) => setRememberMe(e.target.checked)}
-                      className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500"
+                      className="w-4 h-4 rounded border-slate-300 text-red-600 focus:ring-red-500"
                     />
                     <span className="text-sm text-slate-600">Ghi nhớ đăng nhập</span>
                   </label>
                   <button
                     type="button"
                     onClick={() => setIsForgotPasswordOpen(true)}
-                    className="text-sm text-blue-600 hover:text-blue-700 hover:underline font-medium"
+                    className="text-sm text-red-600 hover:text-red-700 hover:underline font-medium"
                   >
                     Quên mật khẩu?
                   </button>
@@ -293,7 +293,7 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-blue-500/25 hover:shadow-xl hover:shadow-blue-500/30"
+                  className="w-full h-12 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-semibold text-sm rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-red-500/25 hover:shadow-xl hover:shadow-red-500/30"
                 >
                   {loading ? 'Đang đăng nhập...' : 'Đăng nhập'}
                 </Button>
@@ -303,7 +303,7 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
                     <button
                       type="button"
                       onClick={onSwitchToRegister}
-                      className="text-blue-600 hover:text-blue-700 hover:underline font-semibold"
+                      className="text-red-600 hover:text-red-700 hover:underline font-semibold"
                     >
                       Đăng ký ngay
                     </button>
@@ -325,7 +325,7 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
                       type="email"
                       value={emailForOtp}
                       onChange={(e) => setEmailForOtp(e.target.value)}
-                      className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 text-sm transition-all"
+                      className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 text-sm transition-all"
                       disabled={loading}
                       required
                     />
@@ -342,7 +342,7 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
                       placeholder="000000"
                       disabled={loading}
                       autoFocus
-                      className="text-center text-2xl tracking-[0.5em] font-bold h-16 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                      className="text-center text-2xl tracking-[0.5em] font-bold h-16 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
                       onKeyDown={(e) => e.key === 'Enter' && handleVerifyOtp(e as any)}
                     />
                   </div>
@@ -363,7 +363,7 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
                 <Button
                   type="submit"
                   disabled={loading || otp.length !== 6}
-                  className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold text-sm rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-blue-500/25"
+                  className="w-full h-12 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-semibold text-sm rounded-xl transition-all disabled:opacity-50 shadow-lg shadow-red-500/25"
                 >
                   {loading ? 'Đang xác thực...' : 'Xác nhận'}
                 </Button>
@@ -384,11 +384,11 @@ export default function LoginPage({ onLogin, onSwitchToRegister }: LoginPageProp
         {/* Footer */}
         <p className="text-center text-xs text-slate-400 mt-8">
           Bằng việc đăng nhập, bạn đồng ý với{' '}
-          <a href="#" className="text-blue-600 hover:underline">
+          <a href="#" className="text-red-600 hover:underline">
             Điều khoản sử dụng
           </a>{' '}
           và{' '}
-          <a href="#" className="text-blue-600 hover:underline">
+          <a href="#" className="text-red-600 hover:underline">
             Chính sách bảo mật
           </a>
         </p>

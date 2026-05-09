@@ -126,7 +126,7 @@ export default function AdminPostManagement() {
   const getTypeIcon = (type: string) => {
     switch (type) {
       case 'IMAGE':
-        return <Image className="h-4 w-4 text-blue-500" />;
+        return <Image className="h-4 w-4 text-red-500" />;
       case 'DOC':
         return <File className="h-4 w-4 text-amber-500" />;
       default:
@@ -171,7 +171,7 @@ export default function AdminPostManagement() {
                 className="pl-10 border-slate-300"
               />
             </div>
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">Tìm kiếm</Button>
+            <Button type="submit" className="bg-red-600 hover:bg-red-700 text-white">Tìm kiếm</Button>
           </form>
         </CardContent>
       </Card>

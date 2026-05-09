@@ -72,10 +72,10 @@ export default function PostHeader({
                         <img
                             src={authorAvatarUrl}
                             alt={authorName || 'avatar'}
-                            className="w-8 h-8 rounded-full object-cover mr-2.5 shadow-md group-hover:ring-2 group-hover:ring-blue-300 transition-all"
+                            className="w-8 h-8 rounded-full object-cover mr-2.5 shadow-md group-hover:ring-2 group-hover:ring-red-300 transition-all"
                         />
                     ) : (
-                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center mr-2.5 shadow-md shadow-blue-500/20 group-hover:ring-2 group-hover:ring-blue-300 transition-all">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center mr-2.5 shadow-md shadow-red-500/20 group-hover:ring-2 group-hover:ring-red-300 transition-all">
                             <span className="text-white text-xs font-bold">
                                 {authorName?.[0]?.toUpperCase() || 'U'}
                             </span>
@@ -86,7 +86,7 @@ export default function PostHeader({
                     <div className="flex items-center gap-1">
                         <Link
                             to={`/profile/${authorId}`}
-                            className="font-semibold text-slate-900 hover:text-blue-600 transition-colors"
+                            className="font-semibold text-slate-900 hover:text-red-600 transition-colors"
                         >
                             {authorName || 'loading...'}
                         </Link>
@@ -95,7 +95,7 @@ export default function PostHeader({
                                 <span className="text-slate-400">•</span>
                                 <Link
                                     to={`/forum/group/${groupId}`}
-                                    className="text-slate-600 hover:text-blue-600 hover:underline transition-colors"
+                                    className="text-slate-600 hover:text-red-600 hover:underline transition-colors"
                                 >
                                     {groupName}
                                 </Link>

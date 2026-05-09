@@ -67,7 +67,7 @@ export default function FriendsList({ onStartChat }: FriendsListProps) {
             {/* Header */}
             <div className="p-4 border-b border-slate-200">
                 <div className="flex items-center gap-2 mb-3">
-                    <Users className="w-5 h-5 text-blue-600" />
+                    <Users className="w-5 h-5 text-red-600" />
                     <h2 className="font-semibold text-lg">Bạn bè</h2>
                     <span className="ml-auto text-sm text-slate-500">{friends.length}</span>
                 </div>
@@ -88,7 +88,7 @@ export default function FriendsList({ onStartChat }: FriendsListProps) {
             <ScrollArea className="flex-1">
                 {loading ? (
                     <div className="p-8 text-center text-slate-400">
-                        <div className="animate-spin w-8 h-8 border-2 border-blue-500 border-t-transparent rounded-full mx-auto mb-2"></div>
+                        <div className="animate-spin w-8 h-8 border-2 border-red-500 border-t-transparent rounded-full mx-auto mb-2"></div>
                         <p className="text-sm">Đang tải...</p>
                     </div>
                 ) : filteredFriends.length === 0 ? (
@@ -108,7 +108,7 @@ export default function FriendsList({ onStartChat }: FriendsListProps) {
                             >
                                 {/* Avatar */}
                                 <div className="relative flex-shrink-0">
-                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-semibold overflow-hidden">
+                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-red-400 to-rose-500 flex items-center justify-center text-white font-semibold overflow-hidden">
                                         {friend.avatarUrl ? (
                                             <img
                                                 src={friend.avatarUrl}
@@ -132,7 +132,7 @@ export default function FriendsList({ onStartChat }: FriendsListProps) {
                                 </div>
 
                                 {/* Chat icon */}
-                                <MessageCircle className="w-5 h-5 text-slate-400 group-hover:text-blue-600 transition-colors flex-shrink-0" />
+                                <MessageCircle className="w-5 h-5 text-slate-400 group-hover:text-red-600 transition-colors flex-shrink-0" />
                             </button>
                         ))}
                     </div>

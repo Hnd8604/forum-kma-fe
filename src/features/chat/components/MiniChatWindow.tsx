@@ -396,7 +396,7 @@ export default function MiniChatWindow({
       style={{ right: `${rightOffset}px`, height: '480px' }}
     >
       {/* Header */}
-      <div className="p-4 border-b border-slate-200/60 flex items-center gap-3 bg-gradient-to-r from-blue-500 to-indigo-600">
+      <div className="p-4 border-b border-slate-200/60 flex items-center gap-3 bg-gradient-to-r from-red-500 to-rose-600">
         <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center flex-shrink-0 shadow-lg overflow-hidden">
           {partnerAvatar ? (
             <img src={partnerAvatar} alt={displayName} className="w-full h-full object-cover" />
@@ -426,7 +426,7 @@ export default function MiniChatWindow({
         {messages.length === 0 ? (
           <div className="flex items-center justify-center h-full">
             <div className="text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
+              <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-rose-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
                 <span className="text-2xl">💬</span>
               </div>
               <p className="text-slate-400 text-sm">Chưa có tin nhắn</p>
@@ -459,7 +459,7 @@ export default function MiniChatWindow({
                     {!isMine && (
                       <div className={`w-7 h-7 flex-shrink-0 ${isLastInGroup ? '' : 'opacity-0'}`}>
                         {isLastInGroup && (
-                          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-xs text-white font-semibold overflow-hidden shadow-sm">
+                          <div className="w-7 h-7 rounded-full bg-gradient-to-br from-red-400 to-rose-500 flex items-center justify-center text-xs text-white font-semibold overflow-hidden shadow-sm">
                             {senderAvatar ? (
                               <img src={senderAvatar} alt={senderName} className="w-full h-full object-cover" />
                             ) : (
@@ -503,12 +503,12 @@ export default function MiniChatWindow({
 
                     <div className={`flex flex-col max-w-[70%] min-w-0 ${isMine ? 'items-end' : 'items-start'}`}>
                       {!isMine && showTime && (
-                        <p className="text-xs font-semibold mb-1 text-blue-600 px-1">
+                        <p className="text-xs font-semibold mb-1 text-red-600 px-1">
                           {senderName || displayName || 'Người dùng'}
                         </p>
                       )}
                       <div className={`rounded-2xl px-3 py-1.5 shadow-sm max-w-full ${isMine
-                        ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
+                        ? 'bg-gradient-to-r from-red-500 to-rose-500 text-white'
                         : 'bg-white text-slate-900 border border-slate-200'
                         }`}>
                         <ChatMessageContent
@@ -544,13 +544,13 @@ export default function MiniChatWindow({
             onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
             placeholder={pendingMedia ? 'Nhập chú thích...' : 'Aa'}
             disabled={sending}
-            className="flex-1 h-10 text-sm rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+            className="flex-1 h-10 text-sm rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
           />
           <Button
             onClick={handleSendMessage}
             disabled={(!newMessage.trim() && !pendingMedia) || sending}
             size="sm"
-            className="h-10 w-10 p-0 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 shadow-lg shadow-blue-500/25"
+            className="h-10 w-10 p-0 rounded-xl bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 shadow-lg shadow-red-500/25"
           >
             <Send className="w-4 h-4" />
           </Button>

@@ -224,7 +224,7 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
 
         {/* Post Title */}
         <h3
-          className="text-base sm:text-lg font-semibold text-slate-900 mb-2 cursor-pointer hover:text-blue-600 transition-colors leading-snug"
+          className="text-base sm:text-lg font-semibold text-slate-900 mb-2 cursor-pointer hover:text-red-600 transition-colors leading-snug"
           onClick={openModal}
         >
           {post.title}
@@ -401,7 +401,7 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
               <select
                 value={reportReason}
                 onChange={(e) => setReportReason(e.target.value)}
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500"
               >
                 {reportReasons.map((reason) => (
                   <option key={reason.value} value={reason.value}>
@@ -417,7 +417,7 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
                 value={reportDescription}
                 onChange={(e) => setReportDescription(e.target.value)}
                 placeholder="Vui lòng mô tả chi tiết vấn đề..."
-                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                className="w-full px-3 py-2 border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-red-500 resize-none"
                 rows={4}
               />
             </div>
@@ -430,7 +430,7 @@ export default function PostCard({ post, onReactionChange, onDelete, autoOpenIfI
                 handleReportPost();
               }}
               disabled={isReporting || !reportDescription.trim()}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-red-600 hover:bg-red-700 text-white"
             >
               {isReporting ? (
                 <>

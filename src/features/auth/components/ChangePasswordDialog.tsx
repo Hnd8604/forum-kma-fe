@@ -180,7 +180,7 @@ export default function ChangePasswordDialog({
         {is2FAEnabled && (
           <div className="flex items-center justify-between mb-4 px-4">
             <div className="flex flex-col items-center flex-1">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${step === 'password' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${step === 'password' ? 'bg-red-600 text-white' : 'bg-green-600 text-white'
                 }`}>
                 {step === 'password' ? <KeyRound size={24} /> : <CheckCircle2 size={24} />}
               </div>
@@ -191,7 +191,7 @@ export default function ChangePasswordDialog({
               }`} />
 
             <div className="flex flex-col items-center flex-1">
-              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${step === 'otp' ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
+              <div className={`w-12 h-12 rounded-full flex items-center justify-center ${step === 'otp' ? 'bg-red-600 text-white' : 'bg-gray-300 text-gray-600'
                 }`}>
                 <span className="text-sm font-semibold">OTP</span>
               </div>

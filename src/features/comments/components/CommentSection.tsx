@@ -345,7 +345,7 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
               className="w-9 h-9 rounded-full object-cover flex-shrink-0 ring-2 ring-white shadow-sm"
             />
           ) : (
-            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
+            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
               <span className="text-white text-xs font-bold">
                 {currentUser?.lastName?.[0]?.toUpperCase() || 'U'}
               </span>
@@ -359,7 +359,7 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
                 value={newComment}
                 onChange={(e) => setNewComment(e.target.value)}
                 placeholder="Viết bình luận của bạn..."
-                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all placeholder:text-slate-400"
+                className="w-full px-4 py-3 bg-white border border-slate-200 rounded-2xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 transition-all placeholder:text-slate-400"
                 rows={2}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter' && !e.shiftKey) {
@@ -431,8 +431,8 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
                   <div className="space-y-2">
                     {selectedFiles.map((fileItem) => (
                       <div key={fileItem.id} className="flex items-center gap-3 p-2 bg-slate-50 rounded-lg group">
-                        <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                          <FileText className="w-5 h-5 text-indigo-600" />
+                        <div className="w-10 h-10 bg-rose-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                          <FileText className="w-5 h-5 text-rose-600" />
                         </div>
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-slate-700 truncate">{fileItem.file.name}</p>
@@ -486,8 +486,8 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
                   onClick={() => imageInputRef.current?.click()}
                   disabled={submitting}
                   className={`h-8 px-2.5 rounded-lg transition-all ${mediaType === 'IMAGE' && selectedFiles.length > 0
-                    ? 'bg-blue-50 text-blue-600'
-                    : 'text-slate-500 hover:text-blue-600 hover:bg-blue-50'
+                    ? 'bg-red-50 text-red-600'
+                    : 'text-slate-500 hover:text-red-600 hover:bg-red-50'
                     }`}
                   title="Thêm ảnh"
                 >
@@ -518,8 +518,8 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
                   onClick={() => docInputRef.current?.click()}
                   disabled={submitting}
                   className={`h-8 px-2.5 rounded-lg transition-all ${mediaType === 'DOC' && selectedFiles.length > 0
-                    ? 'bg-indigo-50 text-indigo-600'
-                    : 'text-slate-500 hover:text-indigo-600 hover:bg-indigo-50'
+                    ? 'bg-rose-50 text-rose-600'
+                    : 'text-slate-500 hover:text-rose-600 hover:bg-rose-50'
                     }`}
                   title="Thêm tài liệu"
                 >
@@ -533,7 +533,7 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
                 onClick={handleSubmitComment}
                 disabled={(!newComment.trim() && selectedFiles.length === 0) || submitting}
                 size="sm"
-                className="bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-xl px-5 h-9 text-sm font-medium shadow-md shadow-blue-500/20 disabled:opacity-50 disabled:shadow-none transition-all"
+                className="bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-xl px-5 h-9 text-sm font-medium shadow-md shadow-red-500/20 disabled:opacity-50 disabled:shadow-none transition-all"
               >
                 {submitting ? (
                   <>
@@ -556,7 +556,7 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
       <div className="p-4">
         {loading ? (
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-5 h-5 animate-spin text-blue-500 mr-2" />
+            <Loader2 className="w-5 h-5 animate-spin text-red-500 mr-2" />
             <span className="text-sm text-slate-500">Đang tải bình luận...</span>
           </div>
         ) : error ? (
@@ -565,7 +565,7 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
             <p className="text-sm font-medium">Lỗi: {error}</p>
             <button
               onClick={() => loadComments(0, false)}
-              className="mt-2 text-xs text-blue-500 hover:underline"
+              className="mt-2 text-xs text-red-500 hover:underline"
             >
               Thử lại
             </button>
@@ -595,7 +595,7 @@ export default function CommentSection({ postId, isOpen, onCommentCountChange }:
               <button
                 onClick={handleLoadMore}
                 disabled={loadingMore}
-                className="w-full py-2 text-sm text-blue-600 hover:text-blue-700 font-medium flex items-center justify-center gap-2 transition-colors"
+                className="w-full py-2 text-sm text-red-600 hover:text-red-700 font-medium flex items-center justify-center gap-2 transition-colors"
               >
                 {loadingMore ? (
                   <>

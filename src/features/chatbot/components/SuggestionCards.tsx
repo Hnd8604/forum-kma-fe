@@ -44,8 +44,8 @@ export default function SuggestionCards({
         <div className="flex flex-col items-center gap-6 py-8 px-4">
             {/* Header Icon */}
             <div className="relative">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center shadow-lg">
-                    <MessageSquare className="w-8 h-8 text-blue-500" />
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-100 to-rose-100 flex items-center justify-center shadow-lg">
+                    <MessageSquare className="w-8 h-8 text-red-500" />
                 </div>
                 <div className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-green-400 border-2 border-white" />
             </div>
@@ -69,11 +69,11 @@ export default function SuggestionCards({
                         <button
                             key={suggestion.id}
                             onClick={() => onSelectSuggestion(suggestion.text)}
-                            className="group flex flex-col items-center gap-3 p-4 bg-white border border-slate-200 rounded-xl hover:border-blue-300 hover:bg-blue-50/50 hover:shadow-md transition-all duration-200 text-left flex-1 min-w-[140px] max-w-[180px]"
+                            className="group flex flex-col items-center gap-3 p-4 bg-white border border-slate-200 rounded-xl hover:border-red-300 hover:bg-red-50/50 hover:shadow-md transition-all duration-200 text-left flex-1 min-w-[140px] max-w-[180px]"
                         >
                             {/* Icon */}
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-50 to-indigo-50 group-hover:from-blue-100 group-hover:to-indigo-100 flex items-center justify-center transition-colors flex-shrink-0">
-                                <IconComponent className="w-5 h-5 text-blue-500 group-hover:text-blue-600" />
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-50 to-rose-50 group-hover:from-red-100 group-hover:to-rose-100 flex items-center justify-center transition-colors flex-shrink-0">
+                                <IconComponent className="w-5 h-5 text-red-500 group-hover:text-red-600" />
                             </div>
 
                             {/* Text */}

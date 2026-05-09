@@ -168,7 +168,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
       </div>
     );
   }
@@ -183,7 +183,7 @@ export default function ProfilePage() {
             {/* Avatar */}
             <Avatar className="w-32 h-32 border-4 border-white dark:border-gray-800 shadow-lg">
               <AvatarImage src={profileUser?.avatarUrl} />
-              <AvatarFallback className="text-4xl bg-blue-500 text-white font-bold">
+              <AvatarFallback className="text-4xl bg-red-500 text-white font-bold">
                 {getInitials()}
               </AvatarFallback>
             </Avatar>
@@ -201,7 +201,7 @@ export default function ProfilePage() {
                       ? 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
                       : profileUser.roleName === 'MODERATOR'
                         ? 'bg-purple-100 text-purple-700 dark:bg-purple-900 dark:text-purple-300'
-                        : 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300'
+                        : 'bg-red-100 text-red-700 dark:bg-red-900 dark:text-red-300'
                       }`}>
                       {profileUser.roleName}
                     </span>
@@ -233,11 +233,11 @@ export default function ProfilePage() {
               {/* Stats */}
               <div className="flex gap-6">
                 <div className="text-center px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="text-xl font-bold text-blue-600">{posts.length}</div>
+                  <div className="text-xl font-bold text-red-600">{posts.length}</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Bài viết</div>
                 </div>
                 <div className="text-center px-4 py-2 rounded-lg border border-gray-200 dark:border-gray-700">
-                  <div className="text-xl font-bold text-blue-600">{friends.length}</div>
+                  <div className="text-xl font-bold text-red-600">{friends.length}</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 uppercase tracking-wide">Bạn bè</div>
                 </div>
               </div>
@@ -412,7 +412,7 @@ function PostsSection({
   if (loading) {
     return (
       <div className="flex justify-center py-12">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
       </div>
     );
   }
@@ -483,7 +483,7 @@ function FriendsSection({ friends }: { friends: FriendshipResponse[] }) {
             >
               <Avatar className="w-14 h-14">
                 <AvatarImage src={friend.avatarUrl} />
-                <AvatarFallback className="bg-blue-500 text-white">
+                <AvatarFallback className="bg-red-500 text-white">
                   {friend.firstName?.[0] || friend.username[0]}
                 </AvatarFallback>
               </Avatar>

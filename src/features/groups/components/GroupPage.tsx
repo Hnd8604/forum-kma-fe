@@ -215,7 +215,7 @@ export default function GroupPage() {
       case 'OWNER':
         return <Crown className="w-4 h-4 text-amber-500" />;
       case 'ADMIN':
-        return <Shield className="w-4 h-4 text-blue-500" />;
+        return <Shield className="w-4 h-4 text-red-500" />;
       default:
         return null;
     }
@@ -226,7 +226,7 @@ export default function GroupPage() {
       case 'OWNER':
         return <span className="px-2 py-0.5 bg-amber-100 text-amber-700 text-xs rounded-full font-medium">Quản trị viên</span>;
       case 'ADMIN':
-        return <span className="px-2 py-0.5 bg-blue-100 text-blue-700 text-xs rounded-full font-medium">Quản trị</span>;
+        return <span className="px-2 py-0.5 bg-red-100 text-red-700 text-xs rounded-full font-medium">Quản trị</span>;
       default:
         return <span className="px-2 py-0.5 bg-slate-100 text-slate-600 text-xs rounded-full font-medium">Thành viên</span>;
     }
@@ -235,7 +235,7 @@ export default function GroupPage() {
   if (loading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+        <Loader2 className="w-8 h-8 animate-spin text-red-500" />
       </div>
     );
   }
@@ -301,7 +301,7 @@ export default function GroupPage() {
         </div>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3 sm:gap-4">
-          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-white text-xl sm:text-2xl font-bold shadow-lg flex-shrink-0">
+          <div className="w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-red-500 to-rose-600 rounded-xl sm:rounded-2xl flex items-center justify-center text-white text-xl sm:text-2xl font-bold shadow-lg flex-shrink-0">
             {categoryName[0]?.toUpperCase()}
           </div>
 
@@ -352,7 +352,7 @@ export default function GroupPage() {
           <button
             onClick={() => setActiveTab('posts')}
             className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'posts'
-              ? 'text-blue-600 border-b-2 border-blue-600'
+              ? 'text-red-600 border-b-2 border-red-600'
               : 'text-slate-500 hover:text-slate-700'
               }`}
           >
@@ -363,7 +363,7 @@ export default function GroupPage() {
             <button
               onClick={() => setActiveTab('members')}
               className={`flex-1 py-3 text-sm font-medium transition-colors ${activeTab === 'members'
-                ? 'text-blue-600 border-b-2 border-blue-600'
+                ? 'text-red-600 border-b-2 border-red-600'
                 : 'text-slate-500 hover:text-slate-700'
                 }`}
             >
@@ -382,7 +382,7 @@ export default function GroupPage() {
 
           {loadingPosts && posts.length === 0 ? (
             <div className="flex items-center justify-center py-16">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+              <Loader2 className="w-8 h-8 animate-spin text-red-500" />
             </div>
           ) : posts.length === 0 ? (
             <div className="text-center py-16 bg-white rounded-2xl border border-slate-200">
@@ -421,7 +421,7 @@ export default function GroupPage() {
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm">
           {loadingMembers ? (
             <div className="flex items-center justify-center py-16">
-              <Loader2 className="w-8 h-8 animate-spin text-blue-500" />
+              <Loader2 className="w-8 h-8 animate-spin text-red-500" />
             </div>
           ) : members.length === 0 ? (
             <div className="text-center py-16">
@@ -438,7 +438,7 @@ export default function GroupPage() {
                         alt={member.userName} 
                         className="object-cover"
                       />
-                      <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-semibold text-sm">
+                      <AvatarFallback className="bg-gradient-to-br from-red-500 to-rose-600 text-white font-semibold text-sm">
                         {member.userName?.[0]?.toUpperCase() || 'U'}
                       </AvatarFallback>
                     </Avatar>
@@ -489,7 +489,7 @@ export default function GroupPage() {
                   type="text"
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
                   placeholder="Nhập tên danh mục"
                 />
               </div>
@@ -501,7 +501,7 @@ export default function GroupPage() {
                 <textarea
                   value={editDescription}
                   onChange={(e) => setEditDescription(e.target.value)}
-                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent min-h-[100px] resize-none"
+                  className="w-full px-3 py-2 border border-slate-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent min-h-[100px] resize-none"
                   placeholder="Mô tả về danh mục..."
                 />
               </div>
@@ -515,7 +515,7 @@ export default function GroupPage() {
                     type="button"
                     onClick={() => setEditVisibility('PUBLIC')}
                     className={`p-3 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${editVisibility === 'PUBLIC'
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      ? 'border-red-500 bg-red-50 text-red-700'
                       : 'border-slate-200 hover:border-slate-300 text-slate-600'
                       }`}
                   >
@@ -526,7 +526,7 @@ export default function GroupPage() {
                     type="button"
                     onClick={() => setEditVisibility('PRIVATE')}
                     className={`p-3 rounded-xl border-2 flex flex-col items-center gap-2 transition-all ${editVisibility === 'PRIVATE'
-                      ? 'border-blue-500 bg-blue-50 text-blue-700'
+                      ? 'border-red-500 bg-red-50 text-red-700'
                       : 'border-slate-200 hover:border-slate-300 text-slate-600'
                       }`}
                   >

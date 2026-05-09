@@ -13,7 +13,7 @@ interface ReactionPickerProps {
 
 // Keep REACTIONS export for backward compatibility with PostStats and other components
 export const REACTIONS: { type: ReactionType; emoji: string; label: string; color: string; hoverBg: string }[] = [
-    { type: 'LIKE', emoji: '👍', label: 'Thích', color: 'text-blue-600', hoverBg: 'hover:bg-blue-50' },
+    { type: 'LIKE', emoji: '👍', label: 'Thích', color: 'text-red-600', hoverBg: 'hover:bg-red-50' },
 ];
 
 export default function ReactionPicker({
@@ -41,11 +41,11 @@ export default function ReactionPicker({
             onClick={handleClick}
             disabled={disabled}
             className={`flex items-center gap-1.5 ${buttonPadding} transition-all duration-200 ${className || 'rounded-full'} ${isLiked
-                ? 'text-blue-600 hover:bg-blue-50'
+                ? 'text-red-600 hover:bg-red-50'
                 : 'text-slate-500 hover:bg-slate-100'
                 } disabled:opacity-50`}
         >
-            <ThumbsUp className={`${iconSize} ${isLiked ? 'fill-blue-600' : ''}`} />
+            <ThumbsUp className={`${iconSize} ${isLiked ? 'fill-red-600' : ''}`} />
             <span className={`font-medium ${textSize}`}>Thích</span>
             {showCount && reactionCount > 0 && (
                 <span className={`${textSize} font-semibold text-slate-600 ml-0.5`}>

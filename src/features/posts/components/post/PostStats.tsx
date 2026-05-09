@@ -20,7 +20,7 @@ export default function PostStats({
         <div className="flex items-center justify-between text-sm text-slate-500 py-2 border-t border-slate-100 mt-2">
             {reactionCount > 0 ? (
                 <div className="flex items-center gap-1.5">
-                    <div className="bg-blue-500 rounded-full p-1">
+                    <div className="bg-red-500 rounded-full p-1">
                         <ThumbsUp className="w-3 h-3 text-white fill-white" />
                     </div>
                     {isLiked ? (

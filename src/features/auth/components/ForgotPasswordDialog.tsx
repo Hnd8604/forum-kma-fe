@@ -179,7 +179,7 @@ export default function ForgotPasswordDialog({
         {/* Progress Indicator */}
         <div className="flex items-center justify-between mb-4 px-4">
           <div className="flex flex-col items-center flex-1">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step === 'email' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step === 'email' ? 'bg-red-600 text-white' : 'bg-green-600 text-white'
               }`}>
               {step === 'email' ? <Mail size={20} /> : <CheckCircle2 size={20} />}
             </div>
@@ -191,7 +191,7 @@ export default function ForgotPasswordDialog({
 
           <div className="flex flex-col items-center flex-1">
             <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step === 'email' ? 'bg-gray-300 text-gray-600' :
-                step === 'otp' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
+                step === 'otp' ? 'bg-red-600 text-white' : 'bg-green-600 text-white'
               }`}>
               {step === 'password' ? <CheckCircle2 size={20} /> : <span className="text-sm font-semibold">OTP</span>}
             </div>
@@ -202,7 +202,7 @@ export default function ForgotPasswordDialog({
             }`} />
 
           <div className="flex flex-col items-center flex-1">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step === 'password' ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
+            <div className={`w-10 h-10 rounded-full flex items-center justify-center ${step === 'password' ? 'bg-red-600 text-white' : 'bg-gray-300 text-gray-600'
               }`}>
               <KeyRound size={20} />
             </div>
@@ -261,7 +261,7 @@ export default function ForgotPasswordDialog({
                   onKeyDown={(e) => e.key === 'Enter' && handleVerifyOtp()}
                 />
                 <div className="text-sm text-gray-600 text-center space-y-1">
-                  <p>Kiểm tra email <span className="font-semibold text-blue-600">{email}</span></p>
+                  <p>Kiểm tra email <span className="font-semibold text-red-600">{email}</span></p>
                   <p className="text-xs">Mã OTP có hiệu lực trong 10 phút</p>
                 </div>
               </div>

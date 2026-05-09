@@ -109,7 +109,7 @@ export default function FriendRequests({ onRequestHandled }: FriendRequestsProps
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
-        <div className="w-12 h-12 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin"></div>
+        <div className="w-12 h-12 rounded-full border-4 border-red-200 border-t-red-600 animate-spin"></div>
         <p className="mt-4 text-slate-500">Đang tải...</p>
       </div>
     );
@@ -124,21 +124,21 @@ export default function FriendRequests({ onRequestHandled }: FriendRequestsProps
         <button
           onClick={() => setActiveSection('received')}
           className={`flex-1 flex items-center justify-center gap-3 p-4 rounded-2xl border-2 transition-all duration-300 ${activeSection === 'received'
-            ? 'border-blue-500 bg-gradient-to-br from-blue-50 to-indigo-50 shadow-lg shadow-blue-500/10'
+            ? 'border-red-500 bg-gradient-to-br from-red-50 to-rose-50 shadow-lg shadow-red-500/10'
             : 'border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50'
             }`}
         >
           <div className={`w-10 h-10 rounded-xl flex items-center justify-center transition-all ${activeSection === 'received'
-            ? 'bg-gradient-to-br from-blue-500 to-indigo-600'
+            ? 'bg-gradient-to-br from-red-500 to-rose-600'
             : 'bg-slate-100'
             }`}>
             <ArrowDownLeft className={`h-5 w-5 ${activeSection === 'received' ? 'text-white' : 'text-slate-500'}`} />
           </div>
           <div className="text-left">
-            <p className={`font-semibold ${activeSection === 'received' ? 'text-blue-700' : 'text-slate-700'}`}>
+            <p className={`font-semibold ${activeSection === 'received' ? 'text-red-700' : 'text-slate-700'}`}>
               Đã nhận
             </p>
-            <p className={`text-sm ${activeSection === 'received' ? 'text-blue-500' : 'text-slate-500'}`}>
+            <p className={`text-sm ${activeSection === 'received' ? 'text-red-500' : 'text-slate-500'}`}>
               {receivedRequests.length} lời mời
             </p>
           </div>
@@ -191,14 +191,14 @@ export default function FriendRequests({ onRequestHandled }: FriendRequestsProps
             return (
               <div
                 key={request.id}
-                className="bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-100 p-5 hover:shadow-lg hover:shadow-blue-500/5 transition-all duration-300"
+                className="bg-gradient-to-br from-white to-slate-50 rounded-2xl border border-slate-100 p-5 hover:shadow-lg hover:shadow-red-500/5 transition-all duration-300"
               >
                 <div className="flex items-center gap-4">
                   <Link to={`/profile/${request.userId}`}>
-                    <Avatar className="h-14 w-14 ring-4 ring-white shadow-md hover:ring-blue-200 transition-all">
+                    <Avatar className="h-14 w-14 ring-4 ring-white shadow-md hover:ring-red-200 transition-all">
                       <AvatarImage src={request.avatarUrl} alt={request.username} />
                       <AvatarFallback className={`text-white font-semibold ${activeSection === 'received'
-                        ? 'bg-gradient-to-br from-blue-500 to-indigo-600'
+                        ? 'bg-gradient-to-br from-red-500 to-rose-600'
                         : 'bg-gradient-to-br from-orange-500 to-red-500'
                         }`}>
                         {getInitials(request)}
@@ -206,7 +206,7 @@ export default function FriendRequests({ onRequestHandled }: FriendRequestsProps
                     </Avatar>
                   </Link>
                   <div className="flex-1 min-w-0">
-                    <Link to={`/profile/${request.userId}`} className="hover:text-blue-600 transition-colors">
+                    <Link to={`/profile/${request.userId}`} className="hover:text-red-600 transition-colors">
                       <h3 className="font-semibold text-slate-900 truncate">{getDisplayName(request)}</h3>
                       <p className="text-sm text-slate-500 truncate">@{request.username}</p>
                     </Link>
@@ -219,7 +219,7 @@ export default function FriendRequests({ onRequestHandled }: FriendRequestsProps
                       <Button
                         onClick={() => handleAccept(request)}
                         disabled={isProcessing}
-                        className="flex-1 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl h-10"
+                        className="flex-1 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white rounded-xl h-10"
                       >
                         {isProcessing ? (
                           <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />

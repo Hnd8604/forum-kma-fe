@@ -249,9 +249,9 @@ export default function GroupMembersDialog({
         <>
             <Dialog open={isOpen} onOpenChange={onClose}>
                 <DialogContent className="sm:max-w-[500px] p-0 overflow-hidden bg-white rounded-2xl">
-                    <DialogHeader className="p-6 pb-4 border-b border-slate-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                    <DialogHeader className="p-6 pb-4 border-b border-slate-100 bg-gradient-to-r from-red-50 to-rose-50">
                         <DialogTitle className="flex items-center gap-3 text-xl">
-                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
                                 <Users className="w-5 h-5 text-white" />
                             </div>
                             <div>
@@ -269,7 +269,7 @@ export default function GroupMembersDialog({
                                 {isAdmin && (
                                     <Button
                                         onClick={handleShowAddMembers}
-                                        className="flex-1 gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
+                                        className="flex-1 gap-2 rounded-xl bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600"
                                     >
                                         <UserPlus className="w-4 h-4" />
                                         Thêm thành viên
@@ -289,7 +289,7 @@ export default function GroupMembersDialog({
                             <ScrollArea className="h-[350px] px-6 pb-6">
                                 {loading ? (
                                     <div className="flex items-center justify-center py-12">
-                                        <div className="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin" />
+                                        <div className="w-10 h-10 border-4 border-red-200 border-t-red-600 rounded-full animate-spin" />
                                     </div>
                                 ) : (
                                     <div className="space-y-2">
@@ -301,7 +301,7 @@ export default function GroupMembersDialog({
                                                 <div className="flex items-center gap-3">
                                                     <Avatar className="h-11 w-11 ring-2 ring-white shadow-md">
                                                         <AvatarImage src={member.avatarUrl} alt={member.username} />
-                                                        <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-semibold">
+                                                        <AvatarFallback className="bg-gradient-to-br from-red-500 to-rose-600 text-white font-semibold">
                                                             {getInitials(member)}
                                                         </AvatarFallback>
                                                     </Avatar>
@@ -317,7 +317,7 @@ export default function GroupMembersDialog({
                                                                 <Crown className="w-4 h-4 text-yellow-500" />
                                                             )}
                                                             {member.role === 'admin' && (
-                                                                <Shield className="w-4 h-4 text-blue-500" />
+                                                                <Shield className="w-4 h-4 text-red-500" />
                                                             )}
                                                         </div>
                                                         <p className="text-sm text-slate-500">@{member.username}</p>
@@ -377,14 +377,14 @@ export default function GroupMembersDialog({
                                                     key={friend.userId}
                                                     onClick={() => toggleFriendSelection(friend.userId)}
                                                     className={`flex items-center justify-between p-3 rounded-xl cursor-pointer transition-all ${isSelected
-                                                        ? 'bg-blue-50 border-2 border-blue-300'
+                                                        ? 'bg-red-50 border-2 border-red-300'
                                                         : 'hover:bg-slate-50 border-2 border-transparent'
                                                         }`}
                                                 >
                                                     <div className="flex items-center gap-3">
                                                         <Avatar className="h-10 w-10">
                                                             <AvatarImage src={friend.avatarUrl} alt={friend.username} />
-                                                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                                                            <AvatarFallback className="bg-gradient-to-br from-red-500 to-rose-600 text-white">
                                                                 {friend.firstName?.[0] || friend.username[0]?.toUpperCase()}
                                                             </AvatarFallback>
                                                         </Avatar>
@@ -399,7 +399,7 @@ export default function GroupMembersDialog({
                                                     </div>
 
                                                     <div className={`w-6 h-6 rounded-full flex items-center justify-center transition-all ${isSelected
-                                                        ? 'bg-blue-500 text-white'
+                                                        ? 'bg-red-500 text-white'
                                                         : 'border-2 border-slate-300'
                                                         }`}>
                                                         {isSelected && <Check className="w-4 h-4" />}
@@ -427,7 +427,7 @@ export default function GroupMembersDialog({
                                 <Button
                                     onClick={handleAddMembers}
                                     disabled={selectedFriends.length === 0 || addingMembers}
-                                    className="flex-1 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600"
+                                    className="flex-1 rounded-xl bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600"
                                 >
                                     {addingMembers ? (
                                         <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />

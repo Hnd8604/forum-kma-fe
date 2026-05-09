@@ -1,8 +1,8 @@
 {
-    "name": "forum-kma",
+    "name": "autolux",
     "version": "0.1.0",
-    "description": "KMA Forum Application",
-    "author": "KMA Students",
+    "description": "AutoLux Forum Application",
+    "author": "AutoLux Team",
     "private": true,
     "homepage": "./",
     "dependencies": {
@@ -86,8 +86,8 @@
         "postinstall": "echo \"Run 'npm run dev' to start web dev server or 'npm run dev:tauri' for desktop or 'npm run dev:android' for mobile\""
     },
     "build": {
-        "appId": "com.kma.forum",
-        "productName": "Forum KMA",
+        "appId": "com.autolux.forum",
+        "productName": "AutoLux",
         "files": [
             "dist/**/*",
             "assets/**/*",

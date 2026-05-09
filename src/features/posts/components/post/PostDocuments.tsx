@@ -33,18 +33,18 @@ export default function PostDocuments({ documents }: PostDocumentsProps) {
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 hover:border-blue-400 hover:shadow-md transition-all group"
+                        className="flex items-center gap-3 p-3 bg-white rounded-xl border border-slate-200 hover:border-red-400 hover:shadow-md transition-all group"
                     >
-                        <div className="w-10 h-10 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-100 transition-colors">
-                            <FileText className="w-5 h-5 text-indigo-600" />
+                        <div className="w-10 h-10 bg-rose-50 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-rose-100 transition-colors">
+                            <FileText className="w-5 h-5 text-rose-600" />
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-slate-700 truncate group-hover:text-blue-600 transition-colors">
+                            <p className="text-sm font-medium text-slate-700 truncate group-hover:text-red-600 transition-colors">
                                 {fileName}
                             </p>
                             <p className="text-xs text-slate-400">{fileExt}</p>
                         </div>
-                        <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                        <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-red-600 transition-colors" />
                     </a>
                 );
             })}

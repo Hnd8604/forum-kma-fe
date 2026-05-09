@@ -39,7 +39,7 @@ export default function FriendsPage({ onStartChat }: FriendsPageProps) {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-red-50 to-rose-50">
       <div className="max-w-5xl mx-auto p-6">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
@@ -53,7 +53,7 @@ export default function FriendsPage({ onStartChat }: FriendsPageProps) {
             </Button>
           </Link>
           <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent">
               Bạn bè
             </h1>
             <p className="text-slate-500 text-sm mt-1">Quản lý danh sách bạn bè của bạn</p>
@@ -61,7 +61,7 @@ export default function FriendsPage({ onStartChat }: FriendsPageProps) {
         </div>
 
         {/* Main Card */}
-        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl shadow-blue-500/5 border border-white/50 overflow-hidden">
+        <div className="bg-white/80 backdrop-blur-sm rounded-3xl shadow-xl shadow-red-500/5 border border-white/50 overflow-hidden">
           <Tabs value={activeTab} onValueChange={handleTabChange}>
             {/* Tab Navigation */}
             <div className="border-b border-slate-100 px-6 pt-6">
@@ -70,7 +70,7 @@ export default function FriendsPage({ onStartChat }: FriendsPageProps) {
                   value="friends"
                   className="flex items-center gap-2.5 rounded-xl data-[state=active]:bg-white data-[state=active]:shadow-sm transition-all"
                 >
-                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center">
                     <Users className="h-4 w-4 text-white" />
                   </div>
                   <span className="font-medium">Bạn bè</span>
@@ -105,7 +105,7 @@ export default function FriendsPage({ onStartChat }: FriendsPageProps) {
         {/* Decorative Element */}
         <div className="flex items-center justify-center gap-2 mt-8 text-slate-400 text-sm">
           <Sparkles className="h-4 w-4" />
-          <span>Kết nối với mọi người tại Forum KMA</span>
+          <span>Kết nối với mọi người tại AutoLux</span>
         </div>
       </div>
     </div>

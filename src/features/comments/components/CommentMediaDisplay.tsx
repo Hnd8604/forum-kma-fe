@@ -38,7 +38,7 @@ export default function CommentMediaDisplay({ type, resourceUrls }: CommentMedia
                 return <FileText className="w-5 h-5 text-red-500" />;
             case 'doc':
             case 'docx':
-                return <FileText className="w-5 h-5 text-blue-600" />;
+                return <FileText className="w-5 h-5 text-red-600" />;
             case 'xls':
             case 'xlsx':
                 return <FileSpreadsheet className="w-5 h-5 text-green-600" />;
@@ -61,7 +61,7 @@ export default function CommentMediaDisplay({ type, resourceUrls }: CommentMedia
                 return 'bg-red-50';
             case 'doc':
             case 'docx':
-                return 'bg-blue-50';
+                return 'bg-red-50';
             case 'xls':
             case 'xlsx':
                 return 'bg-green-50';
@@ -221,13 +221,13 @@ export default function CommentMediaDisplay({ type, resourceUrls }: CommentMedia
                         href={url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group max-w-[300px] border border-slate-200 hover:border-blue-300 hover:shadow-md ${getFileBgColor(url)}`}
+                        className={`flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all group max-w-[300px] border border-slate-200 hover:border-red-300 hover:shadow-md ${getFileBgColor(url)}`}
                     >
                         <div className="w-10 h-10 bg-white rounded-lg flex items-center justify-center flex-shrink-0 shadow-sm">
                             {getFileIcon(url)}
                         </div>
                         <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-slate-700 truncate group-hover:text-blue-600 transition-colors">
+                            <p className="text-sm font-medium text-slate-700 truncate group-hover:text-red-600 transition-colors">
                                 {getFileName(url)}
                             </p>
                             <p className="text-xs text-slate-500">
@@ -235,7 +235,7 @@ export default function CommentMediaDisplay({ type, resourceUrls }: CommentMedia
                             </p>
                         </div>
                         <div className="w-8 h-8 bg-white/80 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity shadow-sm">
-                            <Download className="w-4 h-4 text-blue-500" />
+                            <Download className="w-4 h-4 text-red-500" />
                         </div>
                     </a>
                 ))}

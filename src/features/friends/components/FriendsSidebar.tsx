@@ -116,7 +116,7 @@ export default function FriendsSidebar({ onStartChat: _onStartChat }: FriendsSid
       <div className="space-y-4">
         <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
           <div className="flex items-center justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-blue-600" />
+            <Loader2 className="w-6 h-6 animate-spin text-red-600" />
           </div>
         </div>
       </div>
@@ -153,15 +153,15 @@ export default function FriendsSidebar({ onStartChat: _onStartChat }: FriendsSid
                 return (
                   <div key={request.id} className="flex items-center gap-3">
                     <Link to={`/profile/${request.userId}`}>
-                      <Avatar className="h-10 w-10 flex-shrink-0 hover:ring-2 hover:ring-blue-300 transition-all">
+                      <Avatar className="h-10 w-10 flex-shrink-0 hover:ring-2 hover:ring-red-300 transition-all">
                         <AvatarImage src={request.avatarUrl} alt={request.username} />
-                        <AvatarFallback className="bg-gradient-to-br from-blue-400 to-indigo-500 text-white text-xs">
+                        <AvatarFallback className="bg-gradient-to-br from-red-400 to-rose-500 text-white text-xs">
                           {getInitials(request)}
                         </AvatarFallback>
                       </Avatar>
                     </Link>
                     <Link to={`/profile/${request.userId}`} className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-slate-900 truncate hover:text-blue-600 transition-colors">
+                      <p className="text-sm font-medium text-slate-900 truncate hover:text-red-600 transition-colors">
                         {getDisplayName(request)}
                       </p>
                       <p className="text-xs text-slate-500 truncate">@{request.username}</p>
@@ -169,7 +169,7 @@ export default function FriendsSidebar({ onStartChat: _onStartChat }: FriendsSid
                     <div className="flex items-center gap-1">
                       <Button
                         size="sm"
-                        className="h-7 px-2 bg-blue-600 hover:bg-blue-700"
+                        className="h-7 px-2 bg-red-600 hover:bg-red-700"
                         onClick={() => handleAccept(request)}
                         disabled={isProcessing}
                       >
@@ -193,7 +193,7 @@ export default function FriendsSidebar({ onStartChat: _onStartChat }: FriendsSid
                 );
               })}
             </div>
-            <Link to="/friends" className="flex items-center justify-center gap-1 mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium">
+            <Link to="/friends" className="flex items-center justify-center gap-1 mt-3 text-sm text-red-600 hover:text-red-700 font-medium">
               Xem tất cả
               <ChevronRight className="w-4 h-4" />
             </Link>
@@ -205,7 +205,7 @@ export default function FriendsSidebar({ onStartChat: _onStartChat }: FriendsSid
       <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center">
               <Users className="w-4 h-4 text-white" />
             </div>
             <h3 className="font-semibold text-slate-900">Bạn bè</h3>
@@ -227,7 +227,7 @@ export default function FriendsSidebar({ onStartChat: _onStartChat }: FriendsSid
                 className="flex items-center gap-3 p-2 rounded-xl hover:bg-slate-50 transition-all group"
               >
                 <Link to={`/profile/${friend.userId}`}>
-                  <Avatar className="h-9 w-9 hover:ring-2 hover:ring-blue-300 transition-all">
+                  <Avatar className="h-9 w-9 hover:ring-2 hover:ring-red-300 transition-all">
                     <AvatarImage src={friend.avatarUrl} alt={friend.username} />
                     <AvatarFallback className="bg-gradient-to-br from-green-400 to-emerald-500 text-white text-xs">
                       {getInitials(friend)}
@@ -235,7 +235,7 @@ export default function FriendsSidebar({ onStartChat: _onStartChat }: FriendsSid
                   </Avatar>
                 </Link>
                 <Link to={`/profile/${friend.userId}`} className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-900 truncate hover:text-blue-600 transition-colors">
+                  <p className="text-sm font-medium text-slate-900 truncate hover:text-red-600 transition-colors">
                     {getDisplayName(friend)}
                   </p>
                 </Link>
@@ -260,14 +260,14 @@ export default function FriendsSidebar({ onStartChat: _onStartChat }: FriendsSid
           </div>
         )}
 
-        <Link to="/friends" className="flex items-center justify-center gap-1 mt-3 text-sm text-blue-600 hover:text-blue-700 font-medium">
+        <Link to="/friends" className="flex items-center justify-center gap-1 mt-3 text-sm text-red-600 hover:text-red-700 font-medium">
           Xem tất cả bạn bè
           <ChevronRight className="w-4 h-4" />
         </Link>
       </div>
 
       {/* Friend Suggestions */}
-      <div className="bg-gradient-to-br from-blue-500 to-indigo-600 rounded-2xl p-4 text-white shadow-lg shadow-blue-500/25">
+      <div className="bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl p-4 text-white shadow-lg shadow-red-500/25">
         <h3 className="font-semibold mb-3 flex items-center gap-2">
           <UserPlus className="w-4 h-4" />
           Gợi ý kết bạn
@@ -279,7 +279,7 @@ export default function FriendsSidebar({ onStartChat: _onStartChat }: FriendsSid
         ) : errorSuggestions ? (
           <p className="text-sm text-red-100 text-center py-2">{errorSuggestions}</p>
         ) : suggestedUsers.length === 0 ? (
-          <p className="text-sm text-blue-100 text-center py-2">
+          <p className="text-sm text-red-100 text-center py-2">
             Không có gợi ý nào
           </p>
         ) : (
@@ -304,7 +304,7 @@ export default function FriendsSidebar({ onStartChat: _onStartChat }: FriendsSid
                     <p className="text-sm font-medium text-white truncate">
                       {getDisplayName(user)}
                     </p>
-                    <p className="text-xs text-blue-100 truncate">
+                    <p className="text-xs text-red-100 truncate">
                       @{user.username}
                     </p>
                   </div>
@@ -337,7 +337,7 @@ export default function FriendsSidebar({ onStartChat: _onStartChat }: FriendsSid
           <span>•</span>
           <button className="hover:underline">Chính sách</button>
         </div>
-        <p>© 2025 Forum KMA</p>
+        <p>© 2025 AutoLux</p>
       </div>
     </div>
   );

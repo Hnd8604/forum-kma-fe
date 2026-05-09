@@ -109,7 +109,7 @@ export default function AdminDashboard() {
       icon: Users,
       description: 'Tổng số tài khoản',
       onClick: () => navigate('/admin/users'),
-      color: 'bg-blue-500',
+      color: 'bg-red-500',
     },
     {
       title: 'Bài Viết',
@@ -249,7 +249,7 @@ export default function AdminDashboard() {
                   <TrendingUp className="h-3 w-3 text-emerald-500" />
                   Cập nhật mới nhất
                 </span>
-                <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-blue-500 transition-colors" />
+                <ArrowUpRight className="h-4 w-4 text-slate-400 group-hover:text-red-500 transition-colors" />
               </div>
             </CardContent>
           </Card>
@@ -268,8 +268,8 @@ export default function AdminDashboard() {
             >
               <CardHeader className="pb-3">
                 <div className="flex items-center gap-3">
-                  <div className="p-2.5 bg-slate-100 rounded-lg group-hover:bg-blue-50 transition-colors">
-                    <action.icon className="h-5 w-5 text-slate-600 group-hover:text-blue-600 transition-colors" />
+                  <div className="p-2.5 bg-slate-100 rounded-lg group-hover:bg-red-50 transition-colors">
+                    <action.icon className="h-5 w-5 text-slate-600 group-hover:text-red-600 transition-colors" />
                   </div>
                   <div>
                     <CardTitle className="text-base font-semibold text-slate-800">
@@ -295,12 +295,12 @@ export default function AdminDashboard() {
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <div className="p-2 bg-blue-100 rounded-lg">
-                    <UserPlus className="h-4 w-4 text-blue-600" />
+                  <div className="p-2 bg-red-100 rounded-lg">
+                    <UserPlus className="h-4 w-4 text-red-600" />
                   </div>
                   <CardTitle className="text-sm font-semibold text-slate-800">Người Dùng Mới</CardTitle>
                 </div>
-                <Button variant="ghost" size="sm" onClick={() => navigate('/admin/users')} className="text-xs text-blue-600 hover:text-blue-700">
+                <Button variant="ghost" size="sm" onClick={() => navigate('/admin/users')} className="text-xs text-red-600 hover:text-red-700">
                   Xem tất cả
                 </Button>
               </div>
@@ -316,7 +316,7 @@ export default function AdminDashboard() {
                 <div className="space-y-3">
                   {recentUsers.slice(0, 5).map((u) => (
                     <div key={u.userId} className="flex items-center gap-3 p-2 rounded-lg hover:bg-slate-50 transition-colors">
-                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white text-xs font-semibold overflow-hidden">
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-400 to-rose-500 flex items-center justify-center text-white text-xs font-semibold overflow-hidden">
                         {u.avatarUrl ? (
                           <img src={u.avatarUrl} alt={u.username} className="w-full h-full object-cover" />
                         ) : (

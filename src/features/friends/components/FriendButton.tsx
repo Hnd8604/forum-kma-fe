@@ -149,7 +149,7 @@ export default function FriendButton({ userId, onStatusChange, size = 'default' 
         size={size}
         onClick={handleSendRequest}
         disabled={isProcessing}
-        className="bg-blue-600 hover:bg-blue-700"
+        className="bg-red-600 hover:bg-red-700"
       >
         {isProcessing ? (
           <Loader2 className="h-4 w-4 animate-spin mr-1" />

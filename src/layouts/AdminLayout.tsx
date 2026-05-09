@@ -61,7 +61,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
       >
         {/* Logo */}
         <div className="h-16 flex items-center px-4 border-b border-slate-700">
-          <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center flex-shrink-0">
+          <div className="w-10 h-10 bg-red-600 rounded-lg flex items-center justify-center flex-shrink-0">
             <Shield className="h-5 w-5 text-white" />
           </div>
           {sidebarOpen && (
@@ -80,7 +80,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 key={item.path}
                 onClick={() => navigate(item.path)}
                 className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${isActive
-                  ? 'bg-blue-600 text-white'
+                  ? 'bg-red-600 text-white'
                   : 'text-slate-400 hover:bg-slate-700 hover:text-white'
                   }`}
                 title={!sidebarOpen ? item.label : undefined}
@@ -104,7 +104,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                 className="w-9 h-9 rounded-full object-cover ring-2 ring-slate-600 flex-shrink-0"
               />
             ) : (
-              <div className="w-9 h-9 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center ring-2 ring-slate-600 flex-shrink-0">
+              <div className="w-9 h-9 bg-gradient-to-br from-red-500 to-rose-600 rounded-full flex items-center justify-center ring-2 ring-slate-600 flex-shrink-0">
                 <span className="text-sm font-bold text-white">{getInitials()}</span>
               </div>
             )}

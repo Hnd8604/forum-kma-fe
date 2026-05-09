@@ -201,7 +201,7 @@ export default function AdminRoleManagement() {
       case 'ADMIN':
         return <Badge className="bg-slate-800 text-white font-normal">{roleName}</Badge>;
       case 'MODERATOR':
-        return <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 font-normal">{roleName}</Badge>;
+        return <Badge variant="secondary" className="bg-red-50 text-red-700 border-red-200 font-normal">{roleName}</Badge>;
       case 'USER':
         return <Badge variant="secondary" className="bg-emerald-50 text-emerald-700 border-emerald-200 font-normal">{roleName}</Badge>;
       default:
@@ -230,7 +230,7 @@ export default function AdminRoleManagement() {
           <Button onClick={() => {
             setFormData({ name: '', permissions: [] });
             setShowCreateDialog(true);
-          }} className="bg-blue-600 hover:bg-blue-700 text-white">
+          }} className="bg-red-600 hover:bg-red-700 text-white">
             <Plus className="h-4 w-4 mr-2" />
             Tạo vai trò
           </Button>
@@ -397,7 +397,7 @@ export default function AdminRoleManagement() {
             <Button
               onClick={showCreateDialog ? handleCreate : handleEdit}
               disabled={saving}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-red-600 hover:bg-red-700 text-white"
             >
               {saving && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               {showCreateDialog ? 'Tạo' : 'Lưu'}

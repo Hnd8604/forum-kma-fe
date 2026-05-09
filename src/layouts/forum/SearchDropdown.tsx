@@ -174,7 +174,7 @@ export default function SearchDropdown({ searchQuery, onClose, isOpen, inputRef 
             {/* Loading State */}
             {loading && (
                 <div className="flex items-center justify-center py-8">
-                    <Loader2 className="w-6 h-6 animate-spin text-blue-500" />
+                    <Loader2 className="w-6 h-6 animate-spin text-red-500" />
                 </div>
             )}
 
@@ -302,7 +302,7 @@ export default function SearchDropdown({ searchQuery, onClose, isOpen, inputRef 
                                             {postImage ? (
                                                 <img src={postImage} alt={post.title} className="w-full h-full object-cover" />
                                             ) : (
-                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-500 to-indigo-600">
+                                                <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-red-500 to-rose-600">
                                                     <span className="text-white text-lg">📝</span>
                                                 </div>
                                             )}
@@ -346,7 +346,7 @@ function highlightMatch(text: string, query: string): React.ReactNode {
 
     return parts.map((part, index) =>
         regex.test(part) ? (
-            <span key={index} className="text-blue-400 font-semibold">{part}</span>
+            <span key={index} className="text-red-400 font-semibold">{part}</span>
         ) : (
             part
         )

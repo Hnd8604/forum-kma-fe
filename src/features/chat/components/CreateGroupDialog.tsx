@@ -173,17 +173,17 @@ export default function CreateGroupDialog({
 
             {/* Selected Members */}
             {selectedMembers.length > 0 && (
-              <div className="flex flex-wrap gap-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <div className="flex flex-wrap gap-2 p-3 bg-red-50 rounded-lg border border-red-200">
                 {selectedMembers.map((member) => {
                   const displayName = `${member.lastName || ''} ${member.firstName || ''}`.trim() || member.username;
                   return (
                     <div
                       key={member.userId}
-                      className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-blue-300 shadow-sm"
+                      className="flex items-center gap-2 bg-white px-3 py-1.5 rounded-full border border-red-300 shadow-sm"
                     >
                       <Avatar className="h-6 w-6">
                         <AvatarImage src={member.avatarUrl} alt={displayName} />
-                        <AvatarFallback className="bg-blue-500 text-white text-xs">
+                        <AvatarFallback className="bg-red-500 text-white text-xs">
                           {displayName.charAt(0).toUpperCase()}
                         </AvatarFallback>
                       </Avatar>
@@ -218,7 +218,7 @@ export default function CreateGroupDialog({
               <ScrollArea className="h-[200px] border rounded-lg">
                 {searching ? (
                   <div className="flex items-center justify-center py-8">
-                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+                    <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600"></div>
                   </div>
                 ) : searchResults.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-8 text-center">
@@ -236,13 +236,13 @@ export default function CreateGroupDialog({
                           key={user.userId}
                           onClick={() => handleToggleMember(user)}
                           className={`flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors ${isSelected
-                            ? 'bg-blue-50 border border-blue-300'
+                            ? 'bg-red-50 border border-red-300'
                             : 'hover:bg-gray-50 border border-transparent'
                             }`}
                         >
                           <Avatar className="h-10 w-10">
                             <AvatarImage src={user.avatarUrl} alt={displayName} />
-                            <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white">
+                            <AvatarFallback className="bg-gradient-to-br from-red-500 to-rose-600 text-white">
                               {displayName.charAt(0).toUpperCase()}
                             </AvatarFallback>
                           </Avatar>
@@ -253,7 +253,7 @@ export default function CreateGroupDialog({
                             )}
                           </div>
                           {isSelected && (
-                            <div className="flex-shrink-0 w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                            <div className="flex-shrink-0 w-6 h-6 bg-red-600 rounded-full flex items-center justify-center">
                               <Check className="w-4 h-4 text-white" />
                             </div>
                           )}
@@ -281,7 +281,7 @@ export default function CreateGroupDialog({
           <Button
             onClick={handleCreateGroup}
             disabled={loading || selectedMembers.length === 0}
-            className="min-w-[120px] rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 shadow-lg shadow-blue-500/25 transition-all"
+            className="min-w-[120px] rounded-xl bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 shadow-lg shadow-red-500/25 transition-all"
           >
             {loading ? 'Đang tạo...' : 'Tạo nhóm'}
           </Button>

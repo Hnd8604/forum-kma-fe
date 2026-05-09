@@ -242,7 +242,7 @@ export default function ConversationList({
     return (
       <Card className="h-full p-4 border-0 rounded-none">
         <div className="flex flex-col items-center justify-center h-full">
-          <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center mb-4 animate-pulse">
+          <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-rose-500 rounded-full flex items-center justify-center mb-4 animate-pulse">
             <MessageCircle className="w-6 h-6 text-white" />
           </div>
           <div className="text-slate-500">Đang tải...</div>
@@ -266,7 +266,7 @@ export default function ConversationList({
     <Card className="h-full flex flex-col border-0 rounded-none bg-transparent">
       <div className="p-5 border-b border-slate-200/60 flex items-center justify-between backdrop-blur-sm">
         <div>
-          <h2 className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Tin nhắn</h2>
+          <h2 className="text-2xl font-bold bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent">Tin nhắn</h2>
           <p className="text-xs text-slate-500 mt-0.5">{conversations.length} cuộc hội thoại</p>
         </div>
         <div className="flex gap-2">
@@ -274,7 +274,7 @@ export default function ConversationList({
             <Button
               size="sm"
               onClick={onCreateGroup}
-              className="gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg shadow-blue-500/30 transition-all hover:scale-105"
+              className="gap-2 rounded-xl bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white shadow-lg shadow-red-500/30 transition-all hover:scale-105"
             >
               <Plus className="w-4 h-4" />
             </Button>
@@ -328,8 +328,8 @@ export default function ConversationList({
           {/* Regular conversations */}
           {conversations.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center">
-              <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mb-4">
-                <MessageCircle className="w-8 h-8 text-blue-500" />
+              <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-rose-100 rounded-full flex items-center justify-center mb-4">
+                <MessageCircle className="w-8 h-8 text-red-500" />
               </div>
               <p className="text-slate-500">Chưa có cuộc hội thoại nào</p>
             </div>
@@ -344,13 +344,13 @@ export default function ConversationList({
                     key={conversation.conversationId}
                     onClick={() => onSelectConversation(conversation)}
                     className={`p-3 cursor-pointer rounded-2xl mb-2 transition-all border ${selectedConversationId === conversation.conversationId
-                      ? 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-300 shadow-md shadow-blue-500/10'
+                      ? 'bg-gradient-to-r from-red-50 to-rose-50 border-red-300 shadow-md shadow-red-500/10'
                       : 'hover:bg-white border-transparent hover:shadow-md hover:border-slate-200'
                       }`}
                   >
                     <div className="flex items-start gap-3">
                       <div className="relative">
-                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-blue-500/25 overflow-hidden">
+                        <div className="w-14 h-14 rounded-full bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center flex-shrink-0 shadow-lg shadow-red-500/25 overflow-hidden">
                           {conversation.type === 'group' ? (
                             conversation.groupId && groupAvatars[conversation.groupId] ? (
                               <img src={groupAvatars[conversation.groupId]} alt="Group" className="w-full h-full object-cover" />

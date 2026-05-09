@@ -186,7 +186,7 @@ export default function SessionManagement() {
                       className="flex items-start justify-between p-4 border rounded-lg hover:bg-gray-50 transition-colors"
                     >
                       <div className="flex items-start space-x-4 flex-1">
-                        <div className="p-2 bg-blue-50 rounded-lg text-blue-600">
+                        <div className="p-2 bg-red-50 rounded-lg text-red-600">
                           {getDeviceIcon(session.deviceInfo)}
                         </div>
                         

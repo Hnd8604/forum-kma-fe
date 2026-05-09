@@ -124,22 +124,22 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-100 p-4 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 via-red-50 to-rose-100 p-4 relative overflow-hidden">
       {/* Decorative elements */}
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-96 h-96 bg-blue-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
-        <div className="absolute top-40 right-10 w-96 h-96 bg-indigo-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
+        <div className="absolute top-20 left-10 w-96 h-96 bg-red-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob"></div>
+        <div className="absolute top-40 right-10 w-96 h-96 bg-rose-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-2000"></div>
         <div className="absolute -bottom-8 left-20 w-96 h-96 bg-purple-200 rounded-full mix-blend-multiply filter blur-3xl opacity-30 animate-blob animation-delay-4000"></div>
       </div>
 
       <div className="w-full max-w-md relative z-10">
         {/* Logo and Title */}
         <div className="text-center mb-8 animate-fade-in">
-          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-2xl mb-4 shadow-2xl shadow-blue-500/30 transform hover:scale-105 transition-transform">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-gradient-to-br from-red-600 to-rose-600 rounded-2xl mb-4 shadow-2xl shadow-red-500/30 transform hover:scale-105 transition-transform">
             <GraduationCap className="w-10 h-10 text-white" />
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">
-            Forum KMA
+          <h1 className="text-3xl font-bold bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent mb-2">
+            AutoLux
           </h1>
           <div className="flex items-center justify-center space-x-2 text-slate-500">
             <Sparkles className="w-4 h-4 text-amber-500" />
@@ -165,7 +165,7 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
                       type="text"
                       value={lastName}
                       onChange={(e) => setLastName(e.target.value)}
-                      className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                      className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
                       required
                     />
                   </div>
@@ -179,7 +179,7 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
 
                       value={firstName}
                       onChange={(e) => setFirstName(e.target.value)}
-                      className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                      className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
                       required
                     />
                   </div>
@@ -188,14 +188,14 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
               <div className="space-y-2">
                 <Label htmlFor="username" className="text-sm font-medium text-slate-700">Tên đăng nhập</Label>
                 <div className="relative group">
-                  <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                  <User className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-red-500 transition-colors" />
                   <Input
                     id="username"
                     type="text"
 
                     value={username}
                     onChange={(e) => setUsername(e.target.value)}
-                    className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                    className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
                     required
                   />
                 </div>
@@ -203,13 +203,13 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
               <div className="space-y-2">
                 <Label htmlFor="email" className="text-sm font-medium text-slate-700">Email</Label>
                 <div className="relative group">
-                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-red-500 transition-colors" />
                   <Input
                     id="email"
                     type="email"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
-                    className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                    className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
                     required
                   />
                 </div>
@@ -226,7 +226,7 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
                     type="date"
                     value={dob}
                     onChange={(e) => setDob(e.target.value)}
-                    className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                    className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
                   />
                 </div>
                 <div className="space-y-2">
@@ -235,7 +235,7 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
                     id="gender"
                     value={gender}
                     onChange={(e) => setGender(e.target.value)}
-                    className="w-full h-12 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all px-4 text-slate-900"
+                    className="w-full h-12 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all px-4 text-slate-900"
                   >
                     <option value=""></option>
                     <option value="MALE">Nam</option>
@@ -253,7 +253,7 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
 
                   value={address}
                   onChange={(e) => setAddress(e.target.value)}
-                  className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                  className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
                 />
               </div>
 
@@ -264,14 +264,14 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
               <div className="space-y-2">
                 <Label htmlFor="password" className="text-sm font-medium text-slate-700">Mật khẩu</Label>
                 <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-red-500 transition-colors" />
                   <Input
                     id="password"
                     type="password"
 
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                    className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
                     required
                   />
                 </div>
@@ -300,14 +300,14 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
               <div className="space-y-2">
                 <Label htmlFor="confirmPassword" className="text-sm font-medium text-slate-700">Xác nhận mật khẩu</Label>
                 <div className="relative group">
-                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-blue-500 transition-colors" />
+                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-slate-400 group-focus-within:text-red-500 transition-colors" />
                   <Input
                     id="confirmPassword"
                     type="password"
 
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+                    className="pl-12 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
                     required
                   />
                 </div>
@@ -323,7 +323,7 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
               <Button
                 type="submit"
                 disabled={loading}
-                className="w-full h-12 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 shadow-lg shadow-blue-500/25 hover:shadow-xl transform hover:scale-[1.02] transition-all rounded-xl disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
+                className="w-full h-12 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 shadow-lg shadow-red-500/25 hover:shadow-xl transform hover:scale-[1.02] transition-all rounded-xl disabled:opacity-50 disabled:cursor-not-allowed font-semibold"
               >
                 {loading ? 'Đang đăng ký...' : 'Đăng ký ngay'}
               </Button>
@@ -333,7 +333,7 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
                   <button
                     type="button"
                     onClick={onSwitchToLogin}
-                    className="text-blue-600 hover:text-blue-700 hover:underline transition-colors font-semibold"
+                    className="text-red-600 hover:text-red-700 hover:underline transition-colors font-semibold"
                   >
                     Đăng nhập ngay
                   </button>
@@ -346,11 +346,11 @@ export default function RegisterPage({ onRegister, onSwitchToLogin }: RegisterPa
         {/* Footer */}
         <p className="text-center text-xs text-slate-400 mt-8">
           Bằng việc đăng ký, bạn đồng ý với{' '}
-          <a href="#" className="text-blue-600 hover:underline transition-colors">
+          <a href="#" className="text-red-600 hover:underline transition-colors">
             Điều khoản sử dụng
           </a>{' '}
           và{' '}
-          <a href="#" className="text-blue-600 hover:underline transition-colors">
+          <a href="#" className="text-red-600 hover:underline transition-colors">
             Chính sách bảo mật
           </a>
         </p>

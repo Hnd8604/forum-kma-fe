@@ -123,7 +123,7 @@ export default function SettingsPage() {
 
   return (
     <div className="p-8 w-full max-w-3xl mx-auto">
-      <h2 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-8">Cài đặt tài khoản</h2>
+      <h2 className="text-3xl font-bold bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent mb-8">Cài đặt tài khoản</h2>
 
       {/* Avatar Section */}
       <div className="bg-white p-6 rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 mb-6">
@@ -165,7 +165,7 @@ export default function SettingsPage() {
       {/* Thông tin cá nhân */}
       <div className="space-y-5 bg-white p-6 rounded-2xl shadow-lg shadow-slate-200/50 border border-slate-200 mb-6">
         <div className="flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-500 rounded-xl flex items-center justify-center">
+          <div className="w-10 h-10 bg-gradient-to-br from-red-500 to-rose-500 rounded-xl flex items-center justify-center">
             <UserCircle className="w-5 h-5 text-white" />
           </div>
           <h3 className="text-xl font-semibold text-slate-900">Thông tin cá nhân</h3>
@@ -190,7 +190,7 @@ export default function SettingsPage() {
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               placeholder="Nhập họ"
-              className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+              className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
             />
           </div>
           <div>
@@ -199,7 +199,7 @@ export default function SettingsPage() {
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               placeholder="Nhập tên"
-              className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+              className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
             />
           </div>
         </div>
@@ -209,8 +209,8 @@ export default function SettingsPage() {
           <Input
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            placeholder="example@kma.vn"
-            className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+            placeholder="example@autolux.com"
+            className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
           />
         </div>
 
@@ -220,7 +220,7 @@ export default function SettingsPage() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             placeholder="Nhập tên đăng nhập"
-            className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+            className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
           />
         </div>
 
@@ -231,7 +231,7 @@ export default function SettingsPage() {
               type="date"
               value={dob}
               onChange={(e) => setDob(e.target.value)}
-              className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+              className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
             />
           </div>
           <div>
@@ -239,7 +239,7 @@ export default function SettingsPage() {
             <select
               value={gender}
               onChange={(e) => setGender(e.target.value)}
-              className="w-full h-12 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all px-4 text-slate-900"
+              className="w-full h-12 rounded-xl border border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all px-4 text-slate-900"
             >
               <option value="">Chọn giới tính</option>
               <option value="MALE">Nam</option>
@@ -255,7 +255,7 @@ export default function SettingsPage() {
             value={address}
             onChange={(e) => setAddress(e.target.value)}
             placeholder="Nhập địa chỉ"
-            className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+            className="h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
           />
         </div>
 
@@ -263,7 +263,7 @@ export default function SettingsPage() {
           <Button
             onClick={handleSave}
             disabled={saving}
-            className="h-11 px-6 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white font-semibold rounded-xl shadow-lg shadow-blue-500/25 transition-all"
+            className="h-11 px-6 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white font-semibold rounded-xl shadow-lg shadow-red-500/25 transition-all"
           >
             {saving ? 'Đang lưu...' : 'Lưu thay đổi'}
           </Button>
@@ -339,7 +339,7 @@ export default function SettingsPage() {
                 disabled={toggling2FA || loading}
                 className={`h-10 px-5 rounded-xl font-medium transition-all ${is2FAEnabled
                   ? 'border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300'
-                  : 'bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/25'
+                  : 'bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-lg shadow-red-500/25'
                   }`}
               >
                 {toggling2FA ? 'Đang xử lý...' : (is2FAEnabled ? 'Tắt 2FA' : 'Bật 2FA')}

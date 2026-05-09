@@ -105,14 +105,14 @@ export default function ForumHeader({
         {/* Logo */}
         <Link to="/forum" className="flex items-center space-x-2 cursor-pointer flex-shrink-0">
           <div className="flex items-center">
-            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-gradient-to-br from-red-600 to-rose-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-500/25">
               <svg viewBox="0 0 24 24" className="w-4 h-4 sm:w-5 sm:h-5 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
                 <path d="M6 12v5c3 3 9 3 12 0v-5" />
               </svg>
             </div>
-            <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent ml-2 sm:ml-3 hidden sm:block">
-              Forum KMA
+            <span className="text-lg sm:text-xl font-bold bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent ml-2 sm:ml-3 hidden sm:block">
+              AutoLux
             </span>
           </div>
         </Link>
@@ -128,7 +128,7 @@ export default function ForumHeader({
               value={searchQuery}
               onChange={(e) => onSearchChange(e.target.value)}
               onFocus={() => setIsSearchFocused(true)}
-              className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 h-9 sm:h-10 bg-slate-100 border-0 rounded-xl focus:bg-white focus:ring-2 focus:ring-blue-500/20 focus:outline-none hover:bg-slate-50 transition-all text-sm shadow-inner"
+              className="w-full pl-9 sm:pl-10 pr-3 sm:pr-4 h-9 sm:h-10 bg-slate-100 border-0 rounded-xl focus:bg-white focus:ring-2 focus:ring-red-500/20 focus:outline-none hover:bg-slate-50 transition-all text-sm shadow-inner"
             />
 
             {/* Search Dropdown */}
@@ -149,7 +149,7 @@ export default function ForumHeader({
           <Button
             variant="ghost"
             size="icon"
-            className="relative hover:bg-blue-50 rounded-xl transition-colors h-9 w-9 sm:h-10 sm:w-10"
+            className="relative hover:bg-red-50 rounded-xl transition-colors h-9 w-9 sm:h-10 sm:w-10"
             onClick={onOpenNotifications}
           >
             <Bell className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
@@ -165,7 +165,7 @@ export default function ForumHeader({
             <Button
               variant="ghost"
               size="icon"
-              className="relative hover:bg-blue-50 rounded-xl transition-colors h-9 w-9 sm:h-10 sm:w-10"
+              className="relative hover:bg-red-50 rounded-xl transition-colors h-9 w-9 sm:h-10 sm:w-10"
             >
               <Users className="w-4 h-4 sm:w-5 sm:h-5 text-gray-700" />
             </Button>
@@ -177,7 +177,7 @@ export default function ForumHeader({
               <Button variant="ghost" className="flex items-center gap-1 sm:gap-2 h-9 sm:h-10 px-1.5 sm:px-3 border border-transparent hover:border-slate-200 hover:bg-slate-50 rounded-xl transition-all">
                 <Avatar className="h-7 w-7 sm:h-8 sm:w-8">
                   <AvatarImage src={avatarUrl} alt={displayName} />
-                  <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white text-[10px] sm:text-xs">
+                  <AvatarFallback className="bg-gradient-to-br from-red-500 to-rose-600 text-white text-[10px] sm:text-xs">
                     {getInitials()}
                   </AvatarFallback>
                 </Avatar>
@@ -188,7 +188,7 @@ export default function ForumHeader({
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-64 rounded-2xl shadow-2xl border-0 bg-white overflow-hidden">
-              <div className="px-4 py-3 bg-gradient-to-r from-blue-500 to-indigo-600">
+              <div className="px-4 py-3 bg-gradient-to-r from-red-500 to-rose-600">
                 <div className="flex items-center gap-3 mb-2">
                   <Avatar className="h-12 w-12 border-2 border-white/30">
                     <AvatarImage src={avatarUrl} alt={displayName} />
@@ -200,13 +200,13 @@ export default function ForumHeader({
                     <p className="font-semibold text-white truncate">{displayName}</p>
                   </div>
                 </div>
-                <p className="text-xs text-blue-100 truncate">{displayEmail}</p>
+                <p className="text-xs text-red-100 truncate">{displayEmail}</p>
               </div>
               <div className="p-2">
                 <DropdownMenuItem asChild className="cursor-pointer rounded-xl p-3 hover:bg-slate-50">
                   <Link to="/profile" className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center">
-                      <User className="w-4 h-4 text-blue-600" />
+                    <div className="w-8 h-8 rounded-lg bg-red-100 flex items-center justify-center">
+                      <User className="w-4 h-4 text-red-600" />
                     </div>
                     <span className="font-medium text-slate-900">Trang cá nhân</span>
                   </Link>
@@ -221,8 +221,8 @@ export default function ForumHeader({
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className="cursor-pointer rounded-xl p-3 hover:bg-slate-50">
                   <Link to="/settings" className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-indigo-100 flex items-center justify-center">
-                      <Settings className="w-4 h-4 text-indigo-600" />
+                    <div className="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center">
+                      <Settings className="w-4 h-4 text-rose-600" />
                     </div>
                     <span className="font-medium text-slate-900">Cài đặt</span>
                   </Link>

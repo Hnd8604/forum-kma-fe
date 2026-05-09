@@ -1,12 +1,12 @@
 :root {
-  /* Forum KMA - Modern Professional Theme */
-  --kma-primary: #2563eb;
-  --kma-primary-light: #3b82f6;
-  --kma-primary-dark: #1d4ed8;
-  --kma-accent: #6366f1;
-  --kma-success: #10b981;
-  --kma-warning: #f59e0b;
-  --kma-error: #ef4444;
+  /* AutoLux - Modern Professional Theme */
+  --autolux-primary: #dc2626;
+  --autolux-primary-light: #ef4444;
+  --autolux-primary-dark: #b91c1c;
+  --autolux-accent: #e11d48;
+  --autolux-success: #10b981;
+  --autolux-warning: #f59e0b;
+  --autolux-error: #ef4444;
 
   --color-background: #f8fafc;
   --color-surface: #ffffff;
@@ -15,9 +15,9 @@
   --color-text-secondary: #475569;
   --color-text-muted: #94a3b8;
 
-  --color-primary: var(--kma-primary);
-  --color-primary-hover: var(--kma-primary-light);
-  --color-secondary: var(--kma-accent);
+  --color-primary: var(--autolux-primary);
+  --color-primary-hover: var(--autolux-primary-light);
+  --color-secondary: var(--autolux-accent);
 
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
@@ -113,11 +113,11 @@ textarea {
 }
 
 .vote-btn.upvoted {
-  color: var(--kma-primary);
+  color: var(--autolux-primary);
 }
 
 .vote-btn.downvoted {
-  color: var(--kma-error);
+  color: var(--autolux-error);
 }
 
 /* Card styles */
@@ -136,14 +136,14 @@ textarea {
 
 /* Professional button styles */
 .btn-primary {
-  background: linear-gradient(135deg, var(--kma-primary), var(--kma-primary-light));
+  background: linear-gradient(135deg, var(--autolux-primary), var(--autolux-primary-light));
   border-radius: var(--radius-lg);
   font-weight: 600;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .btn-primary:hover {
-  background: linear-gradient(135deg, var(--kma-primary-dark), var(--kma-primary));
+  background: linear-gradient(135deg, var(--autolux-primary-dark), var(--autolux-primary));
   box-shadow: var(--shadow-md);
   transform: translateY(-1px);
 }
@@ -164,24 +164,24 @@ textarea {
 }
 
 .badge-primary {
-  background: rgba(37, 99, 235, 0.1);
-  color: var(--kma-primary);
+  background: rgba(220, 38, 38, 0.1);
+  color: var(--autolux-primary);
 }
 
 .badge-success {
   background: rgba(16, 185, 129, 0.1);
-  color: var(--kma-success);
+  color: var(--autolux-success);
 }
 
 /* Input focus styles */
 input:focus,
 textarea:focus {
   outline: none;
-  border-color: var(--kma-primary);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  border-color: var(--autolux-primary);
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
 }
 
 /* Avatar ring */
 .avatar-ring {
-  box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--kma-primary);
+  box-shadow: 0 0 0 2px var(--color-surface), 0 0 0 4px var(--autolux-primary);
 }

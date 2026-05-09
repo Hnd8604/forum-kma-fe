@@ -296,7 +296,7 @@ export default function AdminBackupManagement() {
 
       {/* Job Status Card */}
       {activeJobId && jobStatus && (
-        <Card className="border-blue-500">
+        <Card className="border-red-500">
           <CardContent className="pt-6">
             <div className="space-y-2">
               <div className="flex items-center justify-between">
@@ -315,7 +315,7 @@ export default function AdminBackupManagement() {
                 </div>
                 <div className="w-full bg-gray-200 rounded-full h-2">
                   <div
-                    className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                    className="bg-red-600 h-2 rounded-full transition-all duration-300"
                     style={{ width: `${jobStatus.progress}%` }}
                   />
                 </div>

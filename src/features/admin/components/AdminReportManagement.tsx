@@ -124,7 +124,7 @@ export default function AdminReportManagement() {
 
   const getReasonBadge = (reason: string) => {
     const reasonColors: Record<string, string> = {
-      'SPAM': 'bg-blue-50 text-blue-700 border-blue-200',
+      'SPAM': 'bg-red-50 text-red-700 border-red-200',
       'HARASSMENT': 'bg-red-50 text-red-700 border-red-200',
       'OFFENSIVE_CONTENT': 'bg-purple-50 text-purple-700 border-purple-200',
       'MISINFORMATION': 'bg-orange-50 text-orange-700 border-orange-200',
@@ -199,7 +199,7 @@ export default function AdminReportManagement() {
                 setFilterStatus('PENDING');
                 setPage(0);
               }}
-              className={filterStatus === 'PENDING' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-slate-300'}
+              className={filterStatus === 'PENDING' ? 'bg-red-600 hover:bg-red-700 text-white' : 'border-slate-300'}
             >
               Chờ xử lý
             </Button>
@@ -209,7 +209,7 @@ export default function AdminReportManagement() {
                 setFilterStatus('ALL');
                 setPage(0);
               }}
-              className={filterStatus === 'ALL' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-slate-300'}
+              className={filterStatus === 'ALL' ? 'bg-red-600 hover:bg-red-700 text-white' : 'border-slate-300'}
             >
               Tất cả
             </Button>
@@ -350,7 +350,7 @@ export default function AdminReportManagement() {
               {/* Reporter Info */}
               <div className="border-t pt-4 space-y-3">
                 <h3 className="text-sm font-semibold text-slate-700">Thông tin người báo cáo</h3>
-                <div className="bg-blue-50 p-4 rounded-lg border border-blue-100">
+                <div className="bg-red-50 p-4 rounded-lg border border-red-100">
                   <p className="text-sm text-slate-600 mb-1">Tên người dùng</p>
                   <p className="text-base font-medium text-slate-800">{selectedReport.reportedByName || 'Ẩn danh'}</p>
                 </div>
@@ -450,7 +450,7 @@ export default function AdminReportManagement() {
                       handleResolve();
                     }}
                     disabled={resolveLoading}
-                    className="bg-blue-600 hover:bg-blue-700 text-white"
+                    className="bg-red-600 hover:bg-red-700 text-white"
                   >
                     {resolveLoading && resolveDecision === 'REJECTED' && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
                     <Check className="h-4 w-4 mr-2" />
@@ -509,7 +509,7 @@ export default function AdminReportManagement() {
                   <Button
                     variant={resolveDecision === 'REJECTED' ? 'default' : 'outline'}
                     onClick={() => setResolveDecision('REJECTED')}
-                    className={resolveDecision === 'REJECTED' ? 'bg-blue-600 hover:bg-blue-700 text-white' : 'border-slate-300'}
+                    className={resolveDecision === 'REJECTED' ? 'bg-red-600 hover:bg-red-700 text-white' : 'border-slate-300'}
                   >
                     <Check className="h-4 w-4 mr-2" />
                     Từ chối báo cáo
@@ -534,7 +534,7 @@ export default function AdminReportManagement() {
             <AlertDialogAction
               onClick={handleResolve}
               disabled={resolveLoading}
-              className={resolveDecision === 'RESOLVED' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}
+              className={resolveDecision === 'RESOLVED' ? 'bg-red-600 hover:bg-red-700' : 'bg-red-600 hover:bg-red-700'}
             >
               {resolveLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Xác nhận

@@ -115,8 +115,8 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({ user, onSuccess, onE
 
         {/* Preview indicator */}
         {selectedFile && !uploading && (
-          <div className="absolute inset-0 bg-blue-500 bg-opacity-20 rounded-full border-4 border-blue-500 flex items-center justify-center">
-            <div className="bg-blue-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
+          <div className="absolute inset-0 bg-red-500 bg-opacity-20 rounded-full border-4 border-red-500 flex items-center justify-center">
+            <div className="bg-red-500 text-white text-xs px-2 py-1 rounded-full font-semibold">
               Xem trước
             </div>
           </div>
@@ -164,7 +164,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({ user, onSuccess, onE
                 variant="default"
                 onClick={handleSave}
                 disabled={uploading}
-                className="gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700"
+                className="gap-2 bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700"
               >
                 {uploading ? (
                   <>
@@ -187,7 +187,7 @@ export const AvatarUpload: React.FC<AvatarUploadProps> = ({ user, onSuccess, onE
                 Hủy
               </Button>
             </div>
-            <p className="text-xs text-blue-600 font-medium">
+            <p className="text-xs text-red-600 font-medium">
               Nhấn "Lưu" để cập nhật ảnh đại diện
             </p>
           </>

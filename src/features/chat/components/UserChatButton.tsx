@@ -77,7 +77,7 @@ export default function UserChatButton({ isOpen, onToggle, unreadCount = 3 }: Us
           {!selectedChat ? (
             /* Contact List */
             <>
-              <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 flex items-center justify-between">
+              <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-4 flex items-center justify-between">
                 <div className="flex items-center gap-3">
                   <div className="h-10 w-10 rounded-full bg-white/20 flex items-center justify-center">
                     <MessageCircle className="h-6 w-6" />
@@ -122,7 +122,7 @@ export default function UserChatButton({ isOpen, onToggle, unreadCount = 3 }: Us
                       className="flex items-center gap-3 p-3 rounded-xl cursor-pointer hover:bg-gray-50 transition-colors"
                     >
                       <div className="relative">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center text-white font-semibold">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center text-white font-semibold">
                           {contact.avatar}
                         </div>
                       </div>
@@ -147,7 +147,7 @@ export default function UserChatButton({ isOpen, onToggle, unreadCount = 3 }: Us
           ) : (
             /* Chat View */
             <>
-              <div className="bg-gradient-to-r from-blue-500 to-blue-600 text-white p-4 flex items-center gap-3">
+              <div className="bg-gradient-to-r from-red-500 to-red-600 text-white p-4 flex items-center gap-3">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -176,13 +176,13 @@ export default function UserChatButton({ isOpen, onToggle, unreadCount = 3 }: Us
                         className={`flex gap-2 ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}
                       >
                         {msg.sender === 'them' && selectedChat && (
-                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center flex-shrink-0 text-white font-semibold text-xs">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-400 to-red-600 flex items-center justify-center flex-shrink-0 text-white font-semibold text-xs">
                             {selectedChat.avatar}
                           </div>
                         )}
                         <div
                           className={`max-w-[70%] rounded-2xl px-4 py-2 ${msg.sender === 'me'
-                              ? 'bg-blue-500 text-white'
+                              ? 'bg-red-500 text-white'
                               : 'bg-white text-gray-800'
                             }`}
                         >
@@ -213,7 +213,7 @@ export default function UserChatButton({ isOpen, onToggle, unreadCount = 3 }: Us
                   <Button
                     onClick={handleSendMessage}
                     disabled={!message.trim()}
-                    className="rounded-full bg-blue-500 hover:bg-blue-600"
+                    className="rounded-full bg-red-500 hover:bg-red-600"
                     size="icon"
                   >
                     <Send className="h-4 w-4" />
@@ -229,7 +229,7 @@ export default function UserChatButton({ isOpen, onToggle, unreadCount = 3 }: Us
       <div className="fixed bottom-24 right-6 z-50">
         <Button
           onClick={onToggle}
-          className="w-14 h-14 rounded-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 shadow-2xl hover:scale-110 transition-all duration-300"
+          className="w-14 h-14 rounded-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 shadow-2xl hover:scale-110 transition-all duration-300"
           size="icon"
         >
           {isOpen ? (

@@ -107,7 +107,7 @@ export default function FriendsList({ onStartChat: _onStartChat }: FriendsListPr
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-16">
-        <div className="w-12 h-12 rounded-full border-4 border-blue-200 border-t-blue-600 animate-spin"></div>
+        <div className="w-12 h-12 rounded-full border-4 border-red-200 border-t-red-600 animate-spin"></div>
         <p className="mt-4 text-slate-500">Đang tải...</p>
       </div>
     );
@@ -126,8 +126,8 @@ export default function FriendsList({ onStartChat: _onStartChat }: FriendsListPr
             className="pl-11 h-12 rounded-xl border-slate-200 bg-slate-50 focus:bg-white transition-colors"
           />
         </div>
-        <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center">
+        <div className="flex items-center gap-2 px-4 py-2 bg-gradient-to-r from-red-50 to-rose-50 rounded-xl">
+          <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center">
             <Users className="h-4 w-4 text-white" />
           </div>
           <span className="font-semibold text-slate-700">{friends.length}</span>
@@ -156,19 +156,19 @@ export default function FriendsList({ onStartChat: _onStartChat }: FriendsListPr
           {filteredFriends.map((friend) => (
             <div
               key={friend.id}
-              className="group bg-white rounded-2xl border border-slate-100 p-5 hover:shadow-xl hover:shadow-blue-500/10 hover:border-blue-100 transition-all duration-300"
+              className="group bg-white rounded-2xl border border-slate-100 p-5 hover:shadow-xl hover:shadow-red-500/10 hover:border-red-100 transition-all duration-300"
             >
               <div className="flex items-center gap-4">
                 <Link to={`/profile/${friend.userId}`}>
-                  <Avatar className="h-14 w-14 ring-4 ring-slate-100 group-hover:ring-blue-100 transition-all">
+                  <Avatar className="h-14 w-14 ring-4 ring-slate-100 group-hover:ring-red-100 transition-all">
                     <AvatarImage src={friend.avatarUrl} alt={friend.username} />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-600 text-white font-semibold">
+                    <AvatarFallback className="bg-gradient-to-br from-red-500 to-rose-600 text-white font-semibold">
                       {getInitials(friend)}
                     </AvatarFallback>
                   </Avatar>
                 </Link>
                 <div className="flex-1 min-w-0">
-                  <Link to={`/profile/${friend.userId}`} className="hover:text-blue-600 transition-colors">
+                  <Link to={`/profile/${friend.userId}`} className="hover:text-red-600 transition-colors">
                     <h3 className="font-semibold text-slate-900 truncate">{getDisplayName(friend)}</h3>
                     <p className="text-sm text-slate-500 truncate">@{friend.username}</p>
                   </Link>
@@ -204,13 +204,13 @@ export default function FriendsList({ onStartChat: _onStartChat }: FriendsListPr
                   variant="outline"
                   size="sm"
                   showIcon={true}
-                  className="flex-1 rounded-xl h-9 border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                  className="flex-1 rounded-xl h-9 border-slate-200 hover:border-red-300 hover:bg-red-50 transition-all"
                 />
                 <Link to={`/profile/${friend.userId}`}>
                   <Button
                     variant="outline"
                     size="sm"
-                    className="rounded-xl h-9 border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all"
+                    className="rounded-xl h-9 border-slate-200 hover:border-red-300 hover:bg-red-50 transition-all"
                   >
                     Xem trang
                   </Button>

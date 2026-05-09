@@ -46,11 +46,11 @@ export default function PostCommentInput({
             <div className="flex items-center gap-3">
                 <Avatar className="w-8 h-8 flex-shrink-0">
                     <AvatarImage src={userAvatarUrl} alt="User" />
-                    <AvatarFallback className="bg-gradient-to-br from-blue-500 to-indigo-500 text-white text-xs font-medium">
+                    <AvatarFallback className="bg-gradient-to-br from-red-500 to-rose-500 text-white text-xs font-medium">
                         {userInitials}
                     </AvatarFallback>
                 </Avatar>
-                <div className="flex-1 flex items-center gap-2 bg-white rounded-full px-4 py-2 border border-slate-200 hover:border-slate-300 focus-within:border-blue-400 transition-colors">
+                <div className="flex-1 flex items-center gap-2 bg-white rounded-full px-4 py-2 border border-slate-200 hover:border-slate-300 focus-within:border-red-400 transition-colors">
                     <input
                         type="text"
                         placeholder={placeholder}
@@ -63,7 +63,7 @@ export default function PostCommentInput({
                     <button
                         onClick={handleSubmit}
                         disabled={!commentText.trim() || sending}
-                        className="text-blue-500 hover:text-blue-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors p-1"
+                        className="text-red-500 hover:text-red-600 disabled:opacity-40 disabled:cursor-not-allowed transition-colors p-1"
                         type="button"
                     >
                         <Send className="w-5 h-5" />

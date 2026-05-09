@@ -118,7 +118,7 @@ export default function EmailVerificationDialog({
         <div
           className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
             step === 'send'
-              ? 'bg-blue-500 text-white'
+              ? 'bg-red-500 text-white'
               : 'bg-gray-200 text-gray-500'
           }`}
         >
@@ -135,7 +135,7 @@ export default function EmailVerificationDialog({
         <div
           className={`w-12 h-12 rounded-full flex items-center justify-center mb-2 ${
             step === 'otp'
-              ? 'bg-blue-500 text-white'
+              ? 'bg-red-500 text-white'
               : 'bg-gray-200 text-gray-500'
           }`}
         >

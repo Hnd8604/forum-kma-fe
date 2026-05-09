@@ -71,7 +71,7 @@ export default function NewMessageDialog({
         <Dialog open={isOpen} onOpenChange={onClose}>
             <DialogContent className="sm:max-w-[500px]">
                 <DialogHeader>
-                    <DialogTitle className="text-xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
+                    <DialogTitle className="text-xl font-bold bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent">
                         Tin nhắn mới
                     </DialogTitle>
                 </DialogHeader>
@@ -84,7 +84,7 @@ export default function NewMessageDialog({
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
                             placeholder="Tìm kiếm người dùng..."
-                            className="pl-10 rounded-xl border-slate-200 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
+                            className="pl-10 rounded-xl border-slate-200 focus:border-red-500 focus:ring-2 focus:ring-red-500/20"
                         />
                     </div>
 
@@ -92,12 +92,12 @@ export default function NewMessageDialog({
                     <ScrollArea className="h-[400px]">
                         {loading ? (
                             <div className="flex items-center justify-center py-8">
-                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500" />
+                                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-500" />
                             </div>
                         ) : filteredUsers.length === 0 ? (
                             <div className="flex flex-col items-center justify-center py-12 text-center">
-                                <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mb-4">
-                                    <MessageCircle className="w-8 h-8 text-blue-500" />
+                                <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-rose-100 rounded-full flex items-center justify-center mb-4">
+                                    <MessageCircle className="w-8 h-8 text-red-500" />
                                 </div>
                                 <p className="text-slate-500">Không tìm thấy người dùng</p>
                                 <p className="text-xs text-slate-400 mt-1">Thử tìm kiếm với từ khóa khác</p>
@@ -110,7 +110,7 @@ export default function NewMessageDialog({
                                         className="flex items-center gap-3 p-3 rounded-xl hover:bg-slate-50 transition-colors cursor-pointer group"
                                         onClick={() => handleStartChat(user.userId)}
                                     >
-                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/20">
+                                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-red-500/20">
                                             <span className="text-white font-bold">
                                                 {user.firstName?.[0]?.toUpperCase() || user.username?.[0]?.toUpperCase() || 'U'}
                                             </span>
@@ -124,7 +124,7 @@ export default function NewMessageDialog({
                                         <Button
                                             size="sm"
                                             disabled={sending}
-                                            className="opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white rounded-lg"
+                                            className="opacity-0 group-hover:opacity-100 transition-opacity bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white rounded-lg"
                                         >
                                             <MessageCircle className="w-4 h-4 mr-1" />
                                             Chat

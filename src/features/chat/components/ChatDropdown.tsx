@@ -199,9 +199,9 @@ export default function ChatDropdown({
   return (
     <div className="flex flex-col bg-white rounded-2xl overflow-hidden shadow-xl border border-slate-200">
       {/* Header */}
-      <div className="p-5 border-b border-slate-200/60 flex items-center justify-between bg-gradient-to-r from-blue-50 to-indigo-50">
+      <div className="p-5 border-b border-slate-200/60 flex items-center justify-between bg-gradient-to-r from-red-50 to-rose-50">
         <div>
-          <h3 className="font-bold text-xl bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">Tin nhắn</h3>
+          <h3 className="font-bold text-xl bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent">Tin nhắn</h3>
           <p className="text-xs text-slate-500 mt-0.5">{conversations.length} cuộc hội thoại</p>
         </div>
         <Button
@@ -210,7 +210,7 @@ export default function ChatDropdown({
           onClick={() => {
             onOpenFullChat();
           }}
-          className="text-blue-600 hover:text-blue-700 hover:bg-blue-100 rounded-xl gap-1 font-medium"
+          className="text-red-600 hover:text-red-700 hover:bg-red-100 rounded-xl gap-1 font-medium"
         >
           Xem tất cả
           <ArrowRight className="w-4 h-4" />
@@ -221,7 +221,7 @@ export default function ChatDropdown({
       <ScrollArea className="h-[420px]">
         {loading ? (
           <div className="flex items-center justify-center py-12">
-            <div className="w-12 h-12 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center animate-pulse">
+            <div className="w-12 h-12 bg-gradient-to-r from-red-500 to-rose-500 rounded-full flex items-center justify-center animate-pulse">
               <MessageCircle className="w-6 h-6 text-white" />
             </div>
           </div>
@@ -260,8 +260,8 @@ export default function ChatDropdown({
             {/* Regular Conversations */}
             {conversations.length === 0 ? (
               <div className="flex flex-col items-center justify-center py-8 px-4 text-center">
-                <div className="w-14 h-14 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center mb-3">
-                  <MessageCircle className="w-7 h-7 text-blue-500" />
+                <div className="w-14 h-14 bg-gradient-to-br from-red-100 to-rose-100 rounded-2xl flex items-center justify-center mb-3">
+                  <MessageCircle className="w-7 h-7 text-red-500" />
                 </div>
                 <p className="text-slate-500 text-sm font-medium">Chưa có tin nhắn nào</p>
                 <p className="text-xs text-slate-400 mt-1">Hãy bắt đầu trò chuyện!</p>
@@ -278,12 +278,12 @@ export default function ChatDropdown({
                       e.stopPropagation();
                       onSelectConversation(conversation);
                     }}
-                    className="p-3 hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 cursor-pointer transition-all rounded-xl mb-1 border border-transparent hover:border-blue-200 hover:shadow-sm"
+                    className="p-3 hover:bg-gradient-to-r hover:from-red-50 hover:to-rose-50 cursor-pointer transition-all rounded-xl mb-1 border border-transparent hover:border-red-200 hover:shadow-sm"
                   >
                     <div className="flex items-start gap-3">
                       {/* Avatar */}
                       <div className="relative">
-                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/20 overflow-hidden">
+                        <div className="w-12 h-12 rounded-full bg-gradient-to-br from-red-500 to-rose-600 flex items-center justify-center flex-shrink-0 shadow-md shadow-red-500/20 overflow-hidden">
                           {conversation.type === 'group' ? (
                             conversation.groupId && groupAvatars[conversation.groupId] ? (
                               <img src={groupAvatars[conversation.groupId]} alt="Group" className="w-full h-full object-cover" />

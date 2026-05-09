@@ -90,7 +90,7 @@ export default function PostDetailModal({
           onClick={(e) => e.stopPropagation()}
         >
           {/* Header with Gradient */}
-          <div className="relative flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-b border-slate-200 flex-shrink-0 rounded-t-xl sm:rounded-t-2xl">
+          <div className="relative flex items-center justify-between px-3 sm:px-6 py-3 sm:py-4 bg-gradient-to-r from-red-50 via-rose-50 to-purple-50 border-b border-slate-200 flex-shrink-0 rounded-t-xl sm:rounded-t-2xl">
             <div className="flex items-center gap-2 sm:gap-3 min-w-0">
               {authorAvatarUrl ? (
                 <img
@@ -99,7 +99,7 @@ export default function PostDetailModal({
                   className="w-9 h-9 sm:w-12 sm:h-12 rounded-full object-cover shadow-lg ring-2 sm:ring-4 ring-white flex-shrink-0"
                 />
               ) : (
-                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-blue-500 via-indigo-500 to-purple-500 flex items-center justify-center shadow-lg shadow-blue-500/30 ring-2 sm:ring-4 ring-white flex-shrink-0">
+                <div className="w-9 h-9 sm:w-12 sm:h-12 rounded-full bg-gradient-to-br from-red-500 via-rose-500 to-purple-500 flex items-center justify-center shadow-lg shadow-red-500/30 ring-2 sm:ring-4 ring-white flex-shrink-0">
                   <span className="text-white text-sm sm:text-lg font-bold">
                     {authorName?.[0]?.toUpperCase() || 'U'}
                   </span>
@@ -253,18 +253,18 @@ export default function PostDetailModal({
                           href={url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-white rounded-lg sm:rounded-xl border border-slate-200 hover:border-blue-400 hover:shadow-md transition-all group"
+                          className="flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-white rounded-lg sm:rounded-xl border border-slate-200 hover:border-red-400 hover:shadow-md transition-all group"
                         >
-                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-indigo-50 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-indigo-100 transition-colors">
-                            <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 bg-rose-50 rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-rose-100 transition-colors">
+                            <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-rose-600" />
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-xs sm:text-sm font-medium text-slate-700 truncate group-hover:text-blue-600 transition-colors">
+                            <p className="text-xs sm:text-sm font-medium text-slate-700 truncate group-hover:text-red-600 transition-colors">
                               {fileName}
                             </p>
                             <p className="text-[10px] sm:text-xs text-slate-400">{fileExt}</p>
                           </div>
-                          <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                          <ExternalLink className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-slate-400 group-hover:text-red-600 transition-colors" />
                         </a>
                       );
                     })}
@@ -278,7 +278,7 @@ export default function PostDetailModal({
                   {/* Likes Section */}
                   {reactionCount > 0 && (
                     <div className="flex items-center gap-1.5">
-                      <div className="bg-blue-500 rounded-full p-1">
+                      <div className="bg-red-500 rounded-full p-1">
                         <ThumbsUp className="w-3 h-3 text-white fill-white" />
                       </div>
                       {currentReaction ? (

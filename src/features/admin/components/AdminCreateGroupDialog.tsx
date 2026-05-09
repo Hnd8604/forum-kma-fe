@@ -93,7 +93,7 @@ export default function AdminCreateGroupDialog({ isOpen, onClose, onGroupCreated
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Nhập tên danh mục..."
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all text-sm"
+                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all text-sm"
                 maxLength={100}
                 autoFocus
               />
@@ -109,7 +109,7 @@ export default function AdminCreateGroupDialog({ isOpen, onClose, onGroupCreated
                 onChange={(e) => setDescription(e.target.value)}
                 placeholder="Mô tả về danh mục..."
                 rows={3}
-                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500 transition-all resize-none text-sm"
+                className="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500 transition-all resize-none text-sm"
                 maxLength={500}
               />
             </div>
@@ -125,13 +125,13 @@ export default function AdminCreateGroupDialog({ isOpen, onClose, onGroupCreated
                   onClick={() => setPrivacy('PUBLIC')}
                   className={`flex flex-col items-start gap-2 p-3 rounded-xl border-2 transition-all ${
                     privacy === 'PUBLIC'
-                      ? 'border-blue-500 bg-blue-50/50'
+                      ? 'border-red-500 bg-red-50/50'
                       : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                   }`}
                 >
                   <div
                     className={`p-2 rounded-full ${
-                      privacy === 'PUBLIC' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500'
+                      privacy === 'PUBLIC' ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500'
                     }`}
                   >
                     <Globe className="w-4 h-4" />
@@ -139,7 +139,7 @@ export default function AdminCreateGroupDialog({ isOpen, onClose, onGroupCreated
                   <div>
                     <div
                       className={`font-semibold text-sm ${
-                        privacy === 'PUBLIC' ? 'text-blue-900' : 'text-slate-700'
+                        privacy === 'PUBLIC' ? 'text-red-900' : 'text-slate-700'
                       }`}
                     >
                       Công khai
@@ -153,13 +153,13 @@ export default function AdminCreateGroupDialog({ isOpen, onClose, onGroupCreated
                   onClick={() => setPrivacy('PRIVATE')}
                   className={`flex flex-col items-start gap-2 p-3 rounded-xl border-2 transition-all ${
                     privacy === 'PRIVATE'
-                      ? 'border-blue-500 bg-blue-50/50'
+                      ? 'border-red-500 bg-red-50/50'
                       : 'border-slate-200 hover:border-slate-300 hover:bg-slate-50'
                   }`}
                 >
                   <div
                     className={`p-2 rounded-full ${
-                      privacy === 'PRIVATE' ? 'bg-blue-100 text-blue-600' : 'bg-slate-100 text-slate-500'
+                      privacy === 'PRIVATE' ? 'bg-red-100 text-red-600' : 'bg-slate-100 text-slate-500'
                     }`}
                   >
                     <Lock className="w-4 h-4" />
@@ -167,7 +167,7 @@ export default function AdminCreateGroupDialog({ isOpen, onClose, onGroupCreated
                   <div>
                     <div
                       className={`font-semibold text-sm ${
-                        privacy === 'PRIVATE' ? 'text-blue-900' : 'text-slate-700'
+                        privacy === 'PRIVATE' ? 'text-red-900' : 'text-slate-700'
                       }`}
                     >
                       Riêng tư
@@ -190,7 +190,7 @@ export default function AdminCreateGroupDialog({ isOpen, onClose, onGroupCreated
               </Button>
               <Button
                 type="submit"
-                className="h-11 rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white shadow-lg shadow-blue-500/20"
+                className="h-11 rounded-xl bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-700 hover:to-rose-700 text-white shadow-lg shadow-red-500/20"
                 disabled={loading || !name.trim()}
               >
                 {loading ? (

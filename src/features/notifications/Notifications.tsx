@@ -190,7 +190,7 @@ export default function Notifications({ isOpen: externalIsOpen, onOpenChange }: 
   const getIconColor = (type: NotificationType) => {
     switch (type) {
       case 'COMMENT':      // Comment mới - màu xanh
-        return 'from-blue-500 to-indigo-500';
+        return 'from-red-500 to-rose-500';
       case 'LIKE_POST':    // Like bài đăng - màu hồng
       case 'LIKE_COMMENT': // Like comment - màu hồng
         return 'from-rose-500 to-pink-500';
@@ -213,10 +213,10 @@ export default function Notifications({ isOpen: externalIsOpen, onOpenChange }: 
       {isOpen && (
         <Card className="fixed top-16 right-4 w-[400px] h-[520px] z-50 shadow-2xl flex flex-col overflow-hidden border-0 bg-white rounded-2xl">
           {/* Header */}
-          <div className="p-5 flex items-center justify-between bg-gradient-to-r from-blue-500 to-indigo-600 border-b border-white/20">
+          <div className="p-5 flex items-center justify-between bg-gradient-to-r from-red-500 to-rose-600 border-b border-white/20">
             <div>
               <h3 className="font-bold text-xl text-white">Thông báo</h3>
-              <p className="text-xs text-blue-100 mt-0.5">
+              <p className="text-xs text-red-100 mt-0.5">
                 {unreadCount > 0 ? `${unreadCount} thông báo mới` : 'Tất cả đã đọc'}
               </p>
             </div>
@@ -235,12 +235,12 @@ export default function Notifications({ isOpen: externalIsOpen, onOpenChange }: 
             <div className="p-2">
               {loading ? (
                 <div className="flex items-center justify-center py-16">
-                  <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                  <Loader2 className="w-8 h-8 text-red-500 animate-spin" />
                 </div>
               ) : notifications.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-2xl flex items-center justify-center mb-4">
-                    <Bell className="w-8 h-8 text-blue-500" />
+                  <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-rose-100 rounded-2xl flex items-center justify-center mb-4">
+                    <Bell className="w-8 h-8 text-red-500" />
                   </div>
                   <p className="text-slate-500 font-medium">Chưa có thông báo nào</p>
                   <p className="text-xs text-slate-400 mt-1">Thông báo sẽ xuất hiện ở đây</p>
@@ -255,7 +255,7 @@ export default function Notifications({ isOpen: externalIsOpen, onOpenChange }: 
                       key={notification.id}
                       className={`rounded-xl mb-2 p-3 transition-all border cursor-pointer ${notification.isRead
                         ? 'bg-white border-transparent hover:border-slate-200 hover:shadow-sm'
-                        : 'bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200 shadow-sm hover:shadow-md'
+                        : 'bg-gradient-to-r from-red-50 to-rose-50 border-red-200 shadow-sm hover:shadow-md'
                         }`}
                       onClick={() => handleNotificationClick(notification)}
                     >
@@ -277,7 +277,7 @@ export default function Notifications({ isOpen: externalIsOpen, onOpenChange }: 
                             {notification.content}
                           </p>
                           {!notification.isRead && (
-                            <div className="w-2 h-2 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full mt-2"></div>
+                            <div className="w-2 h-2 bg-gradient-to-r from-red-500 to-rose-500 rounded-full mt-2"></div>
                           )}
                         </div>
                       </div>
@@ -293,7 +293,7 @@ export default function Notifications({ isOpen: externalIsOpen, onOpenChange }: 
             <div className="p-3 border-t border-slate-200 bg-white">
               <Button
                 variant="ghost"
-                className="w-full font-semibold text-sm text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl gap-2"
+                className="w-full font-semibold text-sm text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl gap-2"
                 onClick={handleMarkAllAsRead}
                 disabled={markingAllRead || unreadCount === 0}
               >

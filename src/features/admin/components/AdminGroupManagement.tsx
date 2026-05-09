@@ -157,7 +157,7 @@ export default function AdminGroupManagement() {
           </div>
         </div>
         <div className="flex gap-2">
-          <Button onClick={() => setShowCreateDialog(true)} className="bg-blue-600 hover:bg-blue-700 text-white">
+          <Button onClick={() => setShowCreateDialog(true)} className="bg-red-600 hover:bg-red-700 text-white">
             <Plus className="h-4 w-4 mr-2" />
             Tạo danh mục
           </Button>
@@ -181,7 +181,7 @@ export default function AdminGroupManagement() {
                 className="pl-10 border-slate-300"
               />
             </div>
-            <Button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white">Tìm kiếm</Button>
+            <Button type="submit" className="bg-red-600 hover:bg-red-700 text-white">Tìm kiếm</Button>
           </form>
         </CardContent>
       </Card>

@@ -184,7 +184,7 @@ export default function Sidebar() {
                             variant="ghost"
                             onClick={(e: React.MouseEvent) => handleJoinGroup(e, group.groupId)}
                             disabled={isJoining}
-                            className="h-8 w-8 rounded-full hover:bg-blue-50 text-slate-400 hover:text-blue-600 opacity-0 group-hover/item:opacity-100 transition-all"
+                            className="h-8 w-8 rounded-full hover:bg-red-50 text-slate-400 hover:text-red-600 opacity-0 group-hover/item:opacity-100 transition-all"
                             title="Tham gia danh mục"
                           >
                             {isJoining ? (
@@ -200,7 +200,7 @@ export default function Sidebar() {
                       <Button
                         variant="ghost"
                         onClick={() => setShowAllSuggested(!showAllSuggested)}
-                        className="w-full justify-center h-9 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all"
+                        className="w-full justify-center h-9 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all"
                       >
                         {showAllSuggested ? (
                           <>
@@ -242,10 +242,10 @@ export default function Sidebar() {
                   <Button
                     variant="ghost"
                     onClick={() => setShowCreateGroup(true)}
-                    className="w-full justify-start h-11 px-3 rounded-xl hover:bg-blue-50 text-sm font-medium text-blue-600 transition-all"
+                    className="w-full justify-start h-11 px-3 rounded-xl hover:bg-red-50 text-sm font-medium text-red-600 transition-all"
                   >
-                    <div className="w-6 h-6 mr-3 rounded-full border-2 border-dashed border-blue-400 flex items-center justify-center">
-                      <Plus className="w-3 h-3 text-blue-500" />
+                    <div className="w-6 h-6 mr-3 rounded-full border-2 border-dashed border-red-400 flex items-center justify-center">
+                      <Plus className="w-3 h-3 text-red-500" />
                     </div>
                     Tạo danh mục
                   </Button>
@@ -253,7 +253,7 @@ export default function Sidebar() {
 
                 {loading ? (
                   <div className="flex items-center justify-center py-4">
-                    <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
+                    <Loader2 className="w-5 h-5 animate-spin text-red-500" />
                   </div>
                 ) : groups.length > 0 ? (
                   <>
@@ -282,7 +282,7 @@ export default function Sidebar() {
                       <Button
                         variant="ghost"
                         onClick={() => setShowAllMyGroups(!showAllMyGroups)}
-                        className="w-full justify-center h-9 text-xs font-medium text-blue-600 hover:text-blue-700 hover:bg-blue-50 rounded-xl transition-all"
+                        className="w-full justify-center h-9 text-xs font-medium text-red-600 hover:text-red-700 hover:bg-red-50 rounded-xl transition-all"
                       >
                         {showAllMyGroups ? (
                           <>
@@ -311,11 +311,11 @@ export default function Sidebar() {
           <div className="pt-4 pb-4 px-3">
             <div className="text-xs text-slate-400 space-y-2">
               <div className="flex flex-wrap gap-x-3">
-                <a href="#" className="hover:text-blue-500 transition-colors">Về chúng tôi</a>
-                <a href="#" className="hover:text-blue-500 transition-colors">Điều khoản</a>
-                <a href="#" className="hover:text-blue-500 transition-colors">Chính sách</a>
+                <a href="#" className="hover:text-red-500 transition-colors">Về chúng tôi</a>
+                <a href="#" className="hover:text-red-500 transition-colors">Điều khoản</a>
+                <a href="#" className="hover:text-red-500 transition-colors">Chính sách</a>
               </div>
-              <p className="mt-2">&copy; 2025 Forum KMA</p>
+              <p className="mt-2">&copy; 2025 AutoLux</p>
             </div>
           </div>
         </div>

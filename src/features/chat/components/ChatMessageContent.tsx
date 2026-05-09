@@ -193,11 +193,11 @@ export default function ChatMessageContent({
                                 }`}
                         >
                             <div
-                                className={`w-10 h-10 rounded-lg flex items-center justify-center ${isMine ? 'bg-white/20' : 'bg-blue-100'
+                                className={`w-10 h-10 rounded-lg flex items-center justify-center ${isMine ? 'bg-white/20' : 'bg-red-100'
                                     }`}
                             >
                                 <FileText
-                                    className={`w-5 h-5 ${isMine ? 'text-white' : 'text-blue-600'}`}
+                                    className={`w-5 h-5 ${isMine ? 'text-white' : 'text-red-600'}`}
                                 />
                             </div>
                             <div className="flex-1 min-w-0">

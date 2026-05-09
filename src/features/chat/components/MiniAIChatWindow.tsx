@@ -199,14 +199,14 @@ export default function MiniAIChatWindow({ onClose, position }: MiniAIChatWindow
                 />
               ) : (
                 <div className="flex flex-col items-end max-w-[85%]">
-                  <div className="rounded-2xl px-3 py-2 text-sm bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-br-sm">
+                  <div className="rounded-2xl px-3 py-2 text-sm bg-gradient-to-r from-red-500 to-rose-500 text-white rounded-br-sm">
                     <p className="whitespace-pre-wrap leading-relaxed">{message.text}</p>
                   </div>
                 </div>
               )}
 
               {message.sender === 'user' && (
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center flex-shrink-0 text-white font-semibold text-xs mb-1 overflow-hidden">
+                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-red-400 to-rose-600 flex items-center justify-center flex-shrink-0 text-white font-semibold text-xs mb-1 overflow-hidden">
                   {user?.avatarUrl ? (
                     <img src={user.avatarUrl} alt="User" className="w-full h-full object-cover" />
                   ) : (

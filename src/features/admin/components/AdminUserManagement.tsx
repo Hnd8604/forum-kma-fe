@@ -172,7 +172,7 @@ export default function AdminUserManagement() {
       case 'ADMIN':
         return <Badge className="bg-slate-800 text-white font-normal">{roleName}</Badge>;
       case 'MODERATOR':
-        return <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-200 font-normal">{roleName}</Badge>;
+        return <Badge variant="secondary" className="bg-red-50 text-red-700 border-red-200 font-normal">{roleName}</Badge>;
       default:
         return <Badge variant="outline" className="text-slate-600 font-normal">{roleName}</Badge>;
     }
@@ -183,7 +183,7 @@ export default function AdminUserManagement() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 bg-blue-500 rounded-xl">
+          <div className="p-2.5 bg-red-500 rounded-xl">
             <Users className="h-5 w-5 text-white" />
           </div>
           <div>
@@ -235,7 +235,7 @@ export default function AdminUserManagement() {
               variant={statusFilter === '' ? 'default' : 'outline'}
               size="sm"
               onClick={() => handleStatusFilterChange('')}
-              className={statusFilter === '' ? 'bg-blue-500 hover:bg-blue-600' : 'border-slate-300'}
+              className={statusFilter === '' ? 'bg-red-500 hover:bg-red-600' : 'border-slate-300'}
             >
               Tất cả
             </Button>
@@ -437,7 +437,7 @@ export default function AdminUserManagement() {
             <AlertDialogAction
               onClick={handleAction}
               disabled={actionLoading}
-              className={actionType === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-blue-600 hover:bg-blue-700'}
+              className={actionType === 'delete' ? 'bg-red-600 hover:bg-red-700' : 'bg-red-600 hover:bg-red-700'}
             >
               {actionLoading && <Loader2 className="h-4 w-4 mr-2 animate-spin" />}
               Xác nhận

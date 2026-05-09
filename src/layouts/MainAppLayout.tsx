@@ -71,14 +71,14 @@ export default function MainAppLayout({
                   className="flex items-center space-x-2 cursor-pointer"
                   onClick={() => setShowMobileLeftSidebar(false)}
                 >
-                  <div className="w-8 h-8 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25">
+                  <div className="w-8 h-8 bg-gradient-to-br from-red-600 to-rose-600 rounded-xl flex items-center justify-center shadow-lg shadow-red-500/25">
                     <svg viewBox="0 0 24 24" className="w-4 h-4 text-white" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                       <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
                       <path d="M6 12v5c3 3 9 3 12 0v-5" />
                     </svg>
                   </div>
-                  <span className="text-lg font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent">
-                    Forum KMA
+                  <span className="text-lg font-bold bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent">
+                    AutoLux
                   </span>
                 </Link>
                 <Button
@@ -119,7 +119,7 @@ export default function MainAppLayout({
                 variant="ghost"
                 size="icon"
                 onClick={() => setShowMobileRightSidebar(true)}
-                className="h-9 w-9 hover:bg-blue-50 rounded-xl"
+                className="h-9 w-9 hover:bg-red-50 rounded-xl"
               >
                 <Users className="w-5 h-5 text-slate-700" />
               </Button>

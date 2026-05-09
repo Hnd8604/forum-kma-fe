@@ -1,7 +1,7 @@
 {
-  "productName": "Forum KMA",
+  "productName": "AutoLux",
   "version": "0.1.0",
-  "identifier": "com.kma.forum",
+  "identifier": "com.autolux.forum",
   "build": {
     "beforeBuildCommand": "npm run build",
     "beforeDevCommand": "npm run dev",
@@ -11,7 +11,7 @@
   "app": {
     "windows": [
       {
-        "title": "Forum KMA",
+        "title": "AutoLux",
         "width": 1200,
         "height": 800,
         "minWidth": 800,
@@ -33,9 +33,9 @@
     ],
     "resources": [],
     "externalBin": [],
-    "copyright": "KMA Students",
+    "copyright": "AutoLux Team",
     "category": "Productivity",
-    "shortDescription": "KMA Forum Application",
-    "longDescription": "A forum application for KMA community"
+    "shortDescription": "AutoLux Forum Application",
+    "longDescription": "A forum application for AutoLux community"
   }
 }

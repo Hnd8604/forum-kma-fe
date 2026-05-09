@@ -185,7 +185,7 @@ export default function AIChatWindow({ onBack: _onBack }: AIChatWindowProps) {
                     />
                   ) : (
                     <div className="flex flex-col gap-2 items-end max-w-[80%]">
-                      <div className="rounded-2xl px-4 py-3 shadow-sm bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
+                      <div className="rounded-2xl px-4 py-3 shadow-sm bg-gradient-to-r from-red-500 to-rose-500 text-white">
                         <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.text}</p>
                       </div>
                       <span className="text-xs text-slate-400 px-1">
@@ -195,7 +195,7 @@ export default function AIChatWindow({ onBack: _onBack }: AIChatWindowProps) {
                   )}
 
                   {message.sender === 'user' && (
-                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-600 flex items-center justify-center flex-shrink-0 text-white font-semibold text-xs shadow-sm overflow-hidden">
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-400 to-rose-600 flex items-center justify-center flex-shrink-0 text-white font-semibold text-xs shadow-sm overflow-hidden">
                       {user?.avatarUrl ? (
                         <img src={user.avatarUrl} alt="User" className="w-full h-full object-cover" />
                       ) : (

@@ -329,7 +329,7 @@ export default function CommentItem({
               className="w-8 h-8 rounded-full object-cover ring-2 ring-white shadow-sm"
             />
           ) : (
-            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center ring-2 ring-white shadow-sm">
+            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center ring-2 ring-white shadow-sm">
               <span className="text-white text-xs font-bold">
                 {comment.authorName?.[0]?.toUpperCase() || 'U'}
               </span>
@@ -345,7 +345,7 @@ export default function CommentItem({
               <div className="flex items-center gap-2 mb-0.5">
                 <Link
                   to={`/profile/${comment.authorId}`}
-                  className="text-sm font-semibold text-slate-900 hover:text-blue-600 transition-colors"
+                  className="text-sm font-semibold text-slate-900 hover:text-red-600 transition-colors"
                 >
                   {comment.authorName || 'Người dùng'}
                 </Link>
@@ -357,7 +357,7 @@ export default function CommentItem({
                   <textarea
                     value={editContent}
                     onChange={(e) => setEditContent(e.target.value)}
-                    className="w-full px-2 py-1.5 bg-white border border-slate-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    className="w-full px-2 py-1.5 bg-white border border-slate-300 rounded-lg text-sm resize-none focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-500"
                     rows={2}
                   />
                   <div className="flex justify-end gap-1.5 mt-1.5">
@@ -377,7 +377,7 @@ export default function CommentItem({
                       size="sm"
                       onClick={handleSaveEdit}
                       disabled={!editContent.trim()}
-                      className="h-6 px-2 bg-blue-500 hover:bg-blue-600 text-white text-xs"
+                      className="h-6 px-2 bg-red-500 hover:bg-red-600 text-white text-xs"
                     >
                       <Check className="w-3 h-3 mr-1" />
                       Lưu
@@ -456,7 +456,7 @@ export default function CommentItem({
               {depth < 2 && (
                 <button
                   onClick={() => setShowReplyInput(!showReplyInput)}
-                  className="text-xs font-medium text-slate-500 hover:text-blue-600 transition-colors"
+                  className="text-xs font-medium text-slate-500 hover:text-red-600 transition-colors"
                 >
                   Trả lời
                 </button>
@@ -467,7 +467,7 @@ export default function CommentItem({
                 <button
                   onClick={handleLoadReplies}
                   disabled={loadingReplies}
-                  className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
+                  className="flex items-center gap-1 text-xs font-medium text-red-600 hover:text-red-700 transition-colors"
                 >
                   {showReplies ? (
                     <>
@@ -496,7 +496,7 @@ export default function CommentItem({
                     className="w-7 h-7 rounded-full object-cover flex-shrink-0 ring-2 ring-white shadow-sm"
                   />
                 ) : (
-                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
+                  <div className="w-7 h-7 rounded-full bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center flex-shrink-0 ring-2 ring-white shadow-sm">
                     <span className="text-white text-[10px] font-bold">
                       {currentUser?.lastName?.[0]?.toUpperCase() || 'U'}
                     </span>
@@ -507,7 +507,7 @@ export default function CommentItem({
                     value={replyContent}
                     onChange={(e) => setReplyContent(e.target.value)}
                     placeholder="Viết câu trả lời..."
-                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all"
+                    className="w-full px-3 py-2 bg-white border border-slate-200 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-red-500/20 focus:border-red-400 transition-all"
                     rows={2}
                     onKeyDown={(e) => {
                       if (e.key === 'Enter' && !e.shiftKey) {
@@ -572,8 +572,8 @@ export default function CommentItem({
                         <div className="space-y-1">
                           {replyFiles.map((fileItem) => (
                             <div key={fileItem.id} className="flex items-center gap-2 p-1.5 bg-slate-50 rounded-lg">
-                              <div className="w-7 h-7 bg-indigo-100 rounded flex items-center justify-center flex-shrink-0">
-                                <FileText className="w-4 h-4 text-indigo-600" />
+                              <div className="w-7 h-7 bg-rose-100 rounded flex items-center justify-center flex-shrink-0">
+                                <FileText className="w-4 h-4 text-rose-600" />
                               </div>
                               <p className="text-xs text-slate-700 truncate flex-1">{fileItem.file.name}</p>
                               <button
@@ -622,8 +622,8 @@ export default function CommentItem({
                         onClick={() => replyImageRef.current?.click()}
                         disabled={submittingReply}
                         className={`p-1.5 rounded-lg transition-all ${replyMediaType === 'IMAGE' && replyFiles.length > 0
-                          ? 'bg-blue-50 text-blue-600'
-                          : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'
+                          ? 'bg-red-50 text-red-600'
+                          : 'text-slate-400 hover:text-red-600 hover:bg-red-50'
                           }`}
                         title="Thêm ảnh"
                       >
@@ -648,8 +648,8 @@ export default function CommentItem({
                         onClick={() => replyDocRef.current?.click()}
                         disabled={submittingReply}
                         className={`p-1.5 rounded-lg transition-all ${replyMediaType === 'DOC' && replyFiles.length > 0
-                          ? 'bg-indigo-50 text-indigo-600'
-                          : 'text-slate-400 hover:text-indigo-600 hover:bg-indigo-50'
+                          ? 'bg-rose-50 text-rose-600'
+                          : 'text-slate-400 hover:text-rose-600 hover:bg-rose-50'
                           }`}
                         title="Thêm tài liệu"
                       >
@@ -675,7 +675,7 @@ export default function CommentItem({
                         size="sm"
                         onClick={handleSubmitReply}
                         disabled={(!replyContent.trim() && replyFiles.length === 0) || submittingReply}
-                        className="h-7 px-3 bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white text-xs rounded-lg shadow-sm"
+                        className="h-7 px-3 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white text-xs rounded-lg shadow-sm"
                       >
                         {submittingReply ? (
                           <>

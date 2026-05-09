@@ -108,7 +108,7 @@ export default function ChatPage() {
   }, []);
 
   return (
-    <div className="h-full flex bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-50">
+    <div className="h-full flex bg-gradient-to-br from-red-50 via-rose-50 to-purple-50">
       <div className="w-[400px] border-r border-white/60 bg-white/95 backdrop-blur-md shadow-xl flex-shrink-0">
         <ConversationList
           key={refreshKey}
@@ -122,7 +122,7 @@ export default function ChatPage() {
       <div className="flex-1">
         {loadingConversation ? (
           <div className="h-full flex items-center justify-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-red-600"></div>
           </div>
         ) : showAIChat ? (
           <AIChatWindow onBack={() => navigate('/chat', { replace: true })} />
@@ -135,10 +135,10 @@ export default function ChatPage() {
         ) : (
           <div className="h-full flex items-center justify-center">
             <div className="text-center">
-              <div className="w-28 h-28 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-blue-500/30 transform hover:scale-105 transition-transform">
+              <div className="w-28 h-28 bg-gradient-to-br from-red-500 to-rose-600 rounded-3xl flex items-center justify-center mx-auto mb-6 shadow-2xl shadow-red-500/30 transform hover:scale-105 transition-transform">
                 <span className="text-5xl">💬</span>
               </div>
-              <p className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent mb-2">Chọn một cuộc hội thoại</p>
+              <p className="text-2xl font-bold bg-gradient-to-r from-red-600 to-rose-600 bg-clip-text text-transparent mb-2">Chọn một cuộc hội thoại</p>
               <p className="text-sm text-slate-500">Hoặc tạo nhóm chat mới để bắt đầu trò chuyện</p>
             </div>
           </div>

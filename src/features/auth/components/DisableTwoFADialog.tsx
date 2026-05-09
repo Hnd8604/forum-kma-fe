@@ -109,7 +109,7 @@ export default function DisableTwoFADialog({
         <div className="flex items-center justify-between mb-4 px-4">
           <div className="flex flex-col items-center flex-1">
             <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-              step === 'request' ? 'bg-blue-600 text-white' : 'bg-green-600 text-white'
+              step === 'request' ? 'bg-red-600 text-white' : 'bg-green-600 text-white'
             }`}>
               {step === 'request' ? <ShieldOff size={24} /> : <CheckCircle2 size={24} />}
             </div>
@@ -122,7 +122,7 @@ export default function DisableTwoFADialog({
           
           <div className="flex flex-col items-center flex-1">
             <div className={`w-12 h-12 rounded-full flex items-center justify-center ${
-              step === 'otp' ? 'bg-blue-600 text-white' : 'bg-gray-300 text-gray-600'
+              step === 'otp' ? 'bg-red-600 text-white' : 'bg-gray-300 text-gray-600'
             }`}>
               <span className="text-sm font-semibold">OTP</span>
             </div>

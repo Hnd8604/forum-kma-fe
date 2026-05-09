@@ -468,7 +468,7 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
               <ArrowLeft className="w-5 h-5" />
             </Button>
           )}
-          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/20 overflow-hidden">
+          <div className="w-11 h-11 rounded-full bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-red-500/20 overflow-hidden">
             {chatAvatar ? (
               <img src={chatAvatar} alt="Avatar" className="w-full h-full object-cover" />
             ) : conversation.type === 'group' ? (
@@ -503,7 +503,7 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
           <div className="flex flex-col gap-3">
             {loading ? (
               <div className="flex flex-col items-center justify-center h-96">
-                <div className="w-10 h-10 bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full flex items-center justify-center mb-3 animate-pulse">
+                <div className="w-10 h-10 bg-gradient-to-r from-red-500 to-rose-500 rounded-full flex items-center justify-center mb-3 animate-pulse">
                   <MessageCircle className="w-5 h-5 text-white" />
                 </div>
                 <div className="text-slate-500 text-sm">Đang tải tin nhắn...</div>
@@ -516,7 +516,7 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
             ) : messages.length === 0 ? (
               <div className="flex items-center justify-center h-96">
                 <div className="text-center">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-100 to-indigo-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-red-100 to-rose-100 rounded-full flex items-center justify-center mx-auto mb-4">
                     <span className="text-2xl">💬</span>
                   </div>
                   <p className="text-slate-500">Chưa có tin nhắn nào</p>
@@ -560,7 +560,7 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
 
                       <div className={`flex ${isMine ? 'justify-end' : 'justify-start'} gap-2 ${isLastInGroup ? 'mb-1' : 'mb-0.5'} group/message`}>
                         {!isMine && (
-                          <div className={`w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center flex-shrink-0 text-xs text-white font-semibold overflow-hidden shadow-sm ${!isLastInGroup ? 'invisible' : ''}`}>
+                          <div className={`w-8 h-8 rounded-full bg-gradient-to-br from-red-400 to-rose-500 flex items-center justify-center flex-shrink-0 text-xs text-white font-semibold overflow-hidden shadow-sm ${!isLastInGroup ? 'invisible' : ''}`}>
                             {senderAvatar ? (
                               <img src={senderAvatar} alt={senderName} className="w-full h-full object-cover" />
                             ) : (
@@ -602,10 +602,10 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
 
                         <div className={`flex flex-col ${isMine ? 'items-end' : 'items-start'}`}>
                           {!isMine && conversation.type === 'group' && showTime && (
-                            <p className="text-xs font-semibold mb-1 text-blue-600 px-1">{senderName || 'Người dùng'}</p>
+                            <p className="text-xs font-semibold mb-1 text-red-600 px-1">{senderName || 'Người dùng'}</p>
                           )}
                           <div className={`rounded-2xl px-4 py-2 shadow-sm break-words max-w-xs sm:max-w-sm md:max-w-md ${isMine
-                            ? 'bg-gradient-to-r from-blue-500 to-indigo-500 text-white'
+                            ? 'bg-gradient-to-r from-red-500 to-rose-500 text-white'
                             : 'bg-white text-slate-900 border border-slate-100'
                             }`}>
                             <ChatMessageContent
@@ -642,12 +642,12 @@ export default function ChatWindow({ conversation, onBack, onConversationRead }:
               onKeyDown={(e) => e.key === 'Enter' && handleSendMessage()}
               placeholder={pendingMedia ? 'Nhập chú thích...' : 'Nhập tin nhắn...'}
               disabled={sending}
-              className="flex-1 h-11 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+              className="flex-1 h-11 rounded-xl border-slate-200 bg-slate-50 focus:bg-white focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
             />
             <Button
               onClick={handleSendMessage}
               disabled={(!newMessage.trim() && !pendingMedia) || sending}
-              className="h-11 px-5 gap-2 rounded-xl bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg shadow-blue-500/25 transition-all"
+              className="h-11 px-5 gap-2 rounded-xl bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white shadow-lg shadow-red-500/25 transition-all"
             >
               <Send className="w-4 h-4" />
               {sending ? 'Đang gửi...' : 'Gửi'}

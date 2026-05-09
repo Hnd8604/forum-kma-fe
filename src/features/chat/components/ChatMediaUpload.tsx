@@ -244,7 +244,7 @@ const ChatMediaUpload = forwardRef<ChatMediaUploadRef, ChatMediaUploadProps>(
 
                 {/* Preview pending media (uploaded, waiting to send) */}
                 {pendingMedia && (
-                    <div className="absolute bottom-full left-0 right-0 mb-2 p-2 bg-white border border-blue-200 rounded-lg shadow-lg">
+                    <div className="absolute bottom-full left-0 right-0 mb-2 p-2 bg-white border border-red-200 rounded-lg shadow-lg">
                         <div className="flex items-center gap-2">
                             <div className="flex flex-wrap gap-2 flex-1">
                                 {pendingMedia.type === 'IMAGE' ? (
@@ -306,7 +306,7 @@ const ChatMediaUpload = forwardRef<ChatMediaUploadRef, ChatMediaUploadProps>(
                         type="button"
                         variant="ghost"
                         size="icon"
-                        className="h-8 w-8 text-slate-500 hover:text-blue-600 hover:bg-blue-50 rounded-lg"
+                        className="h-8 w-8 text-slate-500 hover:text-red-600 hover:bg-red-50 rounded-lg"
                         onClick={() => imageInputRef.current?.click()}
                         disabled={disabled || isUploading || !!pendingMedia}
                         title="Chọn ảnh"

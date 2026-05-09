@@ -229,7 +229,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
               className="w-8 h-8 sm:w-10 sm:h-10 rounded-full object-cover flex-shrink-0 shadow-md"
             />
           ) : (
-            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-blue-500/20">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-red-500 to-rose-500 flex items-center justify-center flex-shrink-0 shadow-md shadow-red-500/20">
               <span className="text-white text-xs sm:text-sm font-bold">
                 {user?.firstName?.[0]?.toUpperCase() || 'U'}
               </span>
@@ -239,7 +239,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
           {/* Input Box */}
           <div
             onClick={() => setIsExpanded(true)}
-            className="flex-1 bg-slate-100 hover:bg-slate-50 border-2 border-transparent hover:border-blue-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 cursor-text text-xs sm:text-sm text-slate-500 transition-all"
+            className="flex-1 bg-slate-100 hover:bg-slate-50 border-2 border-transparent hover:border-red-200 rounded-xl px-3 sm:px-4 py-2.5 sm:py-3 cursor-text text-xs sm:text-sm text-slate-500 transition-all"
           >
             Bạn đang nghĩ gì?
           </div>
@@ -247,7 +247,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
           {/* Quick Actions - Hidden on mobile */}
           <Button
             variant="ghost"
-            className="hidden sm:flex items-center gap-2 px-3 py-2 text-slate-500 hover:bg-blue-50 hover:text-blue-600 rounded-xl transition-colors"
+            className="hidden sm:flex items-center gap-2 px-3 py-2 text-slate-500 hover:bg-red-50 hover:text-red-600 rounded-xl transition-colors"
             onClick={() => {
               setPostType('IMAGE');
               setIsExpanded(true);
@@ -267,7 +267,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
           </Button>
           <Button
             variant="ghost"
-            className="hidden sm:flex items-center gap-2 px-3 py-2 text-slate-500 hover:bg-indigo-50 hover:text-indigo-600 rounded-xl transition-colors"
+            className="hidden sm:flex items-center gap-2 px-3 py-2 text-slate-500 hover:bg-rose-50 hover:text-rose-600 rounded-xl transition-colors"
             onClick={() => {
               setPostType('DOC');
               setIsExpanded(true);
@@ -314,7 +314,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
                 setUploadedFileUrls([]); // Clear cache when switching type
               }}
               className={`flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-lg transition-all min-w-[60px] ${postType === 'TEXT'
-                ? 'bg-white text-blue-600 shadow-sm'
+                ? 'bg-white text-red-600 shadow-sm'
                 : 'text-slate-500 hover:text-slate-700'
                 }`}
             >
@@ -328,7 +328,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
                 setUploadedFileUrls([]); // Clear cache when switching type
               }}
               className={`flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-lg transition-all min-w-[60px] ${postType === 'IMAGE'
-                ? 'bg-white text-blue-600 shadow-sm'
+                ? 'bg-white text-red-600 shadow-sm'
                 : 'text-slate-500 hover:text-slate-700'
                 }`}
             >
@@ -356,7 +356,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
                 setUploadedFileUrls([]); // Clear cache when switching type
               }}
               className={`flex-1 flex items-center justify-center gap-1 sm:gap-2 py-2 sm:py-2.5 text-xs sm:text-sm font-medium rounded-lg transition-all min-w-[60px] ${postType === 'DOC'
-                ? 'bg-white text-blue-600 shadow-sm'
+                ? 'bg-white text-red-600 shadow-sm'
                 : 'text-slate-500 hover:text-slate-700'
                 }`}
             >
@@ -393,7 +393,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
               placeholder="Tiêu đề"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="border-slate-200 rounded-xl h-12 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 transition-all"
+              className="border-slate-200 rounded-xl h-12 text-sm focus:border-red-500 focus:ring-2 focus:ring-red-500/20 transition-all"
               maxLength={300}
             />
             <div className="text-right text-xs text-slate-400 mt-1.5">{title.length}/300</div>
@@ -405,7 +405,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
               placeholder="Nội dung (không bắt buộc)"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="min-h-[140px] border-slate-200 resize-none rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 mb-5 transition-all"
+              className="min-h-[140px] border-slate-200 resize-none rounded-xl text-sm focus:border-red-500 focus:ring-2 focus:ring-red-500/20 mb-5 transition-all"
             />
           )}
 
@@ -413,15 +413,15 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
           {postType === 'IMAGE' && (
             <div className="mb-5">
               {/* File Upload Zone */}
-              <div className="border-2 border-dashed border-slate-200 rounded-xl p-6 hover:border-blue-400 hover:bg-blue-50/50 transition-all">
+              <div className="border-2 border-dashed border-slate-200 rounded-xl p-6 hover:border-red-400 hover:bg-red-50/50 transition-all">
                 <label htmlFor="image-upload" className="cursor-pointer">
                   <div className="flex flex-col items-center justify-center">
-                    <div className="w-14 h-14 bg-blue-100 rounded-full flex items-center justify-center mb-3">
-                      <Upload className="w-6 h-6 text-blue-600" />
+                    <div className="w-14 h-14 bg-red-100 rounded-full flex items-center justify-center mb-3">
+                      <Upload className="w-6 h-6 text-red-600" />
                     </div>
                     <p className="text-sm text-slate-600">
                       Kéo thả hoặc{' '}
-                      <span className="text-blue-600 font-semibold">chọn ảnh</span>
+                      <span className="text-red-600 font-semibold">chọn ảnh</span>
                     </p>
                     <p className="text-xs text-slate-400 mt-1">
                       JPG, PNG, GIF, WebP (tối đa 10MB)
@@ -491,7 +491,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
                 placeholder="Mô tả (không bắt buộc)"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="min-h-[100px] border-slate-200 resize-none rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 mt-4 transition-all"
+                className="min-h-[100px] border-slate-200 resize-none rounded-xl text-sm focus:border-red-500 focus:ring-2 focus:ring-red-500/20 mt-4 transition-all"
               />
             </div>
           )}
@@ -593,15 +593,15 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
           {postType === 'DOC' && (
             <div className="mb-5">
               {/* File Upload Zone */}
-              <div className="border-2 border-dashed border-slate-200 rounded-xl p-6 hover:border-blue-400 hover:bg-blue-50/50 transition-all">
+              <div className="border-2 border-dashed border-slate-200 rounded-xl p-6 hover:border-red-400 hover:bg-red-50/50 transition-all">
                 <label htmlFor="doc-upload" className="cursor-pointer">
                   <div className="flex flex-col items-center justify-center">
-                    <div className="w-14 h-14 bg-indigo-100 rounded-full flex items-center justify-center mb-3">
-                      <File className="w-6 h-6 text-indigo-600" />
+                    <div className="w-14 h-14 bg-rose-100 rounded-full flex items-center justify-center mb-3">
+                      <File className="w-6 h-6 text-rose-600" />
                     </div>
                     <p className="text-sm text-slate-600">
                       Kéo thả hoặc{' '}
-                      <span className="text-indigo-600 font-semibold">chọn tài liệu</span>
+                      <span className="text-rose-600 font-semibold">chọn tài liệu</span>
                     </p>
                     <p className="text-xs text-slate-400 mt-1">
                       PDF, DOC, DOCX, TXT, ZIP
@@ -640,8 +640,8 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
                       key={fileItem.id}
                       className="flex items-center gap-3 p-3 bg-slate-50 rounded-xl group hover:bg-slate-100 transition-colors"
                     >
-                      <div className="w-10 h-10 bg-indigo-100 rounded-lg flex items-center justify-center flex-shrink-0">
-                        <FileText className="w-5 h-5 text-indigo-600" />
+                      <div className="w-10 h-10 bg-rose-100 rounded-lg flex items-center justify-center flex-shrink-0">
+                        <FileText className="w-5 h-5 text-rose-600" />
                       </div>
                       <div className="flex-1 min-w-0">
                         <p className="text-sm font-medium text-slate-800 truncate">
@@ -668,7 +668,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
                 placeholder="Mô tả (không bắt buộc)"
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                className="min-h-[100px] border-slate-200 resize-none rounded-xl text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20 mt-4 transition-all"
+                className="min-h-[100px] border-slate-200 resize-none rounded-xl text-sm focus:border-red-500 focus:ring-2 focus:ring-red-500/20 mt-4 transition-all"
               />
             </div>
           )}
@@ -694,7 +694,7 @@ export default function CreatePost({ onPostCreated, defaultGroupId }: CreatePost
             <Button
               size="sm"
               onClick={handleSubmit}
-              className="rounded-xl px-6 h-10 text-sm font-medium bg-gradient-to-r from-blue-500 to-indigo-500 hover:from-blue-600 hover:to-indigo-600 text-white shadow-lg shadow-blue-500/25 transition-all"
+              className="rounded-xl px-6 h-10 text-sm font-medium bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white shadow-lg shadow-red-500/25 transition-all"
               disabled={
                 !title.trim() ||
                 (postType === 'TEXT' && !content.trim()) ||
